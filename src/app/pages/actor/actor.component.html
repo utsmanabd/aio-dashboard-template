@@ -1,0 +1,50 @@
+<div class="container mt-2">
+  <div *ngIf="isSuccess" class="alert alert-success" role="alert">
+    <strong> {{ successMessage }} </strong>
+  </div>
+  <button routerLink="./add" class="btn btn-primary mb-2">Add user</button>
+  <input type="text" class="form-control mb-2" placeholder="Search" [(ngModel)]="searchKeyword" (input)="applyFilter()">
+  <div class="card">
+    <table class="table table-nowrap">
+      <thead>
+        <tr>
+          <th *ngFor="let col of tableColumn" scope="col">{{ col }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let actor of paginatedActorData; let i = index">
+          <td>{{ getComputedRowNumber(i) }}</td>
+          <td><img src="{{userImage}}{{actor.image}}" alt="" class="avatar-xs rounded-circle"></td>
+          <td>{{ actor.first_name }}</td>
+          <td>{{ actor.last_name }}</td>
+          <td>
+            <div class="hstack gap-3 flex-wrap">
+              <a (click)="onEdit(actor)" class="link-success fs-15"><i class="ri-edit-2-line"></i></a>
+              <a (click)="onDelete(actor.actor_id)" class="link-danger fs-15"><i class="ri-delete-bin-line"></i></a>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+<div class="container mt-2">
+  <ul class="pagination justify-content-center">
+    <li class="page-item" [ngClass]="{ 'disabled': currentPage === 1 }">
+      <a class="btn btn-primary page-link" (click)="goToPage(1)">First</a>
+    </li>
+    <li class="page-item" [ngClass]="{ 'disabled': currentPage === 1 }">
+      <a class="btn btn-primary page-link" (click)="goToPage(currentPage - 1)">Previous</a>
+    </li>
+    <li class="page-item" *ngFor="let page of activePages" [ngClass]="{ 'active': currentPage === page }">
+      <a class="btn btn-primary page-link" (click)="goToPage(page)">{{ page }}</a>
+    </li>
+    <li class="page-item" [ngClass]="{ 'disabled': currentPage === totalPages }">
+      <a class="btn btn-primary page-link" (click)="goToPage(currentPage + 1)">Next</a>
+    </li>
+    <li class="page-item" [ngClass]="{ 'disabled': currentPage === totalPages }">
+      <a class="btn btn-primary page-link" (click)="goToPage(totalPages)">Last</a>
+    </li>
+  </ul>
+</div>

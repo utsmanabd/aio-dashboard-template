@@ -1,0 +1,46 @@
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h2>{{ userId !== null ? 'Edit' : 'Add' }} User</h2>
+            <form (ngSubmit)="onSubmit()">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label" for="first_name">First Name</label>
+                            <input name="first_name" [(ngModel)]="userData.first_name" type="text" class="form-control" id="first_name" placeholder="Enter first name">
+                            <p *ngIf="isFNameEmpty" class="text-danger">First name is required!</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="last_name">Last Name</label>
+                            <input name="last_name" [(ngModel)]="userData.last_name" type="text" class="form-control" id="last_name" placeholder="Enter last name">
+                            <p *ngIf="isLNameEmpty" class="text-danger">Last name is required!</p>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title mb-0">Profile Image</h4>
+                            </div><!-- end card header -->
+                
+                            <div class="card-body">
+                                <p class="text-muted">DropzoneJS is an open source library that provides drag’n’drop file uploads with
+                                    image previews.</p>
+                
+                                <dropzone [config]="dropzoneConfig" (success)="onUploadSuccess($event)" (removedFile)="onFileDelete($event)" class="dropzone_sec"></dropzone>
+                                <!-- end dropzon-preview -->
+                            </div>
+                            <!-- end card body -->
+                        </div>
+                        <div class="text-start mb-3">
+                            <button type="submit" class="btn btn-success w-sm">{{ userId !== null ? 'Update' : 'Add' }}</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <ngb-alert [dismissible]="true" type="danger" *ngIf="showAlerts">
+            Failed to submit data!
+            <button type="button" class="close" aria-label="Close" (click)="closeAlert()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </ngb-alert>
+    </div>
+</div>
