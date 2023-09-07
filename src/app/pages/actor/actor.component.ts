@@ -12,7 +12,7 @@ import { GlobalComponent } from "src/app/global-component";
   styleUrls: ["./actor.component.scss"],
 })
 export class ActorComponent {
-  tableColumn = ["No", "Image", "First Name", "Last Name", "Action"];
+  tableColumn = ["No", "First Name", "Last Name", "Action"];
   actorData: any;
   index: number = 0;
   activePages: number[] = [];

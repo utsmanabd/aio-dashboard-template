@@ -14,7 +14,6 @@
       <tbody>
         <tr *ngFor="let actor of paginatedActorData; let i = index">
           <td>{{ getComputedRowNumber(i) }}</td>
-          <td><img src="{{userImage}}{{actor.image}}" alt="" class="avatar-xs rounded-circle"></td>
           <td>{{ actor.first_name }}</td>
           <td>{{ actor.last_name }}</td>
           <td>

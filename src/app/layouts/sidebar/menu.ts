@@ -12,17 +12,53 @@ export const MENU: MenuItem[] = [
     link: '',
     icon: 'ri ri-dashboard-fill',
   },
-  {
-    id: 3,
-    label: 'User',
-    link: '/user',
-    icon: 'ri ri-user-fill',
-  },
+  // {
+  //   id: 3,
+  //   label: 'User',
+  //   link: '/user',
+  //   icon: 'ri ri-user-fill',
+  // },
   {
     id: 4,
     label: 'Achievements',
     link: '/achievements',
     icon: 'ri ri-trophy-fill',
+  },
+  {
+    id: 5,
+    label: 'Tasks',
+    link: '/tasks',
+    icon: 'ri ri-task-line'
+  },
+  {
+    id: 6,
+    label: 'ADMIN',
+    isTitle: true
+  },
+  {
+    id: 7,
+    label: 'Master Data',
+    icon: 'ri-lock-2-line',
+    subItems: [
+      {
+        id: 8,
+        label: 'Activity',
+        link: '/master/activity',
+        parentId: 2
+      },
+      {
+        id: 9,
+        label: 'Area',
+        link: '/master/area',
+        parentId: 2
+      },
+      {
+        id: 10,
+        label: 'Machine Area',
+        link: '/master/machine-area',
+        parentId: 2
+      },
+    ]
   },
   
   // {

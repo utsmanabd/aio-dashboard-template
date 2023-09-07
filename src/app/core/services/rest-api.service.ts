@@ -21,6 +21,10 @@ export class restApiService {
 
   cachedActorData: any;
 
+  cachedActivityData: any;
+  cachedAreaData: any;
+  cachedMachineAreaData: any;
+
   removeImage(image: string) {
     return this.http.delete(GlobalComponent.API_URL + `master/` + GlobalComponent.image + image, this.httpOptions())
   }
@@ -113,5 +117,71 @@ export class restApiService {
         }
       })
     )
+  }
+
+  // Activity API
+
+  getActivityData() {
+    if (this.cachedActivityData !== undefined) {
+      return of(this.cachedActivityData)
+    } else {
+      return this.http.get(GlobalComponent.API_URL + GlobalComponent.activity, this.httpOptions()).pipe(
+        tap((data) => {
+          this.cachedActivityData = data;
+        })
+      );
+    }
+  }
+
+  insertActivityData(data: any) {
+    return this.http.post(GlobalComponent.activity, {form_data: data}, this.httpOptions())
+  }
+
+  updateActivityData(id: number, data: any) {
+    return this.http.put(GlobalComponent.API_URL + GlobalComponent.activityId + id, {form_data: data}, this.httpOptions())
+  }
+
+  // Area API
+
+  getAreaData() {
+    if (this.cachedAreaData !== undefined) {
+      return of(this.cachedAreaData)
+    } else {
+      return this.http.get(GlobalComponent.API_URL + GlobalComponent.area, this.httpOptions()).pipe(
+        tap((data) => {
+          this.cachedAreaData = data;
+        })
+      );
+    }
+  }
+
+  insertAreaData(data: any) {
+    return this.http.post(GlobalComponent.API_URL + GlobalComponent.area, {form_data: data}, this.httpOptions())
+  }
+
+  updateAreaData(id: any, data: any) {
+    return this.http.put(GlobalComponent.API_URL + GlobalComponent.areaId + id, {form_data: data}, this.httpOptions())
+  }
+
+  // Machine Area API
+
+  getMachineAreaData() {
+    if (this.cachedMachineAreaData !== undefined) {
+      return of(this.cachedMachineAreaData)
+    } else {
+      return this.http.get(GlobalComponent.API_URL + GlobalComponent.machineArea, this.httpOptions()).pipe(
+        tap((data) => {
+          this.cachedMachineAreaData = data;
+        })
+      );
+    }
+  }
+
+  insertMachineAreaData(data: any) {
+    return this.http.post(GlobalComponent.machineArea, {form_data: data}, this.httpOptions())
+  }
+
+  updateMachineAreaData(id: number, data: any) {
+    return this.http.put(GlobalComponent.API_URL + GlobalComponent.machineAreaId + id, {form_data: data}, this.httpOptions())
   }
 }

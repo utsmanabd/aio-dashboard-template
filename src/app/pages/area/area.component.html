@@ -1,0 +1,80 @@
+<div class="mt-2">
+    <div *ngIf="isSuccess" class="alert alert-success" role="alert">
+        <strong> {{ successMessage }} </strong>
+    </div>
+    <h2 class="text-primary">Data Area</h2>
+    <div class="d-flex">
+        <button (click)="openModal(content)" class="btn btn-primary mb-2 me-1"><i class="ri ri-menu-add-line"></i></button>
+        <input type="text" class="form-control mb-2" placeholder="Search" [(ngModel)]="searchKeyword"
+            (input)="applyFilter()">
+    </div>
+
+    <div class="card table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th *ngFor="let col of tableColumn" scope="col">{{ col }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let data of paginatedAreaData; let i = index">
+                    <td>{{ getComputedRowNumber(i) }}</td>
+                    <td>{{ data.name }}</td>
+                    <td><i class="text-muted">{{ data.detail }}</i></td>
+                    <td>
+                        <div class="hstack gap-3 flex-wrap">
+                            <a class="link-success fs-15" (click)="openModal(content, data)"><i class="ri-edit-2-line"></i></a>
+                            <a class="link-danger fs-15" (click)="onDeleteData(data.area_id)"><i class="ri-delete-bin-line"></i></a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+<div class="container mt-2">
+    <ul class="pagination justify-content-center">
+        <li class="page-item" [ngClass]="{ 'disabled': currentPage === 1 }">
+            <a class="btn btn-primary page-link" (click)="goToPage(1)"><i class="bx bx-arrow-to-left"></i></a>
+        </li>
+        <li class="page-item" [ngClass]="{ 'disabled': currentPage === 1 }">
+            <a class="btn btn-primary page-link" (click)="goToPage(currentPage - 1)"><i
+                    class="bx bx-left-arrow-alt"></i></a>
+        </li>
+        <li class="page-item" *ngFor="let page of activePages" [ngClass]="{ 'active': currentPage === page }">
+            <a class="btn btn-primary page-link" (click)="goToPage(page)">{{ page }}</a>
+        </li>
+        <li class="page-item" [ngClass]="{ 'disabled': currentPage === totalPages }">
+            <a class="btn btn-primary page-link" (click)="goToPage(currentPage + 1)"><i
+                    class="bx bx-right-arrow-alt"></i></a>
+        </li>
+        <li class="page-item" [ngClass]="{ 'disabled': currentPage === totalPages }">
+            <a class="btn btn-primary page-link" (click)="goToPage(totalPages)"><i class="bx bx-arrow-to-right"></i></a>
+        </li>
+    </ul>
+</div>
+
+<ng-template #content let-modal>
+	<div class="modal-header">
+		<h4 class="modal-title" id="modal-basic-title">{{ areaId !== undefined ? 'Update Area Data' : 'Add Area Data' }}</h4>
+		<button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+	</div>
+	<div class="modal-body">
+		<form>
+			<div class="mb-3">
+				<label for="areaName">Area Name</label>
+				<input id="areaName" class="form-control" placeholder="Enter area name" name="areaName" [(ngModel)]="areaName" />
+                <p *ngIf="isAreaNameEmpty" class="text-danger">Area name is required!</p>
+			</div>
+			<div class="mb-3">
+				<label for="areaDetail">Area Detail</label>
+				<input id="areaDetail" class="form-control" placeholder="Enter area detail or description" name="areaDetail" [(ngModel)]="areaDetail" />
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+        <button type="button" class="btn btn-light" (click)="modal.dismiss()">Cancel</button>
+		<button type="button" class="btn btn-success" (click)="onSubmitData()">{{ areaId !== undefined ? 'Update Data' : 'Add Data' }}</button>
+	</div>
+</ng-template>

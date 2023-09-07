@@ -1,80 +1,145 @@
-import { Component, OnInit } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, OnInit } from "@angular/core";
+import {
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+} from "@angular/forms";
+import { ActivatedRoute, Router } from "@angular/router";
 
 // Login Auth
-import { environment } from '../../../environments/environment';
-import { AuthenticationService } from '../../core/services/auth.service';
-import { AuthfakeauthenticationService } from '../../core/services/authfake.service';
-import { first } from 'rxjs/operators';
-import { ToastService } from './toast-service';
-import { TokenStorageService } from 'src/app/core/services/token-storage.service';
+import { environment } from "../../../environments/environment";
+import { AuthenticationService } from "../../core/services/auth.service";
+import { AuthfakeauthenticationService } from "../../core/services/authfake.service";
+import { first } from "rxjs/operators";
+import { ToastService } from "./toast-service";
+import { TokenStorageService } from "src/app/core/services/token-storage.service";
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  selector: "app-login",
+  templateUrl: "./login.component.html",
+  styleUrls: ["./login.component.scss"],
 })
 
 /**
  * Login Component
  */
 export class LoginComponent implements OnInit {
-
   // Login Form
   loginForm!: UntypedFormGroup;
   submitted = false;
   fieldTextType!: boolean;
-  error = '';
+  error = "";
   returnUrl!: string;
+  isRemembered: boolean = false;
+  isLoginFailed: boolean = false;
+  errorMessage: string = "";
+  isOnRefresh: boolean = false;
   // set the current year
   year: number = new Date().getFullYear();
 
-  constructor(private formBuilder: UntypedFormBuilder,private authenticationService: AuthenticationService,private router: Router,
-    private authFackservice: AuthfakeauthenticationService,private route: ActivatedRoute, public toastService: ToastService, private tokenStorageService: TokenStorageService) {
-      // redirect to home if already logged in
-      if (this.authenticationService.currentUserValue) {
-        this.router.navigate(['/']);
-      }
-     }
+  constructor(
+    private formBuilder: UntypedFormBuilder,
+    private authenticationService: AuthenticationService,
+    private router: Router,
+    private tokenService: TokenStorageService,
+    private route: ActivatedRoute,
+    public toastService: ToastService,
+  ) {
+    // redirect to home if already logged in
+    // if (this.authenticationService.currentUserValue) {
+    //   this.router.navigate(["/"]);
+    // }
+  }
 
   ngOnInit(): void {
-    if(localStorage.getItem('currentUser')) {
-      this.router.navigate(['/']);
-    }
     /**
      * Form Validatyion
      */
-     this.loginForm = this.formBuilder.group({
-      nik: ['', [Validators.required]],
-      password: ['', [Validators.required]],
+    this.loginForm = this.formBuilder.group({
+      nik: ["", [Validators.required]],
+      password: ["", [Validators.required]],
     });
+
+    
     // get return url from route parameters or default to '/'
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+    if (!this.authenticationService.isAuthenticated()) {
+      const refreshToken = this.tokenService.getRefreshToken();
+      if (refreshToken !== null) {
+        this.refreshToken(refreshToken)
+      } else {
+        return;
+      }
+    } else {
+      this.isOnRefresh = true
+      this.router.navigate(['/'])
+    }
+    this.returnUrl = this.route.snapshot.queryParams["returnUrl"] || "/";
   }
 
   // convenience getter for easy access to form fields
-  get f() { return this.loginForm.controls; }
+  get f() {
+    return this.loginForm.controls;
+  }
 
   /**
    * Form submit
    */
-   onSubmit() {
+
+  onRememberMeChecked() {
+    if (!this.isRemembered) {
+      this.isRemembered = true;
+    } else this.isRemembered = false;
+  }
+  onSubmit() {
     this.submitted = true;
-     // Login Api
-     this.authenticationService.login(this.f['nik'].value, this.f['password'].value).subscribe((data:any) => {      
-      if(!data.error){
-        // localStorage.setItem('toast', 'true');
-        // this.tokenStorageService.saveUser(data.userData)
-        // this.tokenStorageService.saveToken(data.token)
-        localStorage.setItem('currentUser', JSON.stringify(data.userData));
-        localStorage.setItem('token', data.token);
-        this.router.navigate(['/']);
-      } else{
-        this.toastService.show(data.message, { classname: 'bg-danger text-white', delay: 15000 });
-        console.log(data)
-      }
-    });
+    this.isLoginFailed = false
+    this.authenticationService.login(this.f["nik"].value, this.f["password"].value)
+      .subscribe({
+        next: (data: any) => {
+          if (!data.error) {
+            if (!this.isRemembered) {
+              this.tokenService.setToken(data.token);
+              this.tokenService.setUserData(data.userData);
+            } else {
+              this.tokenService.setAuthData(
+                data.token,
+                data.refreshToken,
+                data.userData
+              );
+            }
+            this.router.navigate(["/"]);
+          } else {
+            this.errorMessage = data.message
+            this.isLoginFailed = true;
+          }
+        },
+        error: (err) => {
+          console.error(err)
+          this.errorMessage = `${err}`;
+          this.isLoginFailed = true;
+        }
+      });
+    // Login Api
+    
+    // if (!data.error) {
+    //   if (!this.isRemembered) {
+    //     this.tokenService.setToken(data.token)
+    //     this.tokenService.setUserData(data.userData)
+    //   }
+    //   this.tokenService.setAuthData(
+    //     data.token,
+    //     data.refreshToken,
+    //     data.userData
+    //   );
+    //   this.router.navigate(["/"]);
+    // } else {
+    //   this.toastService.show(data.message, {
+    //     classname: "bg-danger text-white",
+    //     delay: 15000,
+    //   });
+    //   console.log(data.message);
+    //   this.submitted = false
+    // }
 
     // stop here if form is invalid
     // if (this.loginForm.invalid) {
@@ -101,8 +166,28 @@ export class LoginComponent implements OnInit {
   /**
    * Password Hide/Show
    */
-   toggleFieldTextType() {
+  toggleFieldTextType() {
     this.fieldTextType = !this.fieldTextType;
   }
 
+  refreshToken(token: any) {
+    this.isOnRefresh = true
+    this.authenticationService.refreshToken(token).subscribe({
+      next: (res: any) => {
+        if (!res.error && res.accessToken) {
+          this.tokenService.setToken(res.accessToken);
+          this.tokenService.setUserData(res.payload.data)
+          console.log("Token refreshed successfully")
+        } else {
+          console.error(res.message)
+          this.isOnRefresh = false
+        }
+      },
+      error: (err) => console.error(err),
+      complete: () => {
+        this.router.navigate(['/'])
+        this.isOnRefresh = false
+      }
+    })
+  }
 }

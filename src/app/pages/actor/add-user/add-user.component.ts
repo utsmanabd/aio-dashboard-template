@@ -29,7 +29,7 @@ export class AddUserComponent {
 
   userId: number | null = null;
 
-  userData: UserData = {
+    userData: UserData = {
     image: "" ,
     first_name: "",
     last_name: "",

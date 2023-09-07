@@ -1,7 +1,7 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NgbToastModule, NgbProgressbarModule, NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbToastModule, NgbProgressbarModule, NgbAlertModule, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { FlatpickrModule } from 'angularx-flatpickr';
 import { CountToModule } from 'angular-count-to';
@@ -32,6 +32,10 @@ import { ActorComponent } from './actor/actor.component';
 import { FilmComponent } from './film/film.component';
 import { AddUserComponent } from './actor/add-user/add-user.component';
 import { GlobalComponent } from '../global-component';
+import { TasksComponent } from './tasks/tasks.component';
+import { ActivityComponent } from './activity/activity.component';
+import { AreaComponent } from './area/area.component';
+import { MachineAreaComponent } from './machine-area/machine-area.component';
 
 const DEFAULT_DROPZONE_CONFIG: DropzoneConfigInterface = {
   url: `${GlobalComponent.API_URL}${GlobalComponent.upload}`,
@@ -47,7 +51,11 @@ const DEFAULT_DROPZONE_CONFIG: DropzoneConfigInterface = {
     ToastsContainer,
     ActorComponent,
     FilmComponent,
-    AddUserComponent
+    AddUserComponent,
+    TasksComponent,
+    ActivityComponent,
+    AreaComponent,
+    MachineAreaComponent
   ],
   imports: [
     CommonModule,
@@ -64,7 +72,8 @@ const DEFAULT_DROPZONE_CONFIG: DropzoneConfigInterface = {
     LightboxModule,
     DashboardsModule,
     DropzoneModule,
-    NgbAlertModule
+    NgbAlertModule,
+    NgbDatepickerModule,
   ],
   // providers: [
   //   {

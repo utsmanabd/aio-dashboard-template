@@ -1,10 +1,12 @@
 export const GlobalComponent = {
     // Api Calling
-    API_URL : 'http://localhost:3000/api/',
+    API_URL : 'http://localhost:3279/api/',
+    REST_API_URL: 'http://localhost:3179/api/',
     headerToken : {'Authorization': `${localStorage.getItem('token')}`},
 
     // Auth Api
-    AUTH_API:"http://localhost:3000/api/auth/",
+    AUTH_API:"http://localhost:3179/api/auth/",
+    refreshToken: 'update-token',
 
     // Actor Api
     product:'apps/product',
@@ -27,6 +29,27 @@ export const GlobalComponent = {
 
     // Upload and File Api
     upload: 'master/upload',
-    image: 'image/'
+    image: 'image/',
+
+    // Activity Api
+    activity: 'master/activity',
+    activityId: 'master/activity/',
+
+    // Area Api
+    area: 'master/area',
+    areaId: 'master/area/',
+
+    // Machine Area Api
+    machineArea: 'master/machine',
+    machineAreaId: 'master/machine/',
+
+    // Task Activity Api
+    taskActivity: 'master/task-activity',
+    taskActivityId: 'master/task-activity/',
+
+    // Task Api
+    task: 'master/task',
+    taskId: 'master/task/'
+
 
 }
