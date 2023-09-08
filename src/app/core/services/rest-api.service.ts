@@ -25,6 +25,8 @@ export class restApiService {
   cachedAreaData: any;
   cachedMachineAreaData: any;
 
+  cachedTaskData: any;
+
   removeImage(image: string) {
     return this.http.delete(GlobalComponent.API_URL + `master/` + GlobalComponent.image + image, this.httpOptions())
   }
@@ -133,6 +135,10 @@ export class restApiService {
     }
   }
 
+  getActivityDataByAreaId(areaId: any) {
+    return this.http.get(GlobalComponent.API_URL + GlobalComponent.activityId + `area/${areaId}`, this.httpOptions())
+  }
+
   insertActivityData(data: any) {
     return this.http.post(GlobalComponent.activity, {form_data: data}, this.httpOptions())
   }
@@ -177,11 +183,55 @@ export class restApiService {
     }
   }
 
+  getMachineAreaDataByAreaId(id: number) {
+    return this.http.get(GlobalComponent.API_URL + GlobalComponent.machineAreaId + `area/` + id, this.httpOptions())
+  }
+
   insertMachineAreaData(data: any) {
     return this.http.post(GlobalComponent.machineArea, {form_data: data}, this.httpOptions())
   }
 
   updateMachineAreaData(id: number, data: any) {
     return this.http.put(GlobalComponent.API_URL + GlobalComponent.machineAreaId + id, {form_data: data}, this.httpOptions())
+  }
+
+  taskId: number | null = null
+  setTaskId(taskId: number) {
+    this.taskId = taskId
+  }
+  getTaskId(): number | null {
+    return this.taskId
+  }
+
+  areaId: number | null = null
+  setAreaId(areaId: number) {
+    this.areaId = areaId
+  }
+  getAreaId(): number | null {
+    return this.areaId
+  }
+
+  getTaskData() {
+    if (this.cachedTaskData !== undefined) {
+      return of(this.cachedTaskData)
+    } else {
+      return this.http.get(GlobalComponent.API_URL + GlobalComponent.task, this.httpOptions()).pipe(
+        tap((data) => {
+          this.cachedTaskData = data;
+        })
+      );
+    }
+  }
+
+  insertTaskData(taskData: any) {
+    return this.http.post(GlobalComponent.API_URL + GlobalComponent.task, {form_data: taskData}, this.httpOptions())
+  }
+
+  getTaskActivityById(taskId: number, mAreaId: number) {
+    return this.http.get(GlobalComponent.API_URL + GlobalComponent.taskActivityId + `id/${taskId}/${mAreaId}`, this.httpOptions())
+  }
+
+  insertTaskActivity(data: any) {
+    return this.http.post(GlobalComponent.API_URL + GlobalComponent.taskActivity, {form_data: data}, this.httpOptions())
   }
 }

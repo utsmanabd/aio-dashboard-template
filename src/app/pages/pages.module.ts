@@ -36,6 +36,7 @@ import { TasksComponent } from './tasks/tasks.component';
 import { ActivityComponent } from './activity/activity.component';
 import { AreaComponent } from './area/area.component';
 import { MachineAreaComponent } from './machine-area/machine-area.component';
+import { IdentityTaskComponent } from './tasks/identity-task/identity-task.component';
 
 const DEFAULT_DROPZONE_CONFIG: DropzoneConfigInterface = {
   url: `${GlobalComponent.API_URL}${GlobalComponent.upload}`,
@@ -55,7 +56,8 @@ const DEFAULT_DROPZONE_CONFIG: DropzoneConfigInterface = {
     TasksComponent,
     ActivityComponent,
     AreaComponent,
-    MachineAreaComponent
+    MachineAreaComponent,
+    IdentityTaskComponent
   ],
   imports: [
     CommonModule,

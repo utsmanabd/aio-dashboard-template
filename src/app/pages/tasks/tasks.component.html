@@ -1,1 +1,90 @@
-<p>tasks works!</p>
+<div class="mt-2">
+    <div *ngIf="isSuccess" class="alert alert-success" role="alert">
+        <strong> {{ successMessage }} </strong>
+    </div>
+    <h2 class="text-primary">Task Activity</h2>
+    <div class="d-flex">
+        <button (click)="openModal(content)" class="btn btn-primary mb-2 me-1"><i class="ri ri-menu-add-line"></i></button>
+        <input type="text" class="form-control mb-2" placeholder="Search" [(ngModel)]="searchKeyword"
+            (input)="applyFilter()">
+    </div>
+
+    <div class="card table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th *ngFor="let col of tableColumn" scope="col">{{ col }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let data of paginatedTasksData; let i = index">
+                    <td>{{ getComputedRowNumber(i) }}</td>
+                    <td>{{ getDate(data.date) }}</td>
+                    <td>{{ data.area }}</td>
+                    <td><i>{{ data.progress }}</i></td>
+                    <td>
+                        <button (click)="onIdentityTaskClick(data)" type="button" class="btn btn-soft-primary btn-sm">Identity Task</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+<div class="container mt-2">
+    <ul class="pagination justify-content-center">
+        <li class="page-item" [ngClass]="{ 'disabled': currentPage === 1 }">
+            <a class="btn btn-primary page-link" (click)="goToPage(1)"><i class="bx bx-arrow-to-left"></i></a>
+        </li>
+        <li class="page-item" [ngClass]="{ 'disabled': currentPage === 1 }">
+            <a class="btn btn-primary page-link" (click)="goToPage(currentPage - 1)"><i
+                    class="bx bx-left-arrow-alt"></i></a>
+        </li>
+        <li class="page-item" *ngFor="let page of activePages" [ngClass]="{ 'active': currentPage === page }">
+            <a class="btn btn-primary page-link" (click)="goToPage(page)">{{ page }}</a>
+        </li>
+        <li class="page-item" [ngClass]="{ 'disabled': currentPage === totalPages }">
+            <a class="btn btn-primary page-link" (click)="goToPage(currentPage + 1)"><i
+                    class="bx bx-right-arrow-alt"></i></a>
+        </li>
+        <li class="page-item" [ngClass]="{ 'disabled': currentPage === totalPages }">
+            <a class="btn btn-primary page-link" (click)="goToPage(totalPages)"><i class="bx bx-arrow-to-right"></i></a>
+        </li>
+    </ul>
+</div>
+
+<ng-template #content let-modal>
+	<div class="modal-header">
+		<h4 class="modal-title" id="modal-basic-title">Add Task Activity</h4>
+		<button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+	</div>
+	<div class="modal-body" *ngIf="areaData !== undefined">
+		<form>
+			<div class="mb-3">
+                <label for="inputDate" class="form-label">Input Date</label>
+                <input name="date" type="date" class="form-control" id="inputDate" [(ngModel)]="selectedDate">   
+                <p *ngIf="isSelectedDateEmpty" class="text-danger">Date is required!</p>
+			</div>
+			<div class="mb-3">
+                <select name="areaSelect" [(ngModel)]="selectedArea" class="form-select mb-3" aria-label="Area Select">
+                    <option  *ngFor="let item of areaData" value="{{ item.area_id }}">{{ item.name }}</option>
+                </select>
+                <p *ngIf="isSelectedAreaEmpty" class="text-danger">Area is required!</p>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+        <button type="button" class="btn btn-light" (click)="modal.dismiss()">Cancel</button>
+		<button *ngIf="!isLoading" type="button" class="btn btn-success" (click)="onAddTask()">Add Task Activity</button>
+        <button *ngIf="isLoading" type="button" class="btn btn-success btn-load">
+            <span class="d-flex align-items-center">
+                <span class="spinner-border flex-shrink-0" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </span>
+                <span class="flex-grow-1 ms-2">
+                    Loading...
+                </span>
+            </span>
+        </button>
+	</div>
+</ng-template>

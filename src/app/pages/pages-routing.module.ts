@@ -10,6 +10,7 @@ import { TasksComponent } from './tasks/tasks.component';
 import { ActivityComponent } from './activity/activity.component';
 import { AreaComponent } from './area/area.component';
 import { MachineAreaComponent } from './machine-area/machine-area.component';
+import { IdentityTaskComponent } from './tasks/identity-task/identity-task.component';
 
 const routes: Routes = [
     {
@@ -42,6 +43,14 @@ const routes: Routes = [
     {
       path: 'tasks',
       component: TasksComponent
+    },
+    {
+      path: 'tasks/identity-task',
+      redirectTo: 'tasks'
+    },
+    {
+      path: 'tasks/identity-task/:id',
+      component: IdentityTaskComponent
     },
     {
       path: 'master/activity',
