@@ -17,13 +17,32 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let activity of paginatedActivityData; let i = index">
+        <tr *ngFor="let activity of paginatedActivityData; let i = index" [ngSwitch]="activity.category">
           <td>{{ getComputedRowNumber(i) }}</td>
           <td>{{ activity.activity }}</td>
           <td class="text-muted">{{ activity.machine_area }}</td>
           <td class="text-muted">{{ activity.area }}</td>
-          <td><i>{{ activity.category }}</i></td>
-          <td>{{ activity.standard }}</td>
+          <td *ngSwitchCase="'Cleaning'">
+            <span class="badge bg-primary">
+              {{ activity.category }}
+            </span>
+          </td>
+          <td *ngSwitchCase="'Inspecting'">
+            <span class="badge bg-secondary">
+              {{ activity.category }}
+            </span>
+          </td>
+          <td *ngSwitchCase="'Lubricating'">
+            <span class="badge bg-warning">
+              {{ activity.category }}
+            </span>
+          </td>
+          <td *ngSwitchCase="'Tightening'">
+            <span class="badge bg-danger">
+              {{ activity.category }}
+            </span>
+          </td>
+          <td><i>{{ activity.standard }}</i></td>
           <td>{{ activity.periode }}</td>
           <td>
             <div class="hstack gap-3 flex-wrap">

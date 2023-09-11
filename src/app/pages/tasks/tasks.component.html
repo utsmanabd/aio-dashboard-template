@@ -66,7 +66,8 @@
                 <p *ngIf="isSelectedDateEmpty" class="text-danger">Date is required!</p>
 			</div>
 			<div class="mb-3">
-                <select name="areaSelect" [(ngModel)]="selectedArea" class="form-select mb-3" aria-label="Area Select">
+                <label for="areaSelect">Select Area</label>
+                <select id="areaSelect" name="areaSelect" [(ngModel)]="selectedArea" class="form-select mb-3" aria-label="Area Select">
                     <option  *ngFor="let item of areaData" value="{{ item.area_id }}">{{ item.name }}</option>
                 </select>
                 <p *ngIf="isSelectedAreaEmpty" class="text-danger">Area is required!</p>

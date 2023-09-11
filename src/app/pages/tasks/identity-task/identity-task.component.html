@@ -1,0 +1,110 @@
+<div class="mt-2">
+    <h2 class="text-primary">Checklist Activity</h2>
+    <span *ngIf="machineAreaData === undefined; else content" class="d-flex align-items-center mt-3">
+        <span class="spinner-border flex-shrink-0" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </span>
+        <span class="flex-grow-1 ms-2">
+            Loading...
+        </span>
+    </span>
+    <ng-template #content>
+        <form class="mt-3">
+            <div class="mb-2">
+                <label for="machineAreaSelect">Select machine area</label>
+                <select name="machineAreaSelect" [(ngModel)]="selectedMachineArea" id="machineAreaSelect"
+                    class="form-select mb-3" aria-label="Machine Area Select">
+                    <option *ngFor="let data of machineAreaData" value="{{ data.m_area_id }}">{{ data.machine_area }}
+                    </option>
+                </select>
+            </div>
+            <button class="btn btn-success" (click)="onSelectedMachineArea()">OK</button>
+        </form>
+    </ng-template>
+    <div class="mt-3" *ngIf="identityTaskData !== undefined">
+        <h5>Machine Area: <span class="text-danger">{{ identityTaskData[0].machine_area }}</span></h5>
+        <h5><span class="text-primary">{{ getDate(identityTaskData[0].date) }}</span></h5>
+        <div class="card table-responsive mt-3">
+            <table class="table align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th *ngFor="let col of tableColumns" scope="col">{{ col }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let data of identityTaskData; let i = index" [ngSwitch]="data.category">
+                        <td>{{ getComputedRowNumber(i) }}</td>
+                        <td>{{ data.activity }}</td>
+                        <td>{{ data.periode }}</td>
+                        <td *ngSwitchCase="'Cleaning'">
+                            <span class="badge bg-primary">
+                                {{ data.category }}
+                            </span>
+                        </td>
+                        <td *ngSwitchCase="'Inspecting'">
+                            <span class="badge bg-secondary">
+                                {{ data.category }}
+                            </span>
+                        </td>
+                        <td *ngSwitchCase="'Lubricating'">
+                            <span class="badge bg-warning">
+                                {{ data.category }}
+                            </span>
+                        </td>
+                        <td *ngSwitchCase="'Tightening'">
+                            <span class="badge bg-danger">
+                                {{ data.category }}
+                            </span>
+                        </td>
+                        <td><i>{{ data.standard }}</i></td>
+                        <td>
+                            <!-- {{ data.condition }} -->
+                            <div class="form-check form-radio-info mb-2">
+                                <input class="form-check-input" type="radio"
+                                    name="flexRadioCondition{{data.task_activity_id}}" [checked]="isConditionOk(data.condition)" value="1" (change)="changeCondition($event)"
+                                    id="flexRadioOK{{data.task_activity_id}}">
+                                <label class="form-check-label ms-1"
+                                    for="flexRadioOK{{data.task_activity_id}}">Ok</label>
+                            </div>
+
+                            <div class="form-check form-radio-info">
+                                <input class="form-check-input" type="radio" [checked]="isConditionNotOk(data.condition)" value="0" (change)="changeCondition($event)"
+                                    name="flexRadioCondition{{data.task_activity_id}}"
+                                    id="flexRadioNotOK{{data.task_activity_id}}">
+                                <label class="form-check-label ms-1" for="flexRadioNotOK{{data.task_activity_id}}">
+                                    Not Ok</label>
+                            </div>
+                        </td>
+                        <td>
+                            <!-- {{ data.comment }} -->
+                            <div>
+                                <input [ngModel]="data.comment" id="comment{{data.task_activity_id}}" class="form-control" placeholder="Enter comment" name="comment{{ data.task_activity_id}}" />
+                            </div>
+				            
+                        </td>
+                        <td>
+                            <!-- {{ data.picture }} -->
+                            <div>
+                                <input class="form-control form-control-sm" id="picture{{data.task_activity_id}}" type="file">
+                            </div>
+                        </td>
+                        <td>
+                            <!-- {{ data.pic }} -->
+                            <div>
+                                <input [ngModel]="data.pic" id="pic{{data.task_activity_id}}" class="form-control" placeholder="Enter name" name="pic{{ data.task_activity_id}}" />
+                            </div>
+                            
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <!-- end table -->
+        </div>
+        <div class="d-flex justify-content-center mb-3">
+            <button class="btn btn-success me-2" (click)="onSaveChanges()" type="button">Save Changes</button>
+            <button routerLink="../../" class="btn btn-danger" type="button">Cancel</button>
+        </div>
+        
+        <!-- end table responsive -->
+    </div>
+</div>

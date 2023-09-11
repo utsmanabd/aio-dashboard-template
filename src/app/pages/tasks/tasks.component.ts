@@ -94,6 +94,9 @@ export class TasksComponent {
             activity_id: data.activity_id
           })
         })
+      },
+      error: (err) => console.error(err),
+      complete: () => {
         if (this.activityIdData.length > 0) {
           this.insertTaskActivity(this.activityIdData)
         }
@@ -121,6 +124,7 @@ export class TasksComponent {
     } else this.selectedArea = ''
     this.selectedDate = ''
     this.activityIdData = []
+    this.isSelectedDateEmpty = false
     this.isLoading = false
   }
 
