@@ -13,6 +13,8 @@ export class IdentityTaskComponent {
   areaId: number | null = null;
 
   identityTaskData: any
+  identityTaskCountData: any
+
   tableColumns = ["No", "Activity", "Periode", "Category", "Standard", "Condition", "Comment", "Picture", "PIC Name"]
   index: number = 0
 
@@ -59,7 +61,15 @@ export class IdentityTaskComponent {
     this.apiService.getTaskActivityById(taskId, mAreaId).subscribe({
       next: (res: any) => {
         this.identityTaskData = res.data
+        this.getCountTaskActivity(taskId, mAreaId)
       },
+      error: (err) => console.error(err)
+    })
+  }
+
+  getCountTaskActivity(taskId: any, mAreaId: any) {
+    this.apiService.getCountTaskActivityById(taskId, mAreaId).subscribe({
+      next: (res: any) => this.identityTaskCountData = res.data[0],
       error: (err) => console.error(err)
     })
   }
@@ -89,6 +99,10 @@ export class IdentityTaskComponent {
   getDate(timestamp: any): string {
     let date = new Date(timestamp).toLocaleDateString()
     return date
+  }
+
+  getTaskActivityPercentage(totalActivity: number, totalChecklist: number): number {
+    return Math.floor((totalChecklist / totalActivity) * 100)
   }
   
 }
