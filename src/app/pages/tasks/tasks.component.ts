@@ -9,7 +9,7 @@ import { restApiService } from 'src/app/core/services/rest-api.service';
   styleUrls: ['./tasks.component.scss']
 })
 export class TasksComponent {
-  tableColumn = ["No", "Date", "Area", "Status", "Action"];
+  tableColumn = ["#", "Date", "Area", "Progress", "Action"];
   tasksData: any;
   areaData: any;
   activityIdData: any[] =[]
@@ -224,4 +224,27 @@ export class TasksComponent {
     this.totalPages = Math.ceil(filteredTasksData.length / this.pageSize);
     this.updatePagination(filteredTasksData);
   }
+
+  getTaskPercentage(totalActivity: number, totalChecklist: number): number {
+    let result = Math.floor((totalChecklist / totalActivity) * 100);
+    if (isNaN(result)) result = 0
+    return result
+  }
+
+  getPercentageBadge(percentage: number): string {
+    switch (true) {
+      case percentage < 35:
+        return 'danger';
+      case percentage < 70:
+        return 'warning';
+      case percentage < 100:
+        return 'success';
+      case percentage === 100:
+        return 'secondary';
+      default:
+        return 'primary';
+    }
+  }
+
+  num = 35
 }

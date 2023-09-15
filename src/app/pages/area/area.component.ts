@@ -10,7 +10,7 @@ import Swal from 'sweetalert2';
   styleUrls: ['./area.component.scss']
 })
 export class AreaComponent {
-  tableColumn = ["No", "Area", "Detail"];
+  tableColumn = ["#", "Area", "Detail"];
   areaData: any;
   index: number = 0;
   activePages: number[] = [];

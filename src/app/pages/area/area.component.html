@@ -3,8 +3,9 @@
         <strong> {{ successMessage }} </strong>
     </div>
     <h2 class="text-primary">Data Area</h2>
-    <div class="d-flex">
-        <button (click)="openModal(content)" class="btn btn-primary mb-2 me-1"><i class="ri ri-menu-add-line"></i></button>
+    <div class="d-flex col col-md-5">
+        <button (click)="openModal(content)" class="btn btn-primary mb-2 me-1"><i
+                class="ri ri-menu-add-line me-2"></i>Add</button>
         <input type="text" class="form-control mb-2" placeholder="Search" [(ngModel)]="searchKeyword"
             (input)="applyFilter()">
     </div>

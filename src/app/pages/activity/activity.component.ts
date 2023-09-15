@@ -8,7 +8,7 @@ import { restApiService } from 'src/app/core/services/rest-api.service';
   styleUrls: ['./activity.component.scss']
 })
 export class ActivityComponent {
-  tableColumn = ["No", "Activity", "Machine Area", "Area", "Category", "Standard", "Periode"];
+  tableColumn = ["#", "Activity", "Machine Area", "Area", "Category", "Standard", "Periode"];
   activityData: any;
   index: number = 0;
   activePages: number[] = [];

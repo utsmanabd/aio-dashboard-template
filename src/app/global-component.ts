@@ -28,7 +28,8 @@ export const GlobalComponent = {
     filmId: 'master/film/',
 
     // Upload and File Api
-    upload: 'master/upload',
+    upload: 'master/image',
+    uploadMultiple: 'master/image/multi',
     image: 'image/',
 
     // Activity Api

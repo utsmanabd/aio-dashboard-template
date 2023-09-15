@@ -1,1 +1,20 @@
-<p>This is achievements page!</p>
+<form (submit)="onSubmit()">
+    <div class="mb-3">
+        <input class="form-control form-control-sm" type="file" (change)="onFileSelected($event)" accept="image/*" name="files">
+    </div>
+    <div class="mb-3">
+        <input class="form-control form-control-sm" type="file" (change)="onFileSelected($event)" accept="image/*" name="files">
+    </div>
+    <div class="mb-3">
+        <input class="form-control form-control-sm" type="file" (change)="onFileSelected($event)" accept="image/*" name="files">
+    </div>
+    <div class="mb-3">
+        <button class="btn btn-success" type="submit">Upload</button>
+    </div>
+</form>
+
+<div *ngIf="imageUrl" style="width: 150px;">
+    <div *ngFor="let url of imageUrl" class="card">
+        <img src="http://localhost:3279/api/image/{{url}}" alt="">
+    </div>
+</div>

@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { restApiService } from 'src/app/core/services/rest-api.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-machine-area',
@@ -8,11 +10,21 @@ import { restApiService } from 'src/app/core/services/rest-api.service';
   styleUrls: ['./machine-area.component.scss']
 })
 export class MachineAreaComponent {
-  tableColumn = ["No", "Machine Area", "Area"];
+  tableColumn = ["#", "Machine Area", "Area"];
   machineAreaData: any;
+  machineAreaId: any
+  areaData: any
+  areaIdArray: any[] = []
   index: number = 0;
   activePages: number[] = [];
   filteredMachineAreaData: any[] = [];
+
+  selectedArea!: string
+  machineAreaName: string = ''
+  isMachineAreaNameEmpty: boolean = false
+  isSelectedAreaEmpty: boolean = false
+
+  isLoading: boolean = false
 
   pageSize = 10;
   currentPage = 1;
@@ -27,6 +39,7 @@ export class MachineAreaComponent {
   constructor(
     private apiService: restApiService,
     private route: ActivatedRoute,
+    private modalService: NgbModal
   ) {}
 
   ngOnInit(): void {
@@ -37,6 +50,7 @@ export class MachineAreaComponent {
       }
     });
     this.getMachineAreaData();
+    this.getAreaData()
   }
 
   getMachineAreaData() {
@@ -48,7 +62,19 @@ export class MachineAreaComponent {
       },
       error: (err) => console.error(err)
     });
-    
+  }
+
+  getAreaData() {
+    this.apiService.getAreaData().subscribe({
+      next: (res: any) => {
+        this.areaData = res.data;
+        this.areaData.forEach((area: any) => {
+          this.areaIdArray.push(area.area_id)
+        });
+      },
+      error: (err) => console.error(err),
+      complete: () => this.selectedArea = this.areaIdArray[0]
+    })
   }
 
   goToPage(pageNumber: number): void {
@@ -56,6 +82,100 @@ export class MachineAreaComponent {
       this.currentPage = pageNumber;
       this.updatePagination(this.machineAreaData);
     }
+  }
+
+  openModal(content: any, machineAreaData?: any) {
+    if (machineAreaData !== undefined) {
+      this.machineAreaId = machineAreaData.m_area_id
+      this.selectedArea = machineAreaData.area_id
+      this.machineAreaName = machineAreaData.machine_area
+    }
+    this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then(
+      (result) => this.resetModalValue(),
+			(reason) => this.resetModalValue()
+    )
+  }
+
+  resetModalValue() {
+    if (this.areaData !== undefined) {
+      this.selectedArea = this.areaIdArray[0]
+    } else this.selectedArea = ''
+    this.machineAreaName = ''
+    this.machineAreaId = undefined
+    this.isSelectedAreaEmpty = false
+    this.isMachineAreaNameEmpty = false
+    this.isLoading = false
+  }
+
+  onSubmitData() {
+    this.validateForm()
+    if (!this.isMachineAreaNameEmpty && !this.isSelectedAreaEmpty) {
+      let data = { name: this.machineAreaName, area_id: this.selectedArea }
+      if (this.machineAreaId !== undefined) {
+        this.updateMachineAreaData(this.machineAreaId, data)
+      } else {
+        this.insertMachineAreaData(data)
+      }
+    }
+  }
+
+  onDeleteData(id: any) {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "rgb(3, 142, 220)",
+      cancelButtonColor: "rgb(243, 78, 78)",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.value) {
+        const deleteData = { is_removed: 1 };
+        this.apiService.updateMachineAreaData(id, deleteData)
+          .subscribe((res: any) => {
+            if (res.data == 1) {
+              this.apiService.cachedMachineAreaData = undefined;
+              this.getMachineAreaData();
+              Swal.fire({
+                title: "Deleted!",
+                text: "Area has been deleted.",
+                confirmButtonColor: "rgb(3, 142, 220)",
+                icon: "success",
+              });
+            }
+          });
+      }
+    });
+  }
+
+  updateMachineAreaData(id: any, data: any) {
+    this.isLoading = true
+    this.apiService.updateMachineAreaData(id, data).subscribe({
+      next: (res: any) => this.modalService.dismissAll(),
+      error: (err: any) => {
+        console.error(err)
+        this.isLoading = false
+      },
+      complete: () => {
+        this.apiService.cachedMachineAreaData = undefined
+        this.getMachineAreaData()
+      }
+    })
+  }
+
+  insertMachineAreaData(data: any) {
+    this.isLoading = true
+    this.apiService.insertMachineAreaData(data).subscribe({
+      next: (res: any) => this.modalService.dismissAll(),
+      error: (err: any) => {
+        console.error(err)
+        this.isLoading = false
+      },
+      complete: () => {
+        this.apiService.cachedMachineAreaData = undefined
+        this.getMachineAreaData()
+      }
+    })
   }
 
   updatePagination(dataSource: any): void {
@@ -102,5 +222,10 @@ export class MachineAreaComponent {
     );
     this.totalPages = Math.ceil(filteredMachineAreaData.length / this.pageSize);
     this.updatePagination(filteredMachineAreaData);
+  }
+
+  validateForm() {
+    this.isSelectedAreaEmpty = this.selectedArea === ""
+    this.isMachineAreaNameEmpty = this.machineAreaName.trim() === ""
   }
 }

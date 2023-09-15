@@ -188,7 +188,7 @@ export class restApiService {
   }
 
   insertMachineAreaData(data: any) {
-    return this.http.post(GlobalComponent.machineArea, {form_data: data}, this.httpOptions())
+    return this.http.post(GlobalComponent.API_URL + GlobalComponent.machineArea, {form_data: data}, this.httpOptions())
   }
 
   updateMachineAreaData(id: number, data: any) {
@@ -237,5 +237,13 @@ export class restApiService {
 
   insertTaskActivity(data: any) {
     return this.http.post(GlobalComponent.API_URL + GlobalComponent.taskActivity, {form_data: data}, this.httpOptions())
+  }
+
+  updateTaskActivity(data: any) {
+    return this.http.post(GlobalComponent.API_URL + GlobalComponent.taskActivityId + `batch`, {form_data: data}, this.httpOptions())
+  }
+
+  uploadMultipleImage(files: FormData) {
+    return this.http.post(GlobalComponent.API_URL + GlobalComponent.uploadMultiple, files)
   }
 }

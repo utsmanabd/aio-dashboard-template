@@ -3,8 +3,9 @@
         <strong> {{ successMessage }} </strong>
     </div>
     <h2 class="text-primary">Data Machine Area</h2>
-    <div class="d-flex">
-        <button routerLink="./add" class="btn btn-primary mb-2 me-1"><i class="ri ri-menu-add-line"></i></button>
+    <div class="d-flex col col-md-5">
+        <button (click)="openModal(content)" class="btn btn-primary mb-2 me-1"><i
+                class="ri ri-menu-add-line me-2"></i>Add</button>
         <input type="text" class="form-control mb-2" placeholder="Search" [(ngModel)]="searchKeyword"
             (input)="applyFilter()">
     </div>
@@ -23,8 +24,8 @@
                     <td class="text-muted">{{ data.area }}</td>
                     <td>
                         <div class="hstack gap-3 flex-wrap">
-                            <a class="link-success fs-15"><i class="ri-edit-2-line"></i></a>
-                            <a class="link-danger fs-15"><i class="ri-delete-bin-line"></i></a>
+                            <a (click)="openModal(content, data)" class="link-success fs-15"><i class="ri-edit-2-line"></i></a>
+                            <a (click)="onDeleteData(data.m_area_id)" class="link-danger fs-15"><i class="ri-delete-bin-line"></i></a>
                         </div>
                     </td>
                 </tr>
@@ -54,3 +55,40 @@
         </li>
     </ul>
 </div>
+
+<ng-template #content let-modal>
+	<div class="modal-header">
+		<h4 class="modal-title" id="modal-basic-title">{{ machineAreaId !== undefined ? 'Update Machine Area Data' : 'Add Machine Area Data' }}</h4>
+		<button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+	</div>
+	<div class="modal-body" *ngIf="areaData !== undefined">
+		<form>
+			<div class="mb-3">
+				<label for="areaName">Machine Area Name</label>
+				<input id="areaName" class="form-control" placeholder="Enter area name" name="areaName" [(ngModel)]="machineAreaName" />
+                <p *ngIf="isMachineAreaNameEmpty" class="text-danger">Machine area name is required!</p>
+			</div>
+			<div class="mb-3">
+                <label for="areaSelect">Select Area</label>
+                <select id="areaSelect" name="areaSelect" [(ngModel)]="selectedArea" class="form-select mb-3" aria-label="Area Select">
+                    <option  *ngFor="let item of areaData" value="{{ item.area_id }}">{{ item.name }}</option>
+                </select>
+                <p *ngIf="isSelectedAreaEmpty" class="text-danger">Area is required!</p>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+        <button type="button" class="btn btn-light" (click)="modal.dismiss()">Cancel</button>
+		<button *ngIf="!isLoading" type="button" class="btn btn-success" (click)="onSubmitData()">{{ machineAreaId !== undefined ? 'Update Data' : 'Add Data' }}</button>
+        <button *ngIf="isLoading" type="button" class="btn btn-success btn-load">
+            <span class="d-flex align-items-center">
+                <span class="spinner-border flex-shrink-0" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </span>
+                <span class="flex-grow-1 ms-2">
+                    Loading...
+                </span>
+            </span>
+        </button>
+	</div>
+</ng-template>
