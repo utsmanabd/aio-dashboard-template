@@ -11,6 +11,7 @@ import { ActivityComponent } from './activity/activity.component';
 import { AreaComponent } from './area/area.component';
 import { MachineAreaComponent } from './machine-area/machine-area.component';
 import { IdentityTaskComponent } from './tasks/identity-task/identity-task.component';
+import { AchievementsComponent } from './achievements/achievements.component';
 
 const routes: Routes = [
     {
@@ -37,8 +38,12 @@ const routes: Routes = [
       component: AddUserComponent
     },
     {
-      path: 'achievements',
+      path: 'testing',
       component: FilmComponent
+    },
+    {
+      path: 'achievements',
+      component: AchievementsComponent
     },
     {
       path: 'tasks',

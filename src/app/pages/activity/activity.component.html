@@ -4,10 +4,11 @@
   </div>
   <h2 class="text-primary">Data Activity</h2>
   <div class="d-flex col col-md-5">
-    <button class="btn btn-primary mb-2 me-1"><i class="ri ri-menu-add-line me-2"></i>Add</button>
+    <button (click)="openModal(content)" class="btn btn-primary mb-2 me-1"><i
+        class="ri ri-menu-add-line me-2"></i>Add</button>
     <input type="text" class="form-control mb-2" placeholder="Search" [(ngModel)]="searchKeyword"
-        (input)="applyFilter()">
-</div>
+      (input)="applyFilter()">
+  </div>
 
   <div class="card table-responsive">
     <table class="table">
@@ -46,8 +47,8 @@
           <td>{{ activity.periode }}</td>
           <td>
             <div class="hstack gap-3 flex-wrap">
-              <a class="link-success fs-15"><i class="ri-edit-2-line"></i></a>
-              <a class="link-danger fs-15"><i class="ri-delete-bin-line"></i></a>
+              <a (click)="openModal(content, activity)" class="link-success fs-15"><i class="ri-edit-2-line"></i></a>
+              <a (click)="onDeleteData(activity.activity_id)" class="link-danger fs-15"><i class="ri-delete-bin-line"></i></a>
             </div>
           </td>
         </tr>
@@ -75,3 +76,62 @@
     </li>
   </ul>
 </div>
+
+<ng-template #content let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">
+      {{ activityId !== undefined ? 'Update Activity Data' : 'Add Activity Data' }}
+    </h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body" *ngIf="machineAreaData">
+    <form>
+      <div class="mb-3">
+        <label for="machineArea">Machine Area</label>
+        <select name="machineArea" id="machineArea" class="form-select mb-3" aria-label="Machine area select" [(ngModel)]="activityFormData.m_area_id">
+          <option *ngFor="let data of machineAreaData" value="{{ data.m_area_id }}">{{ data.machine_area }}</option>
+        </select>
+        <p *ngIf="isMachineAreaEmpty" class="text-danger">Machine area is required!</p>
+      </div>
+      <div class="mb-3">
+        <label for="category">Category</label>
+        <select name="category" id="category" class="form-select mb-3" aria-label="Category select" [(ngModel)]="activityFormData.category_id">
+          <option value="1">Cleaning</option>
+          <option value="2">Inspecting</option>
+          <option value="3">Lubricating</option>
+          <option value="4">Tightening</option>
+        </select>
+        <p *ngIf="isCategoryEmpty" class="text-danger">Category is required!</p>
+      </div>
+      <div class="mb-3">
+        <label for="activityName">Activity Name</label>
+        <input id="activityName" class="form-control" placeholder="Enter activity name" name="activityName"
+          [(ngModel)]="activityFormData.name" />
+        <p *ngIf="isActivityEmpty" class="text-danger">Activity name is required!</p>
+      </div>
+      <div class="mb-3">
+        <label for="standard">Standard</label>
+        <input id="standard" class="form-control" placeholder="Enter activity standard" name="standard"
+          [(ngModel)]="activityFormData.standard" />
+        <p *ngIf="isStandardEmpty" class="text-danger">Standard is required!</p>
+      </div>
+      <div class="mb-3">
+        <label for="period">Period</label>
+        <ng-autocomplete name="period" id="period" [data]="periodData" [searchKeyword]="keyword"
+          placeholder="Enter the Period" (selected)='selectEvent($event)' (inputChanged)='onChangeSearch($event)'
+          (inputFocused)='onFocused($event)' [(ngModel)]="activityFormData.periode" historyIdentifier="periodData" [itemTemplate]="itemTemplate">
+        </ng-autocomplete>
+        <ng-template #itemTemplate let-item>
+          <a [innerHTML]="item"></a>
+        </ng-template>
+        <p *ngIf="isPeriodEmpty" class="text-danger">Period is required!</p>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-light" (click)="modal.dismiss()">Cancel</button>
+    <button type="button" class="btn btn-success" (click)="onSubmitData()">
+      {{ activityId !== undefined ? 'Update Data' : 'Add Data' }}
+    </button>
+  </div>
+</ng-template>

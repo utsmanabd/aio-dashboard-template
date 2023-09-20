@@ -37,6 +37,8 @@ import { ActivityComponent } from './activity/activity.component';
 import { AreaComponent } from './area/area.component';
 import { MachineAreaComponent } from './machine-area/machine-area.component';
 import { IdentityTaskComponent } from './tasks/identity-task/identity-task.component';
+import {AutocompleteLibModule} from 'angular-ng-autocomplete';
+import { AchievementsComponent } from './achievements/achievements.component';
 
 const DEFAULT_DROPZONE_CONFIG: DropzoneConfigInterface = {
   url: `${GlobalComponent.API_URL}${GlobalComponent.upload}`,
@@ -57,7 +59,8 @@ const DEFAULT_DROPZONE_CONFIG: DropzoneConfigInterface = {
     ActivityComponent,
     AreaComponent,
     MachineAreaComponent,
-    IdentityTaskComponent
+    IdentityTaskComponent,
+    AchievementsComponent
   ],
   imports: [
     CommonModule,
@@ -76,6 +79,7 @@ const DEFAULT_DROPZONE_CONFIG: DropzoneConfigInterface = {
     DropzoneModule,
     NgbAlertModule,
     NgbDatepickerModule,
+    AutocompleteLibModule
   ],
   // providers: [
   //   {

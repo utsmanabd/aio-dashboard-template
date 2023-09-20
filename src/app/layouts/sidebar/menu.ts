@@ -12,17 +12,17 @@ export const MENU: MenuItem[] = [
     link: '',
     icon: 'ri ri-dashboard-fill',
   },
-  // {
-  //   id: 3,
-  //   label: 'User',
-  //   link: '/user',
-  //   icon: 'ri ri-user-fill',
-  // },
   {
-    id: 4,
+    id: 3,
     label: 'Achievements',
     link: '/achievements',
     icon: 'ri ri-trophy-fill',
+  },
+  {
+    id: 4,
+    label: 'Testing Page',
+    link: '/testing',
+    icon: 'ri ri-settings-line',
   },
   {
     id: 5,
@@ -48,14 +48,14 @@ export const MENU: MenuItem[] = [
       },
       {
         id: 9,
-        label: 'Area',
-        link: '/master/area',
+        label: 'Machine Area',
+        link: '/master/machine-area',
         parentId: 2
       },
       {
         id: 10,
-        label: 'Machine Area',
-        link: '/master/machine-area',
+        label: 'Area',
+        link: '/master/area',
         parentId: 2
       },
     ]

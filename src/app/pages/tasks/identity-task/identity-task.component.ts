@@ -132,7 +132,7 @@ export class IdentityTaskComponent {
         if (this.imageUrlArray.length > 0) {
           let imageUrlId: any[] = [];
           this.imageUrlArray.forEach((url) => {
-            imageUrlId.push(+url.substring(17, 20));
+            imageUrlId.push(this.extractId(url));
           });
           const index = (id: number) => {
             return this.getIndexById(this.identityTaskData, id);
@@ -153,6 +153,14 @@ export class IdentityTaskComponent {
     const index = this.getIndexById(this.identityTaskData, id);
     this.identityTaskData[index].condition = +conditionValue;
   }
+
+  extractId(fileName: string): number | null {
+    const match = fileName.match(/id-(\d+)/);
+    if (match) {
+      return parseInt(match[1], 10);
+    }
+    return null;
+}
 
   getIndexById(arr: any[], id: number): number {
     for (let i = 0; i < arr.length; i++) {

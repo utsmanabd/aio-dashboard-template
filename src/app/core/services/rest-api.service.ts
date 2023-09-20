@@ -26,6 +26,7 @@ export class restApiService {
   cachedMachineAreaData: any;
 
   cachedTaskData: any;
+  cachedTaskDataByDate: any;
 
   removeImage(image: string) {
     return this.http.delete(GlobalComponent.API_URL + `master/` + GlobalComponent.image + image, this.httpOptions())
@@ -140,7 +141,7 @@ export class restApiService {
   }
 
   insertActivityData(data: any) {
-    return this.http.post(GlobalComponent.activity, {form_data: data}, this.httpOptions())
+    return this.http.post(GlobalComponent.API_URL + GlobalComponent.activity, {form_data: data}, this.httpOptions())
   }
 
   updateActivityData(id: number, data: any) {
@@ -220,6 +221,18 @@ export class restApiService {
           this.cachedTaskData = data;
         })
       );
+    }
+  }
+
+  getTaskDataByDate(month: number, year: number) {
+    if (this.cachedTaskDataByDate) {
+      return of(this.cachedTaskDataByDate)
+    } else {
+      return this.http.get(GlobalComponent.API_URL + GlobalComponent.taskId + `date/${month}/${year}`, this.httpOptions()).pipe(
+        tap((data) => {
+          this.cachedTaskDataByDate = data
+        })
+      )
     }
   }
 
