@@ -50,7 +50,15 @@ export const GlobalComponent = {
 
     // Task Api
     task: 'master/task',
-    taskId: 'master/task/'
+    taskId: 'master/task/',
 
-
+    // Finding Api
+    finding: 'master/finding/',
+    findingDate: 'master/finding/date/',
+    findingNotOk: 'master/finding/not-ok/',
+    findingNotOkDate: 'master/finding/not-ok/date/',
+    findingUndone: 'master/finding/undone/',
+    findingUndoneDate: 'master/finding/undone/date/',
+    findingChecklist: 'master/finding/checklist/',
+    findingChecklistDate: 'master/finding/checklist/date/',
 }

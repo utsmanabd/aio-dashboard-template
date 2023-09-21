@@ -28,6 +28,11 @@ export class restApiService {
   cachedTaskData: any;
   cachedTaskDataByDate: any;
 
+  cachedFindingCountData: any
+  cachedFindingNotOkData: any
+  cachedFindingUndoneData: any
+  cachedFindingChecklistData: any
+
   removeImage(image: string) {
     return this.http.delete(GlobalComponent.API_URL + `master/` + GlobalComponent.image + image, this.httpOptions())
   }
@@ -258,5 +263,81 @@ export class restApiService {
 
   uploadMultipleImage(files: FormData) {
     return this.http.post(GlobalComponent.API_URL + GlobalComponent.uploadMultiple, files)
+  }
+
+  getFindingCount() {
+    if (this.cachedFindingCountData) {
+      return of(this.cachedFindingCountData)
+    } else {
+      return this.http.get(GlobalComponent.API_URL + GlobalComponent.finding, this.httpOptions()).pipe(
+        tap((data) => {
+          this.cachedFindingCountData = data
+        })
+      )
+    }
+  }
+
+  getFindingCountByDate(month: number, year: number) {
+    return this.http.get(GlobalComponent.API_URL + GlobalComponent.findingDate + `${month}/${year}`, this.httpOptions())
+  }
+
+  getFindingNotOk() {
+    if (this.cachedFindingCountData) {
+      return of(this.cachedFindingCountData)
+    } else {
+      return this.http.get(GlobalComponent.API_URL + GlobalComponent.findingNotOk, this.httpOptions()).pipe(
+        tap((data) => {
+          this.cachedFindingNotOkData = data
+        })
+      )
+    }
+  }
+
+  getFindingNotOkByDate(month: number, year: number) {
+    return this.http.get(GlobalComponent.API_URL + GlobalComponent.findingNotOkDate + `${month}/${year}`, this.httpOptions())
+  }
+
+  getFindingNotOkById(taskId: number) {
+    return this.http.get(GlobalComponent.API_URL + GlobalComponent.findingNotOk + `${taskId}`, this.httpOptions())
+  }
+
+  getFindingUndone() {
+    if (this.cachedFindingUndoneData) {
+      return of(this.cachedFindingUndoneData)
+    } else {
+      return this.http.get(GlobalComponent.API_URL + GlobalComponent.findingUndone, this.httpOptions()).pipe(
+        tap((data) => {
+          this.cachedFindingUndoneData = data
+        })
+      )
+    }
+  }
+
+  getFindingUndoneByDate(month: number, year: number) {
+    return this.http.get(GlobalComponent.API_URL + GlobalComponent.findingUndoneDate + `${month}/${year}`, this.httpOptions())
+  }
+
+  getFindingUndoneById(taskId: number) {
+    return this.http.get(GlobalComponent.API_URL + GlobalComponent.findingUndone + `${taskId}`, this.httpOptions())
+  }
+
+  getFindingChecklist() {
+    if (this.cachedFindingChecklistData) {
+      return of(this.cachedFindingChecklistData)
+    } else {
+      return this.http.get(GlobalComponent.API_URL + GlobalComponent.findingChecklist, this.httpOptions()).pipe(
+        tap((data) => {
+          this.cachedFindingChecklistData = data
+        })
+      )
+    }
+  }
+
+  getFindingChecklistByDate(month: number, year: number) {
+    return this.http.get(GlobalComponent.API_URL + GlobalComponent.findingChecklistDate + `${month}/${year}`, this.httpOptions())
+  }
+
+  getFindingChecklistById(taskId: number) {
+    return this.http.get(GlobalComponent.API_URL + GlobalComponent.findingChecklist + `${taskId}`, this.httpOptions())
   }
 }

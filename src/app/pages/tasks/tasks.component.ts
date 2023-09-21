@@ -245,6 +245,4 @@ export class TasksComponent {
         return 'primary';
     }
   }
-
-  num = 35
 }
