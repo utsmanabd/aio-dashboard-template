@@ -1,0 +1,147 @@
+<div *ngIf="groupedBarChart && customDataLabelsChart && findingUndoneActivity">
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Task Activity</h4>
+                </div><!-- end card header -->
+                <div class="card-body">
+                    <apx-chart [series]="customDataLabelsChart.series" [chart]="customDataLabelsChart.chart"
+                        [dataLabels]="customDataLabelsChart.dataLabels" [stroke]="customDataLabelsChart.stroke"
+                        [colors]="customDataLabelsChart.colors" [title]="customDataLabelsChart.title"
+                        [subtitle]="customDataLabelsChart.subtitle" [plotOptions]="customDataLabelsChart.plotOptions"
+                        [yaxis]="customDataLabelsChart.yaxis" [xaxis]="customDataLabelsChart.xaxis"
+                        [tooltip]="customDataLabelsChart.tooltip" dir="ltr"></apx-chart>
+                </div><!-- end card-body -->
+            </div><!-- end card -->
+        </div>
+        <div class="col-xl-6">
+            <!-- card -->
+            <div class="row">
+                <div class="col card card-animate me-2 bg-warning">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <p class="text-uppercase fw-semibold text-white mb-0">Undone Activity</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-end justify-content-between mt-4">
+                            <div>
+                                <h4 class="fs-22 fw-semibold ff-secondary mb-4 text-white">
+                                    <span [CountTo]="findingUndoneActivity.total" class="counter-value" [from]="0" [duration]="2"></span>
+                                </h4>
+                                <a href="javascript:void(0);" class="text-decoration-underline text-white-50">See details</a>
+                            </div>
+                        </div>
+                    </div><!-- end card body -->
+                </div><!-- end card -->
+                <div class="col card card-animate me-2 bg-danger">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <p class="text-uppercase fw-semibold text-white mb-0">Total finding</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-end justify-content-between mt-4">
+                            <div>
+                                <h4 class="fs-22 fw-semibold ff-secondary mb-4 text-white">
+                                    <span [CountTo]="findingNotOkActivity.total" class="counter-value" [from]="0" [duration]="1"></span>
+                                </h4>
+                                <a href="javascript:void(0);" class="text-decoration-underline text-white-50">See details</a>
+                            </div>
+                        </div>
+                    </div><!-- end card body -->
+                </div><!-- end card -->
+            </div>
+            <div class="row card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Activity Achievements</h4>
+                </div><!-- end card header -->
+                <div class="card-body">
+                    <div class="d-flex align-items-center pb-2 mb-2" *ngFor="let data of taskDataPercentage.rawData">
+                        <div class="flex-grow-1">
+                            {{data.area}}
+                            <div class="progress animated-progress custom-progress progress-label">
+                                <div class="progress-bar bg-{{getPercentageBadge(getActivityPercentage(data.total_activity, data.checklist))}}" role="progressbar"
+                                    attr.style="width: {{getActivityPercentage(data.total_activity, data.checklist)}}%"
+                                    [attr.aria-valuenow]="getActivityPercentage(data.total_activity, data.checklist)"
+                                    aria-valuemin="0" aria-valuemax="100">
+                                    <div class="label">{{getActivityPercentage(data.total_activity, data.checklist)}}%</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0 ms-3">
+                            <div class="avatar-xs">
+                                <div class="avatar-title bg-light rounded-circle text-{{ getActivityPercentage(data.total_activity, data.checklist) == 100 ? 'warning' : 'muted' }} fs-16">
+                                    <i class="ri ri-trophy-fill"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- end card-body -->
+            </div><!-- end card -->
+        </div><!-- end col -->
+    </div>
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Grouped Bar Chart</h4>
+                </div><!-- end card header -->
+                <div class="card-header p-0 border-0 bg-soft-light">
+                    <div class="row g-0 text-center">
+                        <div class="col-6 col-sm-3">
+                            <div class="p-3 border border-dashed border-start-0">
+                                <h5 class="mb-1"><span [CountTo]="7585" class="counter-value" [from]="0"
+                                        [duration]="1"></span></h5>
+                                <p class="text-muted mb-0">Orders</p>
+                            </div>
+                        </div><!--end col-->
+                        <div class="col-6 col-sm-3">
+                            <div class="p-3 border border-dashed border-start-0">
+                                <h5 class="mb-1">$<span [CountTo]="22.89" class="counter-value" [from]="0"
+                                        [duration]="1"></span>k</h5>
+                                <p class="text-muted mb-0">Earnings</p>
+                            </div>
+                        </div><!--end col-->
+                        <div class="col-6 col-sm-3">
+                            <div class="p-3 border border-dashed border-start-0">
+                                <h5 class="mb-1"><span [CountTo]="367" class="counter-value" [from]="0"
+                                        [duration]="1"></span></h5>
+                                <p class="text-muted mb-0">Refunds</p>
+                            </div>
+                        </div><!--end col-->
+                        <div class="col-6 col-sm-3">
+                            <div class="p-3 border border-dashed border-start-0 border-end-0">
+                                <h5 class="mb-1 text-success"><span [CountTo]="18.92" class="counter-value" [from]="0"
+                                        [duration]="1"></span>%</h5>
+                                <p class="text-muted mb-0">Conversation Ratio</p>
+                            </div>
+                        </div><!--end col-->
+                    </div>
+                </div><!-- end card header -->
+                <div class="card-body">
+                    <apx-chart [series]="groupedBarChart.series" [chart]="groupedBarChart.chart"
+                        [dataLabels]="groupedBarChart.dataLabels" [plotOptions]="groupedBarChart.plotOptions"
+                        [xaxis]="groupedBarChart.xaxis" [stroke]="groupedBarChart.stroke"
+                        [colors]="groupedBarChart.colors" dir="ltr"></apx-chart>
+                </div><!-- end card-body -->
+            </div><!-- end card -->
+        </div>
+        <div class="col-xl-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Column with Data Labels</h4>
+                </div><!-- end card header -->
+
+                <div class="card-body">
+                    <apx-chart [series]="columnWithDataChart.series" [chart]="columnWithDataChart.chart"
+                        [dataLabels]="columnWithDataChart.dataLabels" [plotOptions]="columnWithDataChart.plotOptions"
+                        [yaxis]="columnWithDataChart.yaxis" [xaxis]="columnWithDataChart.xaxis"
+                        [fill]="columnWithDataChart.fill" [title]="columnWithDataChart.title"
+                        [colors]="columnWithDataChart.colors" dir="ltr"></apx-chart>
+                </div><!-- end card-body -->
+            </div><!-- end card -->
+        </div>
+    </div>
+</div>
