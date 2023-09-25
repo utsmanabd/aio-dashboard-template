@@ -140,7 +140,6 @@ export class AreaComponent {
         this.apiService.updateAreaData(areaId, deleteData)
           .subscribe((res: any) => {
             if (res.data == 1) {
-              this.apiService.cachedAreaData = undefined;
               this.getAreaData();
               Swal.fire({
                 title: "Deleted!",
@@ -158,10 +157,7 @@ export class AreaComponent {
     this.apiService.updateAreaData(id, data).subscribe({
       next: (res: any) => this.modalService.dismissAll(),
       error: (err) => console.error(err),
-      complete: () => {
-        this.apiService.cachedAreaData = undefined
-        this.getAreaData()
-      }
+      complete: () => this.getAreaData()
     })
   }
 
@@ -169,10 +165,7 @@ export class AreaComponent {
     this.apiService.insertAreaData(data).subscribe({
       next: (res: any) => this.modalService.dismissAll(),
       error: (err) => console.error(err),
-      complete: () => {
-        this.apiService.cachedAreaData = undefined
-        this.getAreaData()
-      }
+      complete: () => this.getAreaData()
     })
   }
 

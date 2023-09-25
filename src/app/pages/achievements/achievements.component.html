@@ -15,9 +15,26 @@
                 </div><!-- end card-body -->
             </div><!-- end card -->
         </div>
-        <div class="col-xl-6">
+        <div class="col xl-6">
             <!-- card -->
             <div class="row">
+                <div class="col card card-animate me-2 bg-primary">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <p class="text-uppercase fw-semibold text-white mb-0">Total Activity</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-end justify-content-between mt-4">
+                            <div>
+                                <h4 class="fs-22 fw-semibold ff-secondary mb-4 text-white">
+                                    <span [CountTo]="totalActivity" class="counter-value" [from]="0" [duration]="2"></span>
+                                </h4>
+                                <a routerLink="../tasks" class="text-decoration-underline text-white-50">See details</a>
+                            </div>
+                        </div>
+                    </div><!-- end card body -->
+                </div><!-- end card -->
                 <div class="col card card-animate me-2 bg-warning">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
@@ -30,12 +47,12 @@
                                 <h4 class="fs-22 fw-semibold ff-secondary mb-4 text-white">
                                     <span [CountTo]="findingUndoneActivity.total" class="counter-value" [from]="0" [duration]="2"></span>
                                 </h4>
-                                <a href="javascript:void(0);" class="text-decoration-underline text-white-50">See details</a>
+                                <a href="javascript:void(0);" (click)="scrollToElement(undone)" class="text-decoration-underline text-white-50">See details</a>
                             </div>
                         </div>
                     </div><!-- end card body -->
                 </div><!-- end card -->
-                <div class="col card card-animate me-2 bg-danger">
+                <div class="col card card-animate bg-danger">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
                             <div class="flex-grow-1">
@@ -47,43 +64,61 @@
                                 <h4 class="fs-22 fw-semibold ff-secondary mb-4 text-white">
                                     <span [CountTo]="findingNotOkActivity.total" class="counter-value" [from]="0" [duration]="1"></span>
                                 </h4>
-                                <a href="javascript:void(0);" class="text-decoration-underline text-white-50">See details</a>
+                                <a href="javascript:void(0);" (click)="scrollToElement(finding)" class="text-decoration-underline text-white-50">See details</a>
                             </div>
                         </div>
                     </div><!-- end card body -->
                 </div><!-- end card -->
             </div>
-            <div class="row card">
-                <div class="card-header">
-                    <h4 class="card-title mb-0">Activity Achievements</h4>
-                </div><!-- end card header -->
-                <div class="card-body">
-                    <div class="d-flex align-items-center pb-2 mb-2" *ngFor="let data of taskDataPercentage.rawData">
-                        <div class="flex-grow-1">
-                            {{data.area}}
-                            <div class="progress animated-progress custom-progress progress-label">
-                                <div class="progress-bar bg-{{getPercentageBadge(getActivityPercentage(data.total_activity, data.checklist))}}" role="progressbar"
-                                    attr.style="width: {{getActivityPercentage(data.total_activity, data.checklist)}}%"
-                                    [attr.aria-valuenow]="getActivityPercentage(data.total_activity, data.checklist)"
-                                    aria-valuemin="0" aria-valuemax="100">
-                                    <div class="label">{{getActivityPercentage(data.total_activity, data.checklist)}}%</div>
+            <div class="row">
+                <div class="col-md-4 card me-2">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0">Total Task List</h4>
+                    </div><!-- end card header -->
+                    <div class="card-body">
+                        <div class="d-flex align-items-center pb-2 mb-2" *ngFor="let data of checklistCategoryData">
+                            <div class="flex-grow-1">
+                                <h5><span class="badge bg-{{ getCategoryBadge(data.category) }}">{{ data.category }}</span></h5>
+                            </div>
+                            <div class="flex-shrink-0 ms-3">
+                                <h4>{{ data.checklist }}</h4>
+                                <!-- <span style="font-size: xx-small;">/{{ data.total_activity }}</span> -->
+                            </div>
+                        </div>
+                    </div><!-- end card-body -->
+                </div>
+                <div class="col card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0">Activity Achievements</h4>
+                    </div><!-- end card header -->
+                    <div class="card-body">
+                        <div class="d-flex align-items-center pb-2 mb-2" *ngFor="let data of taskDataPercentage.rawData">
+                            <div class="flex-grow-1">
+                                {{data.area}}
+                                <div class="progress animated-progress custom-progress progress-label">
+                                    <div class="progress-bar bg-{{getPercentageBadge(getActivityPercentage(data.total_activity, data.checklist))}}" role="progressbar"
+                                        attr.style="width: {{getActivityPercentage(data.total_activity, data.checklist)}}%"
+                                        [attr.aria-valuenow]="getActivityPercentage(data.total_activity, data.checklist)"
+                                        aria-valuemin="0" aria-valuemax="100">
+                                        <div class="label">{{getActivityPercentage(data.total_activity, data.checklist)}}%</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0 ms-3">
+                                <div class="avatar-xs">
+                                    <div class="avatar-title bg-light rounded-circle text-{{ getActivityPercentage(data.total_activity, data.checklist) == 100 ? 'warning' : 'muted' }} fs-16">
+                                        <i class="ri ri-trophy-fill"></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="flex-shrink-0 ms-3">
-                            <div class="avatar-xs">
-                                <div class="avatar-title bg-light rounded-circle text-{{ getActivityPercentage(data.total_activity, data.checklist) == 100 ? 'warning' : 'muted' }} fs-16">
-                                    <i class="ri ri-trophy-fill"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div><!-- end card-body -->
-            </div><!-- end card -->
+                    </div><!-- end card-body -->
+                </div>
+            </div>
         </div><!-- end col -->
     </div>
     <div class="row">
-        <div class="col-xl-6">
+        <div class="col">
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title mb-0">Grouped Bar Chart</h4>
@@ -128,20 +163,118 @@
                 </div><!-- end card-body -->
             </div><!-- end card -->
         </div>
-        <div class="col-xl-6">
+    </div>
+    <div class="row">
+        <div class="col-xl-7" #finding>
             <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title mb-0">Column with Data Labels</h4>
+                <div class="card-header align-items-center d-flex">
+                    <h4 class="card-title mb-0 flex-grow-1">Recent Finding</h4>
+                    <div class="flex-shrink-0">
+                        <div class="dropdown card-header-dropdown" ngbDropdown>
+                            <a class="text-reset dropdown-btn arrow-none" href="javascript:void(0);"
+                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                ngbDropdownToggle>
+                                <span class="text-muted">Report<i class="mdi mdi-chevron-down ms-1"></i></span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end" ngbDropdownMenu>
+                                <a class="dropdown-item" href="javascript:void(0);">Download Report</a>
+                                <a class="dropdown-item" href="javascript:void(0);">Export</a>
+                                <a class="dropdown-item" href="javascript:void(0);">Import</a>
+                            </div>
+                        </div>
+                    </div>
                 </div><!-- end card header -->
 
                 <div class="card-body">
-                    <apx-chart [series]="columnWithDataChart.series" [chart]="columnWithDataChart.chart"
-                        [dataLabels]="columnWithDataChart.dataLabels" [plotOptions]="columnWithDataChart.plotOptions"
-                        [yaxis]="columnWithDataChart.yaxis" [xaxis]="columnWithDataChart.xaxis"
-                        [fill]="columnWithDataChart.fill" [title]="columnWithDataChart.title"
-                        [colors]="columnWithDataChart.colors" dir="ltr"></apx-chart>
-                </div><!-- end card-body -->
-            </div><!-- end card -->
+                    <div class="table-responsive table-card">
+                        <table class="table table-hover table-centered align-middle table-nowrap mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col"*ngFor="let col of columnsFinding">{{col}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let data of findingNotOkActivity.data">
+                                    <td>
+                                        <h5 class="fs-14 my-1 fw-medium"><a routerLink="../tasks"
+                                            class="text-reset">{{ data.activity }}</a></h5>
+                                    </td>
+                                    <td>"{{ data.comment }}"</td>
+                                    <td>
+                                        <div>
+                                            <h6 class="my-1 fw-medium"><a class="text-reset">{{data.machine_area}}</a></h6>
+                                            <span class="text-muted">{{data.area}}</span>
+                                        </div>
+                                    </td>
+                                    <td>{{ data.pic }}</td>
+                                    <td>
+                                        <div class="flex-shrink-0 me-2">
+                                            <img src="http://localhost:3279/api/image/{{ data.picture ? data.picture : 'no-image-found.jpg' }}" alt="" class="p-2" width="70" />
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <div class="p-3">
+                                    <a href="" class="text-muted text-decoration-underline">See more...</a>
+                                </div>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                </div> <!-- .card-body-->
+            </div> <!-- .card-->
+        </div>
+        <div class="col-xl-5" #undone>
+            <div class="card">
+                <div class="card-header align-items-center d-flex">
+                    <h4 class="card-title mb-0 flex-grow-1">Undone Activity</h4>
+                    <div class="flex-shrink-0">
+                        <div class="dropdown card-header-dropdown" ngbDropdown>
+                            <a class="text-reset dropdown-btn arrow-none" href="javascript:void(0);"
+                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                ngbDropdownToggle>
+                                <span class="text-muted">Report<i class="mdi mdi-chevron-down ms-1"></i></span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end" ngbDropdownMenu>
+                                <a class="dropdown-item" href="javascript:void(0);">Download Report</a>
+                                <a class="dropdown-item" href="javascript:void(0);">Export</a>
+                                <a class="dropdown-item" href="javascript:void(0);">Import</a>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- end card header -->
+
+                <div class="card-body">
+                    <div class="table-responsive table-card">
+                        <table class="table table-hover table-centered align-middle table-nowrap mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col"*ngFor="let col of columnsUndone">{{col}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let data of findingUndoneActivity.data">
+                                    <td>
+                                        <span class="badge bg-{{ getCategoryBadge(data.category) }}">{{ data.category }}</span>
+                                    </td>
+                                    <td>{{ data.activity }}</td>
+                                    <td>
+                                        <div>
+                                            <h6 class="my-1 fw-medium"><a class="text-reset">{{data.machine_area}}</a></h6>
+                                            <span class="text-muted">{{data.area}}</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="p-3">
+                            <a href="" class="text-muted text-decoration-underline">See more...</a>
+                        </div>
+                    </div>
+
+                </div> <!-- .card-body-->
+            </div> <!-- .card-->
         </div>
     </div>
 </div>

@@ -61,4 +61,5 @@ export const GlobalComponent = {
     findingUndoneDate: 'master/finding/undone/date/',
     findingChecklist: 'master/finding/checklist/',
     findingChecklistDate: 'master/finding/checklist/date/',
+    checklistCategory: 'master/checklist/category/date/'
 }

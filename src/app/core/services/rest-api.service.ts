@@ -33,6 +33,23 @@ export class restApiService {
   cachedFindingUndoneData: any
   cachedFindingChecklistData: any
 
+  resetCachedData(cachedData?: any) {
+    if (cachedData) {
+      cachedData = undefined
+    } else {
+      this.cachedActorData = undefined
+      this.cachedActivityData = undefined
+      this.cachedAreaData = undefined
+      this.cachedMachineAreaData = undefined
+      this.cachedTaskData = undefined
+      this.cachedTaskDataByDate = undefined
+      this.cachedFindingCountData = undefined
+      this.cachedFindingNotOkData = undefined
+      this.cachedFindingUndoneData = undefined
+      this.cachedFindingChecklistData = undefined
+    }
+  }
+
   removeImage(image: string) {
     return this.http.delete(GlobalComponent.API_URL + `master/` + GlobalComponent.image + image, this.httpOptions())
   }
@@ -146,11 +163,19 @@ export class restApiService {
   }
 
   insertActivityData(data: any) {
-    return this.http.post(GlobalComponent.API_URL + GlobalComponent.activity, {form_data: data}, this.httpOptions())
+    return this.http.post(GlobalComponent.API_URL + GlobalComponent.activity, {form_data: data}, this.httpOptions()).pipe(
+      tap(() => {
+        this.resetCachedData()
+      })
+    )
   }
 
   updateActivityData(id: number, data: any) {
-    return this.http.put(GlobalComponent.API_URL + GlobalComponent.activityId + id, {form_data: data}, this.httpOptions())
+    return this.http.put(GlobalComponent.API_URL + GlobalComponent.activityId + id, {form_data: data}, this.httpOptions()).pipe(
+      tap(() => {
+        this.resetCachedData()
+      })
+    )
   }
 
   // Area API
@@ -168,11 +193,19 @@ export class restApiService {
   }
 
   insertAreaData(data: any) {
-    return this.http.post(GlobalComponent.API_URL + GlobalComponent.area, {form_data: data}, this.httpOptions())
+    return this.http.post(GlobalComponent.API_URL + GlobalComponent.area, {form_data: data}, this.httpOptions()).pipe(
+      tap(() => {
+        this.resetCachedData()
+      })
+    )
   }
 
   updateAreaData(id: any, data: any) {
-    return this.http.put(GlobalComponent.API_URL + GlobalComponent.areaId + id, {form_data: data}, this.httpOptions())
+    return this.http.put(GlobalComponent.API_URL + GlobalComponent.areaId + id, {form_data: data}, this.httpOptions()).pipe(
+      tap(() => {
+        this.resetCachedData()
+      })
+    )
   }
 
   // Machine Area API
@@ -194,11 +227,19 @@ export class restApiService {
   }
 
   insertMachineAreaData(data: any) {
-    return this.http.post(GlobalComponent.API_URL + GlobalComponent.machineArea, {form_data: data}, this.httpOptions())
+    return this.http.post(GlobalComponent.API_URL + GlobalComponent.machineArea, {form_data: data}, this.httpOptions()).pipe(
+      tap(() => {
+        this.resetCachedData()
+      })
+    )
   }
 
   updateMachineAreaData(id: number, data: any) {
-    return this.http.put(GlobalComponent.API_URL + GlobalComponent.machineAreaId + id, {form_data: data}, this.httpOptions())
+    return this.http.put(GlobalComponent.API_URL + GlobalComponent.machineAreaId + id, {form_data: data}, this.httpOptions()).pipe(
+      tap(() => {
+        this.resetCachedData()
+      })
+    )
   }
 
   taskId: number | null = null
@@ -242,7 +283,11 @@ export class restApiService {
   }
 
   insertTaskData(taskData: any) {
-    return this.http.post(GlobalComponent.API_URL + GlobalComponent.task, {form_data: taskData}, this.httpOptions())
+    return this.http.post(GlobalComponent.API_URL + GlobalComponent.task, {form_data: taskData}, this.httpOptions()).pipe(
+      tap(() => {
+        this.resetCachedData()
+      })
+    )
   }
 
   getTaskActivityById(taskId: number, mAreaId: number) {
@@ -254,11 +299,19 @@ export class restApiService {
   }
 
   insertTaskActivity(data: any) {
-    return this.http.post(GlobalComponent.API_URL + GlobalComponent.taskActivity, {form_data: data}, this.httpOptions())
+    return this.http.post(GlobalComponent.API_URL + GlobalComponent.taskActivity, {form_data: data}, this.httpOptions()).pipe(
+      tap(() => {
+        this.resetCachedData()
+      })
+    )
   }
 
   updateTaskActivity(data: any) {
-    return this.http.post(GlobalComponent.API_URL + GlobalComponent.taskActivityId + `batch`, {form_data: data}, this.httpOptions())
+    return this.http.post(GlobalComponent.API_URL + GlobalComponent.taskActivityId + `batch`, {form_data: data}, this.httpOptions()).pipe(
+      tap(() => {
+        this.resetCachedData()
+      })
+    )
   }
 
   uploadMultipleImage(files: FormData) {
@@ -339,5 +392,9 @@ export class restApiService {
 
   getFindingChecklistById(taskId: number) {
     return this.http.get(GlobalComponent.API_URL + GlobalComponent.findingChecklist + `${taskId}`, this.httpOptions())
+  }
+
+  getChecklistCategoryByDate(month: number, year: number) {
+    return this.http.get(GlobalComponent.API_URL + GlobalComponent.checklistCategory + `${month}/${year}`, this.httpOptions())
   }
 }

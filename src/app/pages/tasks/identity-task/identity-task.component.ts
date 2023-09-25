@@ -247,7 +247,6 @@ export class IdentityTaskComponent {
         complete: () => {
           this.onSelectedMachineArea()
           this.isLoading = false
-          this.apiService.cachedTaskData = undefined
           this.goToTop()
           this.showSuccessAlert()
         }

@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ElementRef, Renderer2, ViewChild } from "@angular/core";
 import { restApiService } from "src/app/core/services/rest-api.service";
 import { ChartType, TitleBox1Model } from "./achievements.model"
 
@@ -19,6 +19,7 @@ interface FindingData {
   styleUrls: ["./achievements.component.scss"],
 })
 export class AchievementsComponent {
+  totalActivity!: number
 
   taskDataPercentage: ChartData = {
     rawData: [],
@@ -26,61 +27,20 @@ export class AchievementsComponent {
     categories: []
   }
 
-  tileBoxs1: TitleBox1Model[] = [
-    {
-        id: 1,
-        label: "Total Activity",
-        labelClass: "muted",
-        percentageClass: "success",
-        percentageIcon: "ri-arrow-right-up-line",
-        counter: 559.25,
-        caption: "View net earnings",
-        icon: "bx bx-dollar-circle",
-        decimals: 2,
-    },
-    {
-        id: 2,
-        label: "Undone Activity",
-        labelClass: "white-50",
-        percentage: "-3.57 %",
-        percentageClass: "warning",
-        percentageIcon: "ri-arrow-right-down-line",
-        counter: 36894,
-        caption: "View all orders",
-        icon: "bx bx-shopping-bag",
-        iconClass: "light",
-        bgColor: "bg-info",
-        counterClass: "text-white",
-        captionClass: "text-white-50",
-        decimals: 1,
-        prefix: "",
-        suffix: "",
-    },
-    {
-        id: 3,
-        label: "Finding",
-        labelClass: "muted",
-        percentage: "+29.08 %",
-        percentageClass: "success",
-        percentageIcon: "ri-arrow-right-up-line",
-        counter: 183.35,
-        caption: "See details",
-        icon: "bx bx-user-circle",
-        iconClass: "primary",
-        decimals: 2,
-        prefix: "",
-        suffix: "M",
-    }
-];
-
   findingUndoneActivity: FindingData = {
     total: 0,
     data: []
   }
+
+  columnsFinding = ["Activity", "Comment", "Mahcine/Area", "PIC", "Picture"]
+  columnsUndone = ["Category", "Activity", "Machine/Area"]
+  
   findingNotOkActivity: FindingData = {
     total: 0,
     data: []
   }
+
+  checklistCategoryData: any
 
   groupedBarChart!: ChartType;
   customDataLabelsChart!: ChartType;
@@ -89,12 +49,15 @@ export class AchievementsComponent {
   month: number = 9
   year: number = 2023
 
-  constructor(private apiService: restApiService) {}
+  @ViewChild('finding', { static: true }) private findingElement!: ElementRef;
+
+  constructor(private apiService: restApiService, private renderer: Renderer2) {}
 
   async ngOnInit() {
     await this.getTaskDataByDate(this.month, this.year)
     await this.getFindingUndoneByDate(this.month, this.year)
     await this.getFindingNotOkByDate(this.month, this.year)
+    await this.getChecklistCategoryByDate(this.month, this.year)
     this._groupedBarChart('["--vz-primary", "--vz-info"]');
     this._customDataLabelsChart(
       '["--vz-success", "--vz-info", "--vz-warning", "--vz-danger"]'
@@ -107,12 +70,14 @@ export class AchievementsComponent {
       this.apiService.getTaskDataByDate(month, year).subscribe({
         next: (res: any) => {
           let data: any[] = res.data
+          this.totalActivity = data.reduce((total, current) => total + current.total_activity, 0);
           data.forEach((task) => {
             this.taskDataPercentage.rawData.push(task)
             this.taskDataPercentage.data.push(task.checklist)
             this.taskDataPercentage.categories.push(task.area)
           });
           console.log(this.taskDataPercentage)
+          console.log(this.totalActivity)
           resolve(1)
         },
         error: (err: any) => {
@@ -129,7 +94,8 @@ export class AchievementsComponent {
         next: (res: any) => {
           let data: any[] = res.data
           this.findingUndoneActivity.total = data.length
-          this.findingUndoneActivity.data = res.data
+          let dataUndone = [...data]
+          this.findingUndoneActivity.data = this.getRandomIndices(dataUndone.length, 5).map(index => dataUndone[index]);
           console.log(this.findingUndoneActivity)
           resolve(1)
         },
@@ -147,7 +113,8 @@ export class AchievementsComponent {
         next: (res: any) => {
           let data: any[] = res.data
           this.findingNotOkActivity.total = data.length
-          this.findingNotOkActivity.data = res.data
+          let findingData = [...data]
+          this.findingNotOkActivity.data = findingData.slice(-4).sort((a, b) => findingData.indexOf(b) - findingData.indexOf(a))
           console.log(this.findingNotOkActivity)
           resolve(1)
         },
@@ -157,6 +124,25 @@ export class AchievementsComponent {
         }
       })
     })
+  }
+
+  async getChecklistCategoryByDate(month: number, year: number) {
+    return new Promise((resolve, reject) => {
+      this.apiService.getChecklistCategoryByDate(month, year).subscribe({
+        next: (res: any) => {
+          this.checklistCategoryData = res.data
+          resolve(1)
+        },
+        error: (err: any) => {
+          console.error(err)
+          reject(err)
+        }
+      })
+    })
+  }
+
+  scrollToElement(element: any): void {
+    element.scrollIntoView({behavior: "smooth", block: "start", inline: "nearest"});
   }
 
   private getChartColorsArray(colors: any) {
@@ -230,6 +216,7 @@ export class AchievementsComponent {
         },
       ],
       chart: {
+        height: 356,
         type: "bar",
         toolbar: {
           show: false,
@@ -429,5 +416,31 @@ export class AchievementsComponent {
       default:
         return 'primary';
     }
+  }
+
+  getCategoryBadge(category: any): string {
+    switch (true) {
+      case category == 'Cleaning':
+        return 'primary';
+      case category == 'Inspecting':
+        return 'secondary';
+      case category == 'Lubricating':
+        return 'info';
+      case category == 'Tightening':
+        return 'success';
+      default :
+        return 'dark';
+    }
+  }
+
+  getRandomIndices(max: number, count: number): number[] {
+    const indices: any[] = [];
+    while (indices.length < count) {
+        const randomIndex = Math.floor(Math.random() * max);
+        if (!indices.includes(randomIndex)) {
+            indices.push(randomIndex);
+        }
+    }
+    return indices;
   }
 }

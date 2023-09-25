@@ -77,10 +77,7 @@ export class TasksComponent {
         }
       },
       error: (err: any) => console.error(err),
-      complete: () => {
-        this.apiService.cachedTaskData = undefined
-        this.getTaskData()
-      }
+      complete: () => this.getTaskData()
     })
   }
 

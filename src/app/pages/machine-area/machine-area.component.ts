@@ -134,7 +134,6 @@ export class MachineAreaComponent {
         this.apiService.updateMachineAreaData(id, deleteData)
           .subscribe((res: any) => {
             if (res.data == 1) {
-              this.apiService.cachedMachineAreaData = undefined;
               this.getMachineAreaData();
               Swal.fire({
                 title: "Deleted!",
@@ -156,10 +155,7 @@ export class MachineAreaComponent {
         console.error(err)
         this.isLoading = false
       },
-      complete: () => {
-        this.apiService.cachedMachineAreaData = undefined
-        this.getMachineAreaData()
-      }
+      complete: () => this.getMachineAreaData()
     })
   }
 
@@ -171,10 +167,7 @@ export class MachineAreaComponent {
         console.error(err)
         this.isLoading = false
       },
-      complete: () => {
-        this.apiService.cachedMachineAreaData = undefined
-        this.getMachineAreaData()
-      }
+      complete: () => this.getMachineAreaData()
     })
   }
 

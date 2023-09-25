@@ -92,7 +92,6 @@ export class ActivityComponent {
         this.apiService.updateActivityData(id, deleteData)
           .subscribe((res: any) => {
             if (res.data == 1) {
-              this.apiService.cachedActivityData = undefined;
               this.getActivityData();
               Swal.fire({
                 title: "Deleted!",
@@ -110,10 +109,7 @@ export class ActivityComponent {
     this.apiService.updateActivityData(id, data).subscribe({
       next: (res: any) => this.modalService.dismissAll(),
       error: (err: any) => console.error(err),
-      complete: () => {
-        this.apiService.cachedActivityData = undefined;
-        this.getActivityData()
-      }
+      complete: () => this.getActivityData()
     })
   }
 
@@ -121,10 +117,7 @@ export class ActivityComponent {
     this.apiService.insertActivityData(data).subscribe({
       next: (res: any) => this.modalService.dismissAll(),
       error: (err: any) => console.error(err),
-      complete: () => {
-        this.apiService.cachedActivityData = undefined;
-        this.getActivityData()
-      }
+      complete: () => this.getActivityData()
     })
   }
 
