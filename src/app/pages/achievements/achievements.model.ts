@@ -18,22 +18,3 @@ export interface ChartType {
     title?: any;
     responsive?: any;
 }
-
-export interface TitleBox1Model {
-    id?: any,
-    label?: string,
-    labelClass?: string,
-    percentage?: string,
-    percentageClass?: string,
-    percentageIcon?: string,
-    counter?: any,
-    caption?: string,
-    icon?: string,
-    iconClass?: string,
-    bgColor?: string;
-    counterClass?: string,
-    captionClass?: string,
-    decimals: number,
-    prefix?: string,
-    suffix?: string,
-  }

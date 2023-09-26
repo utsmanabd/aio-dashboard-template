@@ -378,7 +378,7 @@ export class restApiService {
     if (this.cachedFindingChecklistData) {
       return of(this.cachedFindingChecklistData)
     } else {
-      return this.http.get(GlobalComponent.API_URL + GlobalComponent.findingChecklist, this.httpOptions()).pipe(
+      return this.http.get(GlobalComponent.API_URL + GlobalComponent.checklistArea, this.httpOptions()).pipe(
         tap((data) => {
           this.cachedFindingChecklistData = data
         })
@@ -386,12 +386,12 @@ export class restApiService {
     }
   }
 
-  getFindingChecklistByDate(month: number, year: number) {
-    return this.http.get(GlobalComponent.API_URL + GlobalComponent.findingChecklistDate + `${month}/${year}`, this.httpOptions())
+  getActivityChecklistByDate(month: number, year: number) {
+    return this.http.get(GlobalComponent.API_URL + GlobalComponent.checklistAreaDate + `${month}/${year}`, this.httpOptions())
   }
 
-  getFindingChecklistById(taskId: number) {
-    return this.http.get(GlobalComponent.API_URL + GlobalComponent.findingChecklist + `${taskId}`, this.httpOptions())
+  getActivityChecklistById(taskId: number) {
+    return this.http.get(GlobalComponent.API_URL + GlobalComponent.checklistArea + `${taskId}`, this.httpOptions())
   }
 
   getChecklistCategoryByDate(month: number, year: number) {

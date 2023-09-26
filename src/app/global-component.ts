@@ -59,7 +59,7 @@ export const GlobalComponent = {
     findingNotOkDate: 'master/finding/not-ok/date/',
     findingUndone: 'master/finding/undone/',
     findingUndoneDate: 'master/finding/undone/date/',
-    findingChecklist: 'master/finding/checklist/',
-    findingChecklistDate: 'master/finding/checklist/date/',
+    checklistArea: 'master/checklist/area/',
+    checklistAreaDate: 'master/checklist/area/date/',
     checklistCategory: 'master/checklist/category/date/'
 }

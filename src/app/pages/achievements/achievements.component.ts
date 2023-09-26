@@ -1,16 +1,20 @@
 import { Component, ElementRef, Renderer2, ViewChild } from "@angular/core";
 import { restApiService } from "src/app/core/services/rest-api.service";
-import { ChartType, TitleBox1Model } from "./achievements.model"
+import { ChartType } from "./achievements.model"
 
 interface ChartData {
-  rawData: any[];
-  data: number[],
+  rawData: any[],
+  percentageData: number[],
+  data1?: any[],
+  data2?: any[],
   categories: string[],
 }
 
 interface FindingData {
+  rawData: any[],
   total: number,
-  data: any[]
+  limitData: any[],
+  
 }
 
 @Component({
@@ -20,36 +24,50 @@ interface FindingData {
 })
 export class AchievementsComponent {
   totalActivity!: number
+  areaTitle!: string
 
-  taskDataPercentage: ChartData = {
+  areaAchievements: any
+  areaTotalActivity: any
+  areaUndoneActivity: any
+  areaTotalFinding: any
+
+  taskActivityChart!: ChartType;
+  taskActivityChartData: ChartData = {
     rawData: [],
-    data: [],
+    percentageData: [],
+    data1: [],
+    categories: []
+  }
+
+  taskAreaActivityChart!: ChartType;
+  taskAreaComparisonChart!: ChartType;
+  taskAreaActivityChartData: ChartData = {
+    rawData: [],
+    percentageData: [],
+    data1: [],
+    data2: [],
     categories: []
   }
 
   findingUndoneActivity: FindingData = {
+    rawData: [],
     total: 0,
-    data: []
+    limitData: []
+  }
+
+  findingNotOkActivity: FindingData = {
+    rawData: [],
+    total: 0,
+    limitData: []
   }
 
   columnsFinding = ["Activity", "Comment", "Mahcine/Area", "PIC", "Picture"]
   columnsUndone = ["Category", "Activity", "Machine/Area"]
-  
-  findingNotOkActivity: FindingData = {
-    total: 0,
-    data: []
-  }
 
   checklistCategoryData: any
 
-  groupedBarChart!: ChartType;
-  customDataLabelsChart!: ChartType;
-  columnWithDataChart!: ChartType;
-
   month: number = 9
   year: number = 2023
-
-  @ViewChild('finding', { static: true }) private findingElement!: ElementRef;
 
   constructor(private apiService: restApiService, private renderer: Renderer2) {}
 
@@ -58,11 +76,9 @@ export class AchievementsComponent {
     await this.getFindingUndoneByDate(this.month, this.year)
     await this.getFindingNotOkByDate(this.month, this.year)
     await this.getChecklistCategoryByDate(this.month, this.year)
-    this._groupedBarChart('["--vz-primary", "--vz-info"]');
-    this._customDataLabelsChart(
-      '["--vz-success", "--vz-info", "--vz-warning", "--vz-danger"]'
+    this._taskActivityChart(
+      '["--vz-success", "--vz-info", "--vz-warning", "--vz-danger", "--vz-secondary", "--vz-primary", "--vz-dark"]'
     );
-    this._columnWithDataChart('["--vz-success"]');
   }
 
   async getTaskDataByDate(month: number, year: number) {
@@ -72,18 +88,19 @@ export class AchievementsComponent {
           let data: any[] = res.data
           this.totalActivity = data.reduce((total, current) => total + current.total_activity, 0);
           data.forEach((task) => {
-            this.taskDataPercentage.rawData.push(task)
-            this.taskDataPercentage.data.push(task.checklist)
-            this.taskDataPercentage.categories.push(task.area)
+            this.taskActivityChartData.rawData.push(task)
+            this.taskActivityChartData.data1?.push(task.checklist)
+            this.taskActivityChartData.categories.push(task.area)
           });
-          console.log(this.taskDataPercentage)
+          console.log(this.taskActivityChartData)
           console.log(this.totalActivity)
           resolve(1)
         },
         error: (err: any) => {
           reject(err)
           console.error(err);
-        }
+        },
+        complete: () => this.getTaskAreaActivityById(this.taskActivityChartData.rawData[0].area, this.taskActivityChartData.rawData[0].task_id)
       });
     })
   }
@@ -93,9 +110,10 @@ export class AchievementsComponent {
       this.apiService.getFindingUndoneByDate(month, year).subscribe({
         next: (res: any) => {
           let data: any[] = res.data
-          this.findingUndoneActivity.total = data.length
           let dataUndone = [...data]
-          this.findingUndoneActivity.data = this.getRandomIndices(dataUndone.length, 5).map(index => dataUndone[index]);
+          this.findingUndoneActivity.rawData = data
+          this.findingUndoneActivity.total = data.length
+          this.findingUndoneActivity.limitData = this.getRandomIndices(dataUndone.length, 5).map(index => dataUndone[index]);
           console.log(this.findingUndoneActivity)
           resolve(1)
         },
@@ -112,9 +130,11 @@ export class AchievementsComponent {
       this.apiService.getFindingNotOkByDate(month, year).subscribe({
         next: (res: any) => {
           let data: any[] = res.data
+          this.findingNotOkActivity.rawData = data
           this.findingNotOkActivity.total = data.length
           let findingData = [...data]
-          this.findingNotOkActivity.data = findingData.slice(-4).sort((a, b) => findingData.indexOf(b) - findingData.indexOf(a))
+          this.findingNotOkActivity.limitData = findingData.slice(-4).sort((a, b) => findingData.indexOf(b) - findingData.indexOf(a))
+
           console.log(this.findingNotOkActivity)
           resolve(1)
         },
@@ -139,6 +159,80 @@ export class AchievementsComponent {
         }
       })
     })
+  }
+
+  getTaskAreaActivityById(area: string, taskId: number) {
+    this.areaTitle = area
+    this.apiService.getActivityChecklistById(taskId).subscribe({
+      next: (res: any) => {
+        let data: any[] = res.data
+        this.taskAreaActivityChartData.rawData = data
+        if (this.taskAreaActivityChartData.percentageData.length > 0 && this.taskAreaActivityChartData.categories.length > 0) {
+          let percentageData: any[] = []
+          let checklist: any[] = []
+          let totalActivity: any[] = []
+          let categories: any[] = []
+          data.forEach((task) => {
+            categories.push(task.machine_area)
+            percentageData.push(this.getActivityPercentage(task.total_activity, task.checklist))
+            checklist.push(task.checklist)
+            totalActivity.push(task.total_activity)
+          })
+          this.setTaskAreaChartValue(percentageData, categories)
+          this.setTaskAreaComparisonChartValue(checklist, totalActivity, categories)
+          console.log(this.taskAreaActivityChart.series)
+          console.log(this.taskAreaActivityChart.xaxis)
+        } else {
+          data.forEach((task) => {
+            this.taskAreaActivityChartData.categories.push(task.machine_area)
+            this.taskAreaActivityChartData.percentageData.push(this.getActivityPercentage(task.total_activity, task.checklist))
+            this.taskAreaActivityChartData.data1?.push(task.checklist)
+            this.taskAreaActivityChartData.data2?.push(task.total_activity)
+          })
+          this._taskAreaActivityChart('["--vz-info", "--vz-success"]')
+          this._taskAreaComparisonChart('["--vz-primary", "--vz-info"]');
+        }
+      },
+      error: (err: any) => console.error(err)
+    })
+  }
+
+  setAreaDataSummary(taskId: number) {
+    let dataUndone = [...this.findingUndoneActivity.rawData]
+    let dataFinding = [...this.findingNotOkActivity.rawData]
+    this.areaUndoneActivity = dataUndone.filter(data => data.task_id === taskId)
+    this.areaTotalFinding = dataFinding.filter(data => data.task_id === taskId)
+  }
+
+  setTaskAreaComparisonChartValue(dataChecklist: any[], dataActivity: any[], dataCategories: any[]) {
+    this.taskAreaComparisonChart.series = [
+      {
+        data: dataActivity,
+      },
+      {
+        data: dataChecklist,
+      },
+    ]
+    this.taskAreaComparisonChart.xaxis = {
+      categories: dataCategories,
+    }
+  }
+
+  setTaskAreaChartValue(dataSeries: any[], dataCategories: any[]) {
+    this.taskAreaActivityChart.series = [{
+      data: dataSeries
+    }]
+    this.taskAreaActivityChart.xaxis = {
+      categories: dataCategories
+    }
+    this.taskAreaActivityChart.title = {
+      text: this.areaTitle,
+      align: "center",
+      floating: true,
+      style: {
+        fontWeight: 600,
+      },
+    }
   }
 
   scrollToElement(element: any): void {
@@ -172,20 +266,20 @@ export class AchievementsComponent {
     });
   }
 
-  private _groupedBarChart(colors: any) {
+  private _taskAreaComparisonChart(colors: any) {
     colors = this.getChartColorsArray(colors);
-    this.groupedBarChart = {
+    this.taskAreaComparisonChart = {
       series: [
         {
-          data: [44, 55, 41, 64, 22, 43, 21],
+          data: this.taskAreaActivityChartData.data2,
         },
         {
-          data: [53, 32, 33, 52, 13, 44, 32],
+          data: this.taskAreaActivityChartData.data1,
         },
       ],
       chart: {
         type: "bar",
-        height: 410,
+        height: 350,
         toolbar: {
           show: false,
         },
@@ -200,19 +294,20 @@ export class AchievementsComponent {
         intersect: false,
       },
       xaxis: {
-        categories: [2001, 2002, 2003, 2004, 2005, 2006, 2007],
+        categories: this.taskAreaActivityChartData.categories,
       },
       colors: colors,
     };
   }
 
-  private _customDataLabelsChart(colors: any) {
+  private _taskActivityChart(colors: any) {
     colors = this.getChartColorsArray(colors);
-    const taskDataPercentage = this.taskDataPercentage
-    this.customDataLabelsChart = {
+    const taskActivityChartData = this.taskActivityChartData
+    const getTaskAreaActivityById = (area: string, taskId: number) => this.getTaskAreaActivityById(area, taskId)
+    this.taskActivityChart = {
       series: [
         {
-          data: this.taskDataPercentage.data,
+          data: this.taskActivityChartData.data1,
         },
       ],
       chart: {
@@ -221,6 +316,17 @@ export class AchievementsComponent {
         toolbar: {
           show: false,
         },
+        events: {
+          click: function(event: any, chartContext: any, config: any) {
+            const area = config.config.xaxis.categories[config.dataPointIndex]
+            const index = config.dataPointIndex
+            if (index !== -1 && area) {
+              const taskId = taskActivityChartData.rawData[config.dataPointIndex].task_id
+              getTaskAreaActivityById(area, taskId)
+              window.scrollTo(0, 485);
+            }
+          }
+        }
       },
       plotOptions: {
         bar: {
@@ -235,17 +341,13 @@ export class AchievementsComponent {
       colors: colors,
       dataLabels: {
         enabled: true,
-        // textAnchor: "start",
         style: {
           fontSize: "12px",
           colors: ["#304758"]
         },
-        // formatter: function(val: any) {
-        //   return val + "%";
-        // },
         formatter: function (val:any, opt:any) {
-          const checklist = taskDataPercentage.rawData[opt.dataPointIndex].checklist
-              const totalActivity = taskDataPercentage.rawData[opt.dataPointIndex].total_activity
+          const checklist = taskActivityChartData.rawData[opt.dataPointIndex].checklist
+              const totalActivity = taskActivityChartData.rawData[opt.dataPointIndex].total_activity
               return opt.w.globals.labels[opt.dataPointIndex] + `: ${checklist}/${totalActivity}`;
         },
         offsetY: -20,
@@ -259,7 +361,7 @@ export class AchievementsComponent {
         colors: ["#fff"],
       },
       xaxis: {
-        categories: this.taskDataPercentage.categories,
+        categories: this.taskActivityChartData.categories,
       },
       yaxis: {
         labels: {
@@ -270,29 +372,15 @@ export class AchievementsComponent {
           
         },
       },
-      // title: {
-      //   text: "Custom DataLabels",
-      //   align: "center",
-      //   floating: true,
-      //   style: {
-      //     fontWeight: 600,
-      //   },
-      // },
-      // subtitle: {
-      //   text: "Category Names as DataLabels inside bars",
-      //   align: "center",
-      // },
       tooltip: {
-        // theme: "dark",
         x: {
           show: true,
         },
         y: {
           title: {
             formatter: function (val: any, opt: any) {
-              console.log("clicked: " + taskDataPercentage.rawData[opt.dataPointIndex].task_id)
-              const checklist = taskDataPercentage.rawData[opt.dataPointIndex].checklist
-              const totalActivity = taskDataPercentage.rawData[opt.dataPointIndex].total_activity
+              const checklist = taskActivityChartData.rawData[opt.dataPointIndex].checklist
+              const totalActivity = taskActivityChartData.rawData[opt.dataPointIndex].total_activity
               return "Checklist: " + `${checklist}/${totalActivity}`;
             },
           },
@@ -301,98 +389,81 @@ export class AchievementsComponent {
     };
   }
 
-  private _columnWithDataChart(colors:any) {
+  private _taskAreaActivityChart(colors: any) {
     colors = this.getChartColorsArray(colors);
-    this.columnWithDataChart = {
+    const taskAreaActivityChartData = this.taskAreaActivityChartData
+    this.taskAreaActivityChart = {
       series: [
         {
-          name: "Inflation",
-          data: [2.3, 3.1, 4.0, 10.1]
-        }
+          data: this.taskAreaActivityChartData.percentageData,
+        },
       ],
       chart: {
-        height: 350,
-        type: "bar"
+        height: 356,
+        type: "bar",
+        toolbar: {
+          show: false,
+        },
       },
       plotOptions: {
         bar: {
+          horizontal: true,
+          barHeight: "100%",
+          distributed: true,
           dataLabels: {
-            position: "top" // top, center, bottom
-          }
-        }
-      },
-      dataLabels: {
-        enabled: true,
-        formatter: function(val: any) {
-          return val + "%";
+            position: "bottom",
+          },
         },
-        offsetY: -20,
-        style: {
-          fontSize: "12px",
-          colors: ["#304758"]
-        }
       },
       colors: colors,
-      xaxis: {
-        categories: [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr"
-        ],
-        position: "bottom",
-        labels: {
-          offsetY: -18
+      dataLabels: {
+        enabled: true,
+        textAnchor: "start",
+        style: {
+          colors: ["#fff"],
         },
-        axisBorder: {
-          show: false
+        formatter: function (val:any, opt:any) {
+          return opt.w.globals.labels[opt.dataPointIndex] + ":  " + val + '%';
         },
-        axisTicks: {
-          show: false
+        offsetX: 0,
+        dropShadow: {
+          enabled: false,
         },
-        crosshairs: {
-          fill: {
-            type: "gradient",
-            gradient: {
-              colorFrom: "#D8E3F0",
-              colorTo: "#BED1E6",
-              stops: [0, 100],
-              opacityFrom: 0.4,
-              opacityTo: 0.5
-            }
-          }
-        },
-        tooltip: {
-          enabled: true,
-          offsetY: -35
-        }
       },
-      fill: {
-        type: "gradient",
-        gradient: {
-          shade: "light",
-          type: "horizontal",
-          shadeIntensity: 0.25,
-          gradientToColors: undefined,
-          inverseColors: true,
-          opacityFrom: 1,
-          opacityTo: 1,
-          stops: [50, 0, 100, 100]
-        }
+      stroke: {
+        width: 1,
+        colors: ["#fff"],
+      },
+      xaxis: {
+        categories: this.taskAreaActivityChartData.categories,
       },
       yaxis: {
-        axisBorder: {
-          show: false
-        },
-        axisTicks: {
-          show: false
-        },
         labels: {
-          show: false,
-          formatter: function(val: any) {
-            return val + "%";
-          }
-        }
+          show: false
+        },
+      },
+      title: {
+        text: this.areaTitle,
+        align: "center",
+        floating: true,
+        style: {
+          fontWeight: 600,
+        },
+      },
+      tooltip: {
+        x: {
+          show: true,
+        },
+        y: {
+          title: {
+            formatter: function (val: any, opt: any) {
+              console.log("clicked: " + taskAreaActivityChartData.rawData[opt.dataPointIndex].machine_area)
+              const checklist = taskAreaActivityChartData.rawData[opt.dataPointIndex].checklist
+              const totalActivity = taskAreaActivityChartData.rawData[opt.dataPointIndex].total_activity
+              return "Checklist: " + `${checklist}/${totalActivity}`;
+            },
+          },
+        },
       },
     };
   }

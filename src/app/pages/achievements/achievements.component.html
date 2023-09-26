@@ -1,4 +1,4 @@
-<div *ngIf="groupedBarChart && customDataLabelsChart && findingUndoneActivity">
+<div *ngIf="taskAreaComparisonChart && taskActivityChart && findingUndoneActivity && taskAreaActivityChart">
     <div class="row">
         <div class="col-xl-6">
             <div class="card">
@@ -6,12 +6,12 @@
                     <h4 class="card-title mb-0">Task Activity</h4>
                 </div><!-- end card header -->
                 <div class="card-body">
-                    <apx-chart [series]="customDataLabelsChart.series" [chart]="customDataLabelsChart.chart"
-                        [dataLabels]="customDataLabelsChart.dataLabels" [stroke]="customDataLabelsChart.stroke"
-                        [colors]="customDataLabelsChart.colors" [title]="customDataLabelsChart.title"
-                        [subtitle]="customDataLabelsChart.subtitle" [plotOptions]="customDataLabelsChart.plotOptions"
-                        [yaxis]="customDataLabelsChart.yaxis" [xaxis]="customDataLabelsChart.xaxis"
-                        [tooltip]="customDataLabelsChart.tooltip" dir="ltr"></apx-chart>
+                    <apx-chart [series]="taskActivityChart.series" [chart]="taskActivityChart.chart"
+                        [dataLabels]="taskActivityChart.dataLabels" [stroke]="taskActivityChart.stroke"
+                        [colors]="taskActivityChart.colors" [title]="taskActivityChart.title"
+                        [subtitle]="taskActivityChart.subtitle" [plotOptions]="taskActivityChart.plotOptions"
+                        [yaxis]="taskActivityChart.yaxis" [xaxis]="taskActivityChart.xaxis"
+                        [tooltip]="taskActivityChart.tooltip" dir="ltr"></apx-chart>
                 </div><!-- end card-body -->
             </div><!-- end card -->
         </div>
@@ -92,7 +92,7 @@
                         <h4 class="card-title mb-0">Activity Achievements</h4>
                     </div><!-- end card header -->
                     <div class="card-body">
-                        <div class="d-flex align-items-center pb-2 mb-2" *ngFor="let data of taskDataPercentage.rawData">
+                        <div class="d-flex align-items-center pb-2 mb-2" *ngFor="let data of taskActivityChartData.rawData">
                             <div class="flex-grow-1">
                                 {{data.area}}
                                 <div class="progress animated-progress custom-progress progress-label">
@@ -118,48 +118,66 @@
         </div><!-- end col -->
     </div>
     <div class="row">
-        <div class="col">
+        <div class="col-xl-6">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title mb-0">Grouped Bar Chart</h4>
+                    <h4 class="card-title mb-0">Total Activity vs Total Done Chart</h4>
                 </div><!-- end card header -->
                 <div class="card-header p-0 border-0 bg-soft-light">
                     <div class="row g-0 text-center">
                         <div class="col-6 col-sm-3">
-                            <div class="p-3 border border-dashed border-start-0">
-                                <h5 class="mb-1"><span [CountTo]="7585" class="counter-value" [from]="0"
-                                        [duration]="1"></span></h5>
-                                <p class="text-muted mb-0">Orders</p>
-                            </div>
-                        </div><!--end col-->
-                        <div class="col-6 col-sm-3">
-                            <div class="p-3 border border-dashed border-start-0">
-                                <h5 class="mb-1">$<span [CountTo]="22.89" class="counter-value" [from]="0"
-                                        [duration]="1"></span>k</h5>
-                                <p class="text-muted mb-0">Earnings</p>
-                            </div>
-                        </div><!--end col-->
-                        <div class="col-6 col-sm-3">
-                            <div class="p-3 border border-dashed border-start-0">
-                                <h5 class="mb-1"><span [CountTo]="367" class="counter-value" [from]="0"
-                                        [duration]="1"></span></h5>
-                                <p class="text-muted mb-0">Refunds</p>
-                            </div>
-                        </div><!--end col-->
-                        <div class="col-6 col-sm-3">
                             <div class="p-3 border border-dashed border-start-0 border-end-0">
-                                <h5 class="mb-1 text-success"><span [CountTo]="18.92" class="counter-value" [from]="0"
+                                <h5 class="mb-1 text-success"><span [CountTo]="77" class="counter-value" [from]="0"
                                         [duration]="1"></span>%</h5>
-                                <p class="text-muted mb-0">Conversation Ratio</p>
+                                <p class="text-muted mb-0">Achievements</p>
+                            </div>
+                        </div><!--end col-->
+                        <div class="col-6 col-sm-3">
+                            <div class="p-3 border border-dashed border-start-0">
+                                <h5 class="mb-1"><span [CountTo]="66" class="counter-value" [from]="0"
+                                        [duration]="1"></span></h5>
+                                <p class="text-muted mb-0">Activity</p>
+                            </div>
+                        </div><!--end col-->
+                        <div class="col-6 col-sm-3">
+                            <div class="p-3 border border-dashed border-start-0">
+                                <h5 class="mb-1"><span [CountTo]="15" class="counter-value" [from]="0"
+                                        [duration]="1"></span></h5>
+                                <p class="text-muted mb-0">Undone</p>
+                            </div>
+                        </div><!--end col-->
+                        <div class="col-6 col-sm-3">
+                            <div class="p-3 border border-dashed border-start-0">
+                                <h5 class="mb-1"><span [CountTo]="2" class="counter-value" [from]="0"
+                                        [duration]="1"></span></h5>
+                                <p class="text-muted mb-0">Finding</p>
                             </div>
                         </div><!--end col-->
                     </div>
                 </div><!-- end card header -->
                 <div class="card-body">
-                    <apx-chart [series]="groupedBarChart.series" [chart]="groupedBarChart.chart"
-                        [dataLabels]="groupedBarChart.dataLabels" [plotOptions]="groupedBarChart.plotOptions"
-                        [xaxis]="groupedBarChart.xaxis" [stroke]="groupedBarChart.stroke"
-                        [colors]="groupedBarChart.colors" dir="ltr"></apx-chart>
+                    <apx-chart [series]="taskAreaComparisonChart.series" [chart]="taskAreaComparisonChart.chart"
+                        [dataLabels]="taskAreaComparisonChart.dataLabels" [plotOptions]="taskAreaComparisonChart.plotOptions"
+                        [xaxis]="taskAreaComparisonChart.xaxis" [stroke]="taskAreaComparisonChart.stroke"
+                        [colors]="taskAreaComparisonChart.colors" dir="ltr"></apx-chart>
+                </div><!-- end card-body -->
+            </div><!-- end card -->
+        </div>
+        <div class="col-xl-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-2">Task Activity per Area</h4>
+                    <div class="col">
+                        <button *ngFor="let data of taskActivityChartData.rawData" (click)="getTaskAreaActivityById(data.area, data.task_id)" class="btn btn-sm btn-soft-secondary mb-2 me-2">{{ data.area }}</button>
+                    </div>
+                </div><!-- end card header -->
+                <div class="card-body">
+                    <apx-chart [series]="taskAreaActivityChart.series" [chart]="taskAreaActivityChart.chart"
+                        [dataLabels]="taskAreaActivityChart.dataLabels" [stroke]="taskAreaActivityChart.stroke"
+                        [colors]="taskAreaActivityChart.colors" [title]="taskAreaActivityChart.title"
+                        [subtitle]="taskAreaActivityChart.subtitle" [plotOptions]="taskAreaActivityChart.plotOptions"
+                        [yaxis]="taskAreaActivityChart.yaxis" [xaxis]="taskAreaActivityChart.xaxis"
+                        [tooltip]="taskAreaActivityChart.tooltip" dir="ltr"></apx-chart>
                 </div><!-- end card-body -->
             </div><!-- end card -->
         </div>
@@ -194,12 +212,12 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr *ngFor="let data of findingNotOkActivity.data">
+                                <tr *ngFor="let data of findingNotOkActivity.limitData">
                                     <td>
                                         <h5 class="fs-14 my-1 fw-medium"><a routerLink="../tasks"
                                             class="text-reset">{{ data.activity }}</a></h5>
                                     </td>
-                                    <td>"{{ data.comment }}"</td>
+                                    <td>{{ data.comment }}</td>
                                     <td>
                                         <div>
                                             <h6 class="my-1 fw-medium"><a class="text-reset">{{data.machine_area}}</a></h6>
@@ -254,7 +272,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr *ngFor="let data of findingUndoneActivity.data">
+                                <tr *ngFor="let data of findingUndoneActivity.limitData">
                                     <td>
                                         <span class="badge bg-{{ getCategoryBadge(data.category) }}">{{ data.category }}</span>
                                     </td>
