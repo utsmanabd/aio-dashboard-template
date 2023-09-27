@@ -4,15 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { NgbToastModule, NgbProgressbarModule, NgbAlertModule, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { FlatpickrModule } from 'angularx-flatpickr';
-import { CountToModule } from 'angular-count-to';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { SimplebarAngularModule } from 'simplebar-angular';
 import { ToastsContainer } from './dashboards/dashboard/toasts-container.component';
 import { DropzoneModule } from 'ngx-dropzone-wrapper';
-import { DROPZONE_CONFIG } from 'ngx-dropzone-wrapper';
-import { DropzoneConfigInterface } from 'ngx-dropzone-wrapper';
 
 // Swiper Slider
 import { NgxUsefulSwiperModule } from 'ngx-useful-swiper';
@@ -31,7 +28,6 @@ import { DashboardsModule } from "./dashboards/dashboards.module";
 import { ActorComponent } from './actor/actor.component';
 import { FilmComponent } from './film/film.component';
 import { AddUserComponent } from './actor/add-user/add-user.component';
-import { GlobalComponent } from '../global-component';
 import { TasksComponent } from './tasks/tasks.component';
 import { ActivityComponent } from './activity/activity.component';
 import { AreaComponent } from './area/area.component';
@@ -39,14 +35,7 @@ import { MachineAreaComponent } from './machine-area/machine-area.component';
 import { IdentityTaskComponent } from './tasks/identity-task/identity-task.component';
 import {AutocompleteLibModule} from 'angular-ng-autocomplete';
 import { AchievementsComponent } from './achievements/achievements.component';
-
-const DEFAULT_DROPZONE_CONFIG: DropzoneConfigInterface = {
-  url: `${GlobalComponent.API_URL}${GlobalComponent.upload}`,
-  maxFilesize: 50,
-  headers: {"Authorization": `${localStorage.getItem('token')}`},
-  acceptedFiles: 'image/*',
-  addRemoveLinks: true
-};
+import { CountUpDirective } from '../core/directive/count-up.directive';
 
 @NgModule({
   declarations: [
@@ -60,13 +49,13 @@ const DEFAULT_DROPZONE_CONFIG: DropzoneConfigInterface = {
     AreaComponent,
     MachineAreaComponent,
     IdentityTaskComponent,
-    AchievementsComponent
+    AchievementsComponent,
+    CountUpDirective
   ],
   imports: [
     CommonModule,
     FormsModule,
     FlatpickrModule.forRoot(),
-    CountToModule,
     NgApexchartsModule,
     LeafletModule,
     NgbDropdownModule,

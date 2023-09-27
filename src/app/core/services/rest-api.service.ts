@@ -335,8 +335,8 @@ export class restApiService {
   }
 
   getFindingNotOk() {
-    if (this.cachedFindingCountData) {
-      return of(this.cachedFindingCountData)
+    if (this.cachedFindingNotOkData) {
+      return of(this.cachedFindingNotOkData)
     } else {
       return this.http.get(GlobalComponent.API_URL + GlobalComponent.findingNotOk, this.httpOptions()).pipe(
         tap((data) => {

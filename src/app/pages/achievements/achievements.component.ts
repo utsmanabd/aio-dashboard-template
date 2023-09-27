@@ -1,12 +1,12 @@
-import { Component, ElementRef, Renderer2, ViewChild } from "@angular/core";
+import { Component } from "@angular/core";
 import { restApiService } from "src/app/core/services/rest-api.service";
 import { ChartType } from "./achievements.model"
 
 interface ChartData {
   rawData: any[],
   percentageData: number[],
-  data1?: any[],
-  data2?: any[],
+  checklistData?: any[],
+  totalActivityData?: any[],
   categories: string[],
 }
 
@@ -23,19 +23,21 @@ interface FindingData {
   styleUrls: ["./achievements.component.scss"],
 })
 export class AchievementsComponent {
+  countFrom = 0
+
   totalActivity!: number
   areaTitle!: string
 
-  areaAchievements: any
-  areaTotalActivity: any
-  areaUndoneActivity: any
-  areaTotalFinding: any
+  areaAchievements: number = 0
+  areaTotalActivity: number = 0
+  areaUndoneActivity: number = 0
+  areaTotalFinding: number = 0
 
   taskActivityChart!: ChartType;
   taskActivityChartData: ChartData = {
     rawData: [],
     percentageData: [],
-    data1: [],
+    checklistData: [],
     categories: []
   }
 
@@ -44,8 +46,8 @@ export class AchievementsComponent {
   taskAreaActivityChartData: ChartData = {
     rawData: [],
     percentageData: [],
-    data1: [],
-    data2: [],
+    checklistData: [],
+    totalActivityData: [],
     categories: []
   }
 
@@ -66,16 +68,26 @@ export class AchievementsComponent {
 
   checklistCategoryData: any
 
-  month: number = 9
-  year: number = 2023
+  month: number
+  year: number
 
-  constructor(private apiService: restApiService, private renderer: Renderer2) {}
+  constructor(private apiService: restApiService) {
+    const today = new Date()
+    this.month = today.getMonth() + 1
+    this.year = today.getFullYear()
+  }
+
+  onChangeDate() {
+    this.apiService.resetCachedData()
+    this.ngOnInit()
+  }
 
   async ngOnInit() {
     await this.getTaskDataByDate(this.month, this.year)
     await this.getFindingUndoneByDate(this.month, this.year)
     await this.getFindingNotOkByDate(this.month, this.year)
     await this.getChecklistCategoryByDate(this.month, this.year)
+    await this.getTaskAreaActivityById(this.taskActivityChartData.rawData[0].area, this.taskActivityChartData.rawData[0].task_id)
     this._taskActivityChart(
       '["--vz-success", "--vz-info", "--vz-warning", "--vz-danger", "--vz-secondary", "--vz-primary", "--vz-dark"]'
     );
@@ -85,11 +97,16 @@ export class AchievementsComponent {
     return new Promise((resolve, reject) => {
       this.apiService.getTaskDataByDate(month, year).subscribe({
         next: (res: any) => {
+          if (this.taskActivityChartData.rawData.length > 0) {
+            this.taskActivityChartData.rawData.splice(0)
+            this.taskActivityChartData.checklistData?.splice(0)
+            this.taskActivityChartData.categories.splice(0)
+          }
           let data: any[] = res.data
           this.totalActivity = data.reduce((total, current) => total + current.total_activity, 0);
           data.forEach((task) => {
             this.taskActivityChartData.rawData.push(task)
-            this.taskActivityChartData.data1?.push(task.checklist)
+            this.taskActivityChartData.checklistData?.push(task.checklist)
             this.taskActivityChartData.categories.push(task.area)
           });
           console.log(this.taskActivityChartData)
@@ -100,7 +117,7 @@ export class AchievementsComponent {
           reject(err)
           console.error(err);
         },
-        complete: () => this.getTaskAreaActivityById(this.taskActivityChartData.rawData[0].area, this.taskActivityChartData.rawData[0].task_id)
+        complete: () => {}
       });
     })
   }
@@ -109,6 +126,11 @@ export class AchievementsComponent {
     return new Promise((resolve, reject) => {
       this.apiService.getFindingUndoneByDate(month, year).subscribe({
         next: (res: any) => {
+          if (this.findingUndoneActivity.rawData.length > 0) {
+            this.findingUndoneActivity.rawData.splice(0)
+            this.findingUndoneActivity.total = 0
+            this.findingUndoneActivity.limitData.splice(0)
+          }
           let data: any[] = res.data
           let dataUndone = [...data]
           this.findingUndoneActivity.rawData = data
@@ -161,70 +183,74 @@ export class AchievementsComponent {
     })
   }
 
-  getTaskAreaActivityById(area: string, taskId: number) {
-    this.areaTitle = area
-    this.apiService.getActivityChecklistById(taskId).subscribe({
-      next: (res: any) => {
-        let data: any[] = res.data
-        this.taskAreaActivityChartData.rawData = data
-        if (this.taskAreaActivityChartData.percentageData.length > 0 && this.taskAreaActivityChartData.categories.length > 0) {
-          let percentageData: any[] = []
-          let checklist: any[] = []
-          let totalActivity: any[] = []
-          let categories: any[] = []
-          data.forEach((task) => {
-            categories.push(task.machine_area)
-            percentageData.push(this.getActivityPercentage(task.total_activity, task.checklist))
-            checklist.push(task.checklist)
-            totalActivity.push(task.total_activity)
-          })
-          this.setTaskAreaChartValue(percentageData, categories)
-          this.setTaskAreaComparisonChartValue(checklist, totalActivity, categories)
-          console.log(this.taskAreaActivityChart.series)
-          console.log(this.taskAreaActivityChart.xaxis)
-        } else {
+  async getTaskAreaActivityById(area: string, taskId: number) {
+    return new Promise((resolve, reject) => {
+      this.areaTitle = area
+      if (this.taskAreaActivityChartData.rawData.length < 1) {
+        this._taskAreaActivityChart('["--vz-info", "--vz-success"]')
+        this._taskAreaComparisonChart('["--vz-primary", "--vz-info"]');
+      }
+      this.apiService.getActivityChecklistById(taskId).subscribe({
+        next: (res: any) => {
+          let data: any[] = res.data
+          this.taskAreaActivityChartData.rawData = data
+          this.taskAreaActivityChartData.percentageData.splice(0)
+          this.taskAreaActivityChartData.checklistData?.splice(0)
+          this.taskAreaActivityChartData.totalActivityData?.splice(0)
+          this.taskAreaActivityChartData.categories.splice(0)
           data.forEach((task) => {
             this.taskAreaActivityChartData.categories.push(task.machine_area)
             this.taskAreaActivityChartData.percentageData.push(this.getActivityPercentage(task.total_activity, task.checklist))
-            this.taskAreaActivityChartData.data1?.push(task.checklist)
-            this.taskAreaActivityChartData.data2?.push(task.total_activity)
+            this.taskAreaActivityChartData.checklistData?.push(task.checklist)
+            this.taskAreaActivityChartData.totalActivityData?.push(task.total_activity)
           })
-          this._taskAreaActivityChart('["--vz-info", "--vz-success"]')
-          this._taskAreaComparisonChart('["--vz-primary", "--vz-info"]');
+          console.log(this.taskAreaActivityChartData)
+        },
+        error: (err: any) => {
+          console.error(err)
+          reject(err)
+        },
+        complete: () => {
+          this.setTaskAreaChartValue()
+          this.setTaskAreaComparisonChartValue()
+          this.setTaskAreaSummary(taskId)
+          resolve(1)
         }
-      },
-      error: (err: any) => console.error(err)
+      })
     })
+    
   }
 
-  setAreaDataSummary(taskId: number) {
-    let dataUndone = [...this.findingUndoneActivity.rawData]
-    let dataFinding = [...this.findingNotOkActivity.rawData]
-    this.areaUndoneActivity = dataUndone.filter(data => data.task_id === taskId)
-    this.areaTotalFinding = dataFinding.filter(data => data.task_id === taskId)
+  setTaskAreaSummary(taskId: number) {
+    const dataPercentage = (percentageData: any[]) => {
+      let totalChecklist = percentageData.reduce((total, item) => total + item.checklist , 0)
+      let totalActivity = dataTotalActivity(this.taskAreaActivityChartData.totalActivityData!)
+      let areaPercentage = this.getActivityPercentage(totalActivity, totalChecklist)
+      return areaPercentage
+    }
+    const dataTotalActivity = (totalActivityData: any[]) => {
+      let totalActivity = totalActivityData.reduce((total, item) => total + item, 0)
+      return totalActivity as number
+    }
+    this.areaAchievements = dataPercentage(this.taskAreaActivityChartData.rawData)
+    this.areaTotalActivity = dataTotalActivity(this.taskAreaActivityChartData.totalActivityData!)
+    this.areaUndoneActivity = this.findingUndoneActivity.rawData.filter(data => data.task_id === taskId).length
+    this.areaTotalFinding = this.findingNotOkActivity.rawData.filter(data => data.task_id === taskId).length
+
+    console.log(`areaAchievements: ${this.areaAchievements}, areaTotalActivity: ${this.areaTotalActivity}, areaUndoneActivity: ${this.areaUndoneActivity}, areaTotalFinding: ${this.areaTotalFinding}`)
   }
 
-  setTaskAreaComparisonChartValue(dataChecklist: any[], dataActivity: any[], dataCategories: any[]) {
+  setTaskAreaComparisonChartValue() {
     this.taskAreaComparisonChart.series = [
-      {
-        data: dataActivity,
-      },
-      {
-        data: dataChecklist,
-      },
+      { data: this.taskAreaActivityChartData.totalActivityData } ,
+      { data: this.taskAreaActivityChartData.checklistData }
     ]
-    this.taskAreaComparisonChart.xaxis = {
-      categories: dataCategories,
-    }
+    this.taskAreaComparisonChart.xaxis = { categories: this.taskAreaActivityChartData.categories }
   }
 
-  setTaskAreaChartValue(dataSeries: any[], dataCategories: any[]) {
-    this.taskAreaActivityChart.series = [{
-      data: dataSeries
-    }]
-    this.taskAreaActivityChart.xaxis = {
-      categories: dataCategories
-    }
+  setTaskAreaChartValue() {
+    this.taskAreaActivityChart.series = [{ data: this.taskAreaActivityChartData.percentageData }]
+    this.taskAreaActivityChart.xaxis = { categories: this.taskAreaActivityChartData.categories }
     this.taskAreaActivityChart.title = {
       text: this.areaTitle,
       align: "center",
@@ -271,10 +297,10 @@ export class AchievementsComponent {
     this.taskAreaComparisonChart = {
       series: [
         {
-          data: this.taskAreaActivityChartData.data2,
+          data: this.taskAreaActivityChartData.totalActivityData,
         },
         {
-          data: this.taskAreaActivityChartData.data1,
+          data: this.taskAreaActivityChartData.checklistData,
         },
       ],
       chart: {
@@ -307,7 +333,7 @@ export class AchievementsComponent {
     this.taskActivityChart = {
       series: [
         {
-          data: this.taskActivityChartData.data1,
+          data: this.taskActivityChartData.checklistData,
         },
       ],
       chart: {
@@ -323,7 +349,7 @@ export class AchievementsComponent {
             if (index !== -1 && area) {
               const taskId = taskActivityChartData.rawData[config.dataPointIndex].task_id
               getTaskAreaActivityById(area, taskId)
-              window.scrollTo(0, 485);
+              window.scrollTo(0, 585);
             }
           }
         }
@@ -513,5 +539,14 @@ export class AchievementsComponent {
         }
     }
     return indices;
+  }
+
+  getMonthName(month: number): string {
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    
+    return monthNames[month - 1];
   }
 }
