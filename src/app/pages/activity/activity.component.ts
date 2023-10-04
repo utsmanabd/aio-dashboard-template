@@ -4,6 +4,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { restApiService } from 'src/app/core/services/rest-api.service';
 import { ActivityFormData } from './form-data.model';
 import Swal from 'sweetalert2';
+import { CommonService } from 'src/app/core/services/common.service';
 
 @Component({
   selector: 'app-activity',
@@ -52,7 +53,8 @@ export class ActivityComponent {
   constructor(
     private apiService: restApiService,
     private route: ActivatedRoute,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    public common: CommonService
   ) {}
 
   ngOnInit(): void {
@@ -78,27 +80,14 @@ export class ActivityComponent {
   }
 
   onDeleteData(id: any) {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "rgb(3, 142, 220)",
-      cancelButtonColor: "rgb(243, 78, 78)",
-      confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
+    this.common.showDeleteWarningAlert().then((result) => {
       if (result.value) {
         const deleteData = { is_removed: 1 };
         this.apiService.updateActivityData(id, deleteData)
           .subscribe((res: any) => {
             if (res.data == 1) {
               this.getActivityData();
-              Swal.fire({
-                title: "Deleted!",
-                text: "Area has been deleted.",
-                confirmButtonColor: "rgb(3, 142, 220)",
-                icon: "success",
-              });
+              this.common.showSuccessAlert('Activity has been deleted')
             }
           });
       }
@@ -158,28 +147,7 @@ export class ActivityComponent {
       this.currentPage * this.pageSize
     );
 
-    this.activePages = this.calculateActivePages();
-  }
-
-  calculateActivePages(): number[] {
-    const visiblePages = 5; // Number of visible pages
-    const activePages: number[] = [];
-
-    const startPage = Math.max(
-      1,
-      this.currentPage - Math.floor(visiblePages / 2)
-    );
-    const endPage = Math.min(this.totalPages, startPage + visiblePages - 1);
-
-    for (let page = startPage; page <= endPage; page++) {
-      activePages.push(page);
-    }
-
-    return activePages;
-  }
-
-  getComputedRowNumber(index: number): number {
-    return this.index + index + 1;
+    this.activePages = this.common.calculateActivePages(this.currentPage, this.totalPages);
   }
 
   applyFilter(): void {

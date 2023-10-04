@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { CommonService } from 'src/app/core/services/common.service';
 import { restApiService } from 'src/app/core/services/rest-api.service';
 
 @Component({
@@ -39,7 +40,8 @@ export class TasksComponent {
     private apiService: restApiService,
     private route: ActivatedRoute,
     private router: Router,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    public common: CommonService
   ) {}
 
   ngOnInit(): void {
@@ -178,33 +180,7 @@ export class TasksComponent {
       this.currentPage * this.pageSize
     );
 
-    this.activePages = this.calculateActivePages();
-  }
-
-  calculateActivePages(): number[] {
-    const visiblePages = 5; // Number of visible pages
-    const activePages: number[] = [];
-
-    const startPage = Math.max(
-      1,
-      this.currentPage - Math.floor(visiblePages / 2)
-    );
-    const endPage = Math.min(this.totalPages, startPage + visiblePages - 1);
-
-    for (let page = startPage; page <= endPage; page++) {
-      activePages.push(page);
-    }
-
-    return activePages;
-  }
-
-  getComputedRowNumber(index: number): number {
-    return this.index + index + 1;
-  }
-
-  getDate(timestamp: any): string {
-    let date = new Date(timestamp).toLocaleDateString()
-    return date
+    this.activePages = this.common.calculateActivePages(this.currentPage, this.totalPages);
   }
 
   applyFilter(): void {
@@ -220,26 +196,5 @@ export class TasksComponent {
     );
     this.totalPages = Math.ceil(filteredTasksData.length / this.pageSize);
     this.updatePagination(filteredTasksData);
-  }
-
-  getTaskPercentage(totalActivity: number, totalChecklist: number): number {
-    let result = Math.floor((totalChecklist / totalActivity) * 100);
-    if (isNaN(result)) result = 0
-    return result
-  }
-
-  getPercentageBadge(percentage: number): string {
-    switch (true) {
-      case percentage < 35:
-        return 'danger';
-      case percentage < 70:
-        return 'warning';
-      case percentage < 100:
-        return 'success';
-      case percentage === 100:
-        return 'secondary';
-      default:
-        return 'primary';
-    }
   }
 }

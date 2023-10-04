@@ -19,16 +19,16 @@
             </thead>
             <tbody>
                 <tr *ngFor="let data of paginatedTasksData; let i = index">
-                    <td>{{ getComputedRowNumber(i) }}</td>
-                    <td>{{ getDate(data.date) }}</td>
+                    <td>{{ common.getComputedRowNumber(index, i) }}</td>
+                    <td>{{ common.getDate(data.date) }}</td>
                     <td>{{ data.area }}</td>
                     <td>
-                        {{getTaskPercentage(data.total_activity, data.checklist)}}%
+                        {{common.getTaskPercentage(data.total_activity, data.checklist)}}%
                         <div class="progress animated-progress progress-sm">
-                            <div class="progress-bar bg-{{getPercentageBadge(getTaskPercentage(data.total_activity, data.checklist))}}"
+                            <div class="progress-bar bg-{{common.getPercentageBadge(common.getTaskPercentage(data.total_activity, data.checklist))}}"
                                 role="progressbar"
-                                attr.style="width: {{getTaskPercentage(data.total_activity, data.checklist)}}%"
-                                [attr.aria-valuenow]="getTaskPercentage(data.total_activity, data.checklist)"
+                                attr.style="width: {{common.getTaskPercentage(data.total_activity, data.checklist)}}%"
+                                [attr.aria-valuenow]="common.getTaskPercentage(data.total_activity, data.checklist)"
                                 aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                     </td>

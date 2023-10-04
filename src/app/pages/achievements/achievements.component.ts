@@ -1,6 +1,7 @@
 import { Component } from "@angular/core";
 import { restApiService } from "src/app/core/services/rest-api.service";
 import { ChartType } from "./achievements.model"
+import { CommonService } from "src/app/core/services/common.service";
 
 interface ChartData {
   rawData: any[],
@@ -69,17 +70,29 @@ export class AchievementsComponent {
   checklistCategoryData: any
 
   month: number
+  monthBefore!: number
   year: number
+  yearBefore!: number
 
-  constructor(private apiService: restApiService) {
+  constructor(private apiService: restApiService, public common: CommonService) {
     const today = new Date()
     this.month = today.getMonth() + 1
     this.year = today.getFullYear()
   }
 
   onChangeDate() {
-    this.apiService.resetCachedData()
-    this.ngOnInit()
+    if (this.monthBefore !== this.month || this.yearBefore !== this.year) {
+      this.apiService.resetCachedData()
+      this.ngOnInit()
+    }
+  }
+
+  ngOnDestroy() {
+    const today = new Date()
+    const month = today.getMonth() + 1
+    if (this.month != month) {
+      this.apiService.resetCachedData()
+    }
   }
 
   async ngOnInit() {
@@ -91,39 +104,52 @@ export class AchievementsComponent {
     this._taskActivityChart(
       '["--vz-success", "--vz-info", "--vz-warning", "--vz-danger", "--vz-secondary", "--vz-primary", "--vz-dark"]'
     );
+    this.monthBefore = this.month
+    this.yearBefore = this.year
   }
 
   async getTaskDataByDate(month: number, year: number) {
     return new Promise((resolve, reject) => {
       this.apiService.getTaskDataByDate(month, year).subscribe({
         next: (res: any) => {
-          if (this.taskActivityChartData.rawData.length > 0) {
-            this.taskActivityChartData.rawData.splice(0)
-            this.taskActivityChartData.checklistData?.splice(0)
-            this.taskActivityChartData.categories.splice(0)
+          if (!res.status) {
+            this.month = this.monthBefore
+            this.year = this.yearBefore
+            this.apiService.resetCachedData()
+            this.ngOnInit()
+            this.common.showErrorAlert(`No data found on ${this.common.getMonthName(month)} ${year}`)
+          } else {
+            if (this.taskActivityChartData.rawData.length > 0) {
+              this.taskActivityChartData.rawData.splice(0)
+              this.taskActivityChartData.checklistData?.splice(0)
+              this.taskActivityChartData.categories.splice(0)
+            }
+            console.log(res)
+            let data: any[] = res.data
+            this.totalActivity = data.reduce((total, current) => total + current.total_activity, 0);
+            data.forEach((task) => {
+              this.taskActivityChartData.rawData.push(task)
+              this.taskActivityChartData.checklistData?.push(task.checklist)
+              this.taskActivityChartData.categories.push(task.area)
+            });
+            console.log(this.taskActivityChartData)
+            console.log(this.totalActivity)
+            resolve(1)
           }
-          let data: any[] = res.data
-          this.totalActivity = data.reduce((total, current) => total + current.total_activity, 0);
-          data.forEach((task) => {
-            this.taskActivityChartData.rawData.push(task)
-            this.taskActivityChartData.checklistData?.push(task.checklist)
-            this.taskActivityChartData.categories.push(task.area)
-          });
-          console.log(this.taskActivityChartData)
-          console.log(this.totalActivity)
-          resolve(1)
+          
         },
         error: (err: any) => {
+          console.error(err)
           reject(err)
-          console.error(err);
-        },
-        complete: () => {}
+        }
       });
     })
   }
 
   async getFindingUndoneByDate(month: number, year: number) {
+    console.log('finding undone running...')
     return new Promise((resolve, reject) => {
+      console.log('finding undone running...')
       this.apiService.getFindingUndoneByDate(month, year).subscribe({
         next: (res: any) => {
           if (this.findingUndoneActivity.rawData.length > 0) {
@@ -135,7 +161,7 @@ export class AchievementsComponent {
           let dataUndone = [...data]
           this.findingUndoneActivity.rawData = data
           this.findingUndoneActivity.total = data.length
-          this.findingUndoneActivity.limitData = this.getRandomIndices(dataUndone.length, 5).map(index => dataUndone[index]);
+          this.findingUndoneActivity.limitData = this.common.getRandomIndices(dataUndone.length, 5).map(index => dataUndone[index]);
           console.log(this.findingUndoneActivity)
           resolve(1)
         },
@@ -149,6 +175,7 @@ export class AchievementsComponent {
   }
   async getFindingNotOkByDate(month: number, year: number) {
     return new Promise((resolve, reject) => {
+      console.log('finding not ok running...')
       this.apiService.getFindingNotOkByDate(month, year).subscribe({
         next: (res: any) => {
           let data: any[] = res.data
@@ -170,6 +197,7 @@ export class AchievementsComponent {
 
   async getChecklistCategoryByDate(month: number, year: number) {
     return new Promise((resolve, reject) => {
+      console.log('checklist running...')
       this.apiService.getChecklistCategoryByDate(month, year).subscribe({
         next: (res: any) => {
           this.checklistCategoryData = res.data
@@ -185,6 +213,7 @@ export class AchievementsComponent {
 
   async getTaskAreaActivityById(area: string, taskId: number) {
     return new Promise((resolve, reject) => {
+      console.log('task area running...')
       this.areaTitle = area
       if (this.taskAreaActivityChartData.rawData.length < 1) {
         this._taskAreaActivityChart('["--vz-info", "--vz-success"]')
@@ -200,7 +229,7 @@ export class AchievementsComponent {
           this.taskAreaActivityChartData.categories.splice(0)
           data.forEach((task) => {
             this.taskAreaActivityChartData.categories.push(task.machine_area)
-            this.taskAreaActivityChartData.percentageData.push(this.getActivityPercentage(task.total_activity, task.checklist))
+            this.taskAreaActivityChartData.percentageData.push(this.common.getTaskPercentage(task.total_activity, task.checklist))
             this.taskAreaActivityChartData.checklistData?.push(task.checklist)
             this.taskAreaActivityChartData.totalActivityData?.push(task.total_activity)
           })
@@ -225,7 +254,7 @@ export class AchievementsComponent {
     const dataPercentage = (percentageData: any[]) => {
       let totalChecklist = percentageData.reduce((total, item) => total + item.checklist , 0)
       let totalActivity = dataTotalActivity(this.taskAreaActivityChartData.totalActivityData!)
-      let areaPercentage = this.getActivityPercentage(totalActivity, totalChecklist)
+      let areaPercentage = this.common.getTaskPercentage(totalActivity, totalChecklist)
       return areaPercentage
     }
     const dataTotalActivity = (totalActivityData: any[]) => {
@@ -242,8 +271,14 @@ export class AchievementsComponent {
 
   setTaskAreaComparisonChartValue() {
     this.taskAreaComparisonChart.series = [
-      { data: this.taskAreaActivityChartData.totalActivityData } ,
-      { data: this.taskAreaActivityChartData.checklistData }
+      {
+        name: "Total Activity" ,
+        data: this.taskAreaActivityChartData.totalActivityData
+      },
+      {
+        name: "Total Done",
+        data: this.taskAreaActivityChartData.checklistData
+      }
     ]
     this.taskAreaComparisonChart.xaxis = { categories: this.taskAreaActivityChartData.categories }
   }
@@ -297,9 +332,11 @@ export class AchievementsComponent {
     this.taskAreaComparisonChart = {
       series: [
         {
+          name: "Total Activity",
           data: this.taskAreaActivityChartData.totalActivityData,
         },
         {
+          name: "Total Done",
           data: this.taskAreaActivityChartData.checklistData,
         },
       ],
@@ -309,6 +346,21 @@ export class AchievementsComponent {
         toolbar: {
           show: false,
         },
+      },
+      plotOptions: {
+        bar: {
+          dataLabels: {
+            position: "top",
+          },
+        },
+      },
+      dataLabels: {
+        style: {
+          fontSize: "12px",
+          colors: ["#304758"]
+        },
+        offsetY: -20,
+        offsetX: 0,
       },
       stroke: {
         show: true,
@@ -446,7 +498,8 @@ export class AchievementsComponent {
         enabled: true,
         textAnchor: "start",
         style: {
-          colors: ["#fff"],
+          fontSize: "12px",
+          colors: ["#304758"]
         },
         formatter: function (val:any, opt:any) {
           return opt.w.globals.labels[opt.dataPointIndex] + ":  " + val + '%';
@@ -465,7 +518,10 @@ export class AchievementsComponent {
       },
       yaxis: {
         labels: {
-          show: false
+          show: false,
+          formatter: function(val: any) {
+            return `(${val}%)`;
+          }
         },
       },
       title: {
@@ -478,15 +534,14 @@ export class AchievementsComponent {
       },
       tooltip: {
         x: {
-          show: true,
+          show: false,
         },
         y: {
           title: {
             formatter: function (val: any, opt: any) {
-              console.log("clicked: " + taskAreaActivityChartData.rawData[opt.dataPointIndex].machine_area)
               const checklist = taskAreaActivityChartData.rawData[opt.dataPointIndex].checklist
               const totalActivity = taskAreaActivityChartData.rawData[opt.dataPointIndex].total_activity
-              return "Checklist: " + `${checklist}/${totalActivity}`;
+              return "Total Done: " + `${checklist}/${totalActivity}`;
             },
           },
         },
@@ -494,59 +549,9 @@ export class AchievementsComponent {
     };
   }
 
-  getActivityPercentage(totalActivity: number, totalChecklist: number): number {
-    let result = Math.floor((totalChecklist / totalActivity) * 100);
-    if (isNaN(result)) result = 0
+  getTotalAchievements(totalActivity: number, undone: number): number {
+    let checklist = totalActivity - undone
+    let result = this.common.getTaskPercentage(totalActivity, checklist)
     return result
-  }
-
-  getPercentageBadge(percentage: number): string {
-    switch (true) {
-      case percentage < 35:
-        return 'danger';
-      case percentage < 70:
-        return 'warning';
-      case percentage < 100:
-        return 'success';
-      case percentage === 100:
-        return 'secondary';
-      default:
-        return 'primary';
-    }
-  }
-
-  getCategoryBadge(category: any): string {
-    switch (true) {
-      case category == 'Cleaning':
-        return 'primary';
-      case category == 'Inspecting':
-        return 'secondary';
-      case category == 'Lubricating':
-        return 'info';
-      case category == 'Tightening':
-        return 'success';
-      default :
-        return 'dark';
-    }
-  }
-
-  getRandomIndices(max: number, count: number): number[] {
-    const indices: any[] = [];
-    while (indices.length < count) {
-        const randomIndex = Math.floor(Math.random() * max);
-        if (!indices.includes(randomIndex)) {
-            indices.push(randomIndex);
-        }
-    }
-    return indices;
-  }
-
-  getMonthName(month: number): string {
-    const monthNames = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
-    ];
-    
-    return monthNames[month - 1];
   }
 }

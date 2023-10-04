@@ -12,6 +12,7 @@ import { AreaComponent } from './area/area.component';
 import { MachineAreaComponent } from './machine-area/machine-area.component';
 import { IdentityTaskComponent } from './tasks/identity-task/identity-task.component';
 import { AchievementsComponent } from './achievements/achievements.component';
+import { FindingComponent } from './finding/finding.component';
 
 const routes: Routes = [
     {
@@ -68,6 +69,10 @@ const routes: Routes = [
     {
       path: 'master/machine-area',
       component: MachineAreaComponent
+    },
+    {
+      path: 'finding',
+      component: FindingComponent
     }
 ];
 

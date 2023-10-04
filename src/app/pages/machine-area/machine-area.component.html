@@ -19,7 +19,7 @@
             </thead>
             <tbody>
                 <tr *ngFor="let data of paginatedMachineAreaData; let i = index">
-                    <td>{{ getComputedRowNumber(i) }}</td>
+                    <td>{{ common.getComputedRowNumber(index, i) }}</td>
                     <td>{{ data.machine_area }}</td>
                     <td class="text-muted">{{ data.area }}</td>
                     <td>

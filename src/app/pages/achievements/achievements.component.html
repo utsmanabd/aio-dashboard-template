@@ -62,7 +62,7 @@
                         <div class="d-flex align-items-end justify-content-between mt-4">
                             <div>
                                 <h4 class="fs-22 fw-semibold ff-secondary mb-4 text-white">
-                                    <span [countUp]="totalActivity" class="counter-value" [duration]="2"></span>
+                                    <span class="counter-value">{{totalActivity}}</span>
                                 </h4>
                                 <a routerLink="../tasks" class="text-decoration-underline text-white-50">See details</a>
                             </div>
@@ -79,7 +79,7 @@
                         <div class="d-flex align-items-end justify-content-between mt-4">
                             <div>
                                 <h4 class="fs-22 fw-semibold ff-secondary mb-4 text-white">
-                                    <span [countUp]="findingUndoneActivity.total" class="counter-value" [duration]="2"></span>
+                                    <span class="counter-value">{{ findingUndoneActivity.total }}</span>
                                 </h4>
                                 <a href="javascript:void(0);" (click)="scrollToElement(undone)" class="text-decoration-underline text-white-50">See details</a>
                             </div>
@@ -96,7 +96,7 @@
                         <div class="d-flex align-items-end justify-content-between mt-4">
                             <div>
                                 <h4 class="fs-22 fw-semibold ff-secondary mb-4 text-white">
-                                    <span [countUp]="findingNotOkActivity.total" class="counter-value" [duration]="1"></span>
+                                    <span class="counter-value">{{findingNotOkActivity.total}}</span>
                                 </h4>
                                 <a href="javascript:void(0);" (click)="scrollToElement(finding)" class="text-decoration-underline text-white-50">See details</a>
                             </div>
@@ -112,10 +112,10 @@
                     <div class="card-body">
                         <div class="d-flex align-items-center pb-2 mb-2" *ngFor="let data of checklistCategoryData">
                             <div class="flex-grow-1">
-                                <h5><span class="badge bg-{{ getCategoryBadge(data.category) }}">{{ data.category }}</span></h5>
+                                <h5><span class="badge bg-{{ common.getCategoryBadge(data.category) }}">{{ data.category }}</span></h5>
                             </div>
                             <div class="flex-shrink-0 ms-3">
-                                <h4 [countUp]="data.checklist" [duration]="1"></h4>
+                                <h4>{{data.checklist}}</h4>
                                 <!-- <span style="font-size: xx-small;">/{{ data.total_activity }}</span> -->
                             </div>
                         </div>
@@ -123,24 +123,27 @@
                 </div>
                 <div class="col card">
                     <div class="card-header">
-                        <h4 class="card-title mb-0">Activity Achievements</h4>
+                        <div class="d-flex justify-content-between">
+                            <h4 class="card-title mb-0">Total Achievements</h4>
+                            <h4 class="card-title mb-0 text-primary"><b>{{ getTotalAchievements(totalActivity, findingUndoneActivity.total) }}</b>%</h4>
+                        </div>
                     </div><!-- end card header -->
                     <div class="card-body">
                         <div class="d-flex align-items-center pb-2 mb-2" *ngFor="let data of taskActivityChartData.rawData">
                             <div class="flex-grow-1">
                                 {{data.area}}
                                 <div class="progress animated-progress custom-progress progress-label">
-                                    <div class="progress-bar bg-{{getPercentageBadge(getActivityPercentage(data.total_activity, data.checklist))}}" role="progressbar"
-                                        attr.style="width: {{getActivityPercentage(data.total_activity, data.checklist)}}%"
-                                        [attr.aria-valuenow]="getActivityPercentage(data.total_activity, data.checklist)"
+                                    <div class="progress-bar bg-{{common.getPercentageBadge(common.getTaskPercentage(data.total_activity, data.checklist))}}" role="progressbar"
+                                        attr.style="width: {{common.getTaskPercentage(data.total_activity, data.checklist)}}%"
+                                        [attr.aria-valuenow]="common.getTaskPercentage(data.total_activity, data.checklist)"
                                         aria-valuemin="0" aria-valuemax="100">
-                                        <div class="label"><span [countUp]="getActivityPercentage(data.total_activity, data.checklist)" [duration]="1"></span>%</div>
+                                        <div class="label"><span [countUp]="common.getTaskPercentage(data.total_activity, data.checklist)" [duration]="1"></span>%</div>
                                     </div>
                                 </div>
                             </div>
                             <div class="flex-shrink-0 ms-3">
                                 <div class="avatar-xs">
-                                    <div class="avatar-title bg-light rounded-circle text-{{ getActivityPercentage(data.total_activity, data.checklist) == 100 ? 'warning' : 'muted' }} fs-16">
+                                    <div class="avatar-title bg-light rounded-circle text-{{ common.getTaskPercentage(data.total_activity, data.checklist) == 100 ? 'warning' : 'muted' }} fs-16">
                                         <i class="ri ri-trophy-fill"></i>
                                     </div>
                                 </div>
@@ -171,29 +174,25 @@
                     <div class="row g-0 text-center">
                         <div class="col-6 col-sm-3">
                             <div class="p-3 border border-dashed border-start-0 border-end-0">
-                                <h5 class="mb-1 text-success"><span [countUp]="areaAchievements" 
-                                    [duration]="1" class="counter-value"></span>%</h5>
+                                <h5 class="mb-1 text-success"><span class="counter-value">{{areaAchievements}}</span>%</h5>
                                 <p class="text-muted mb-0">Achievements</p>
                             </div>
                         </div><!--end col-->
                         <div class="col-6 col-sm-3">
                             <div class="p-3 border border-dashed border-start-0">
-                                <h5 class="mb-1"><span [countUp]="areaTotalActivity" 
-                                    [duration]="1" class="counter-value"></span></h5>
+                                <h5 class="mb-1"><span class="counter-value">{{areaTotalActivity}}</span></h5>
                                 <p class="text-muted mb-0">Activity</p>
                             </div>
                         </div><!--end col-->
                         <div class="col-6 col-sm-3">
                             <div class="p-3 border border-dashed border-start-0">
-                                <h5 class="mb-1"><span [countUp]="areaUndoneActivity" 
-                                    [duration]="1" class="counter-value"></span></h5>
+                                <h5 class="mb-1"><span class="counter-value">{{areaUndoneActivity}}</span></h5>
                                 <p class="text-muted mb-0">Undone</p>
                             </div>
                         </div><!--end col-->
                         <div class="col-6 col-sm-3">
                             <div class="p-3 border border-dashed border-start-0">
-                                <h5 class="mb-1"><span [countUp]="areaTotalFinding" 
-                                    [duration]="1" class="counter-value text-danger"></span></h5>
+                                <h5 class="mb-1"><span class="counter-value text-danger">{{areaTotalFinding}}</span></h5>
                                 <p class="text-muted mb-0">Finding</p>
                             </div>
                         </div><!--end col-->
@@ -210,7 +209,7 @@
         <div class="col-xl-6">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title mb-2">Task Area Activity</h4>
+                    <h4 class="card-title">Task Area Activity</h4>
                 </div><!-- end card header -->
                 <div class="card-body">
                     <apx-chart [series]="taskAreaActivityChart.series" [chart]="taskAreaActivityChart.chart"
@@ -275,7 +274,7 @@
                             </tbody>
                             <tfoot>
                                 <div class="p-3">
-                                    <a href="" class="text-muted text-decoration-underline">See more...</a>
+                                    <a routerLink="../finding" class="text-muted text-decoration-underline">See more...</a>
                                 </div>
                             </tfoot>
                         </table>
@@ -315,7 +314,7 @@
                             <tbody>
                                 <tr *ngFor="let data of findingUndoneActivity.limitData">
                                     <td>
-                                        <span class="badge bg-{{ getCategoryBadge(data.category) }}">{{ data.category }}</span>
+                                        <span class="badge bg-{{ common.getCategoryBadge(data.category) }}">{{ data.category }}</span>
                                     </td>
                                     <td>{{ data.activity }}</td>
                                     <td>

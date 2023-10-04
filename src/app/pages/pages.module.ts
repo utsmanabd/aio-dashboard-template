@@ -36,6 +36,7 @@ import { IdentityTaskComponent } from './tasks/identity-task/identity-task.compo
 import {AutocompleteLibModule} from 'angular-ng-autocomplete';
 import { AchievementsComponent } from './achievements/achievements.component';
 import { CountUpDirective } from '../core/directive/count-up.directive';
+import { FindingComponent } from './finding/finding.component';
 
 @NgModule({
   declarations: [
@@ -50,7 +51,8 @@ import { CountUpDirective } from '../core/directive/count-up.directive';
     MachineAreaComponent,
     IdentityTaskComponent,
     AchievementsComponent,
-    CountUpDirective
+    CountUpDirective,
+    FindingComponent
   ],
   imports: [
     CommonModule,

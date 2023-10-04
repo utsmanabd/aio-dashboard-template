@@ -1,8 +1,8 @@
 import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
+import { CommonService } from "src/app/core/services/common.service";
 import { restApiService } from "src/app/core/services/rest-api.service";
 import { GlobalComponent } from "src/app/global-component";
-import Swal from "sweetalert2";
 
 @Component({
   selector: "app-identity-task",
@@ -46,7 +46,8 @@ export class IdentityTaskComponent {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private apiService: restApiService
+    private apiService: restApiService,
+    public common: CommonService
   ) {}
 
   ngOnInit() {
@@ -68,7 +69,7 @@ export class IdentityTaskComponent {
     const fileExt = fileName.split(".").pop();
 
     const newFileName = `${activityId}.` + fileExt;
-    const renamedFile = this.renameFile(file, newFileName);
+    const renamedFile = this.common.renameFile(file, newFileName);
 
     this.imageSelected.push(renamedFile);
   }
@@ -181,10 +182,6 @@ export class IdentityTaskComponent {
     else return false;
   }
 
-  getComputedRowNumber(index: number): number {
-    return this.index + index + 1;
-  }
-
   onSaveChanges() {
     if (this.imageSelected.length > 0) {
       const formData = new FormData();
@@ -247,64 +244,19 @@ export class IdentityTaskComponent {
         complete: () => {
           this.onSelectedMachineArea()
           this.isLoading = false
-          this.goToTop()
-          this.showSuccessAlert()
+          this.common.goToTop()
+          this.common.showSuccessAlert('Task activity has been updated!', 'Return to tasks').then((result) => {
+            if (!result.value) {
+              this.router.navigate(['/tasks']);
+            }
+          })
         }
       })
     }
   }
 
-  renameFile(file: File, newFileName: string): File {
-    const renamedFile = new File([file], newFileName, { type: file.type });
-    return renamedFile;
-  }
-
-  getDate(timestamp: any): string {
-    let date = new Date(timestamp).toLocaleDateString();
-    return date;
-  }
-
-  getTaskActivityPercentage(
-    totalActivity: number,
-    totalChecklist: number
-  ): number {
-    let result = Math.floor((totalChecklist / totalActivity) * 100);
-    if (isNaN(result)) result = 0
-    return result
-  }
-
   getImageSource(imageUrl: string): string {
     return `${GlobalComponent.API_URL}${GlobalComponent.image}${imageUrl}`
-  }
-
-  showSuccessAlert() {
-    Swal.fire({
-      title: 'Success!',
-      text: 'Task activity has been updated!',
-      icon: 'success',
-      showCancelButton: true,
-      confirmButtonColor: 'rgb(3, 142, 220)',
-      cancelButtonColor: 'rgb(240, 101, 72)',
-      confirmButtonText: 'OK',
-      cancelButtonText: 'Return to tasks'
-    }).then((result) => {
-      if (!result.value) {
-        this.router.navigate(['/tasks']);
-      }
-    });
-  }
-
-  showFailedAlert() {
-    Swal.fire({
-      icon: 'error',
-      title: 'Oops...',
-      text: 'Something went wrong!'
-    })
-  }
-
-  goToTop() {
-    document.body.scrollTop = 0;
-    document.documentElement.scrollTop = 0;
   }
 
   filterIdentityTaskData() {

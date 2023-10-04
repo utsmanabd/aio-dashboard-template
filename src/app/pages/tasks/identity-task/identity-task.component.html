@@ -35,17 +35,17 @@
     </ng-template>
     <div class="mt-3" *ngIf="identityTaskData && identityTaskCountData !== undefined">
         <h5>Machine Area: <span class="text-danger">{{ identityTaskCountData.machine_area }}</span></h5>
-        <p><span class="text-primary">{{ getDate(identityTaskCountData.date) }}</span></p>
+        <p><span class="text-primary">{{ common.getDate(identityTaskCountData.date) }}</span></p>
         <p>Completed:
             <span class="text-secondary">
-                {{ getTaskActivityPercentage(identityTaskCountData.total_activity, identityTaskCountData.checklist) }}%
+                {{ common.getTaskPercentage(identityTaskCountData.total_activity, identityTaskCountData.checklist) }}%
             </span>
         </p>
         <div class="progress animated-progress mb-2" style="background-color: white;">
             <div class="progress-bar bg-secondary" role="progressbar"
-                attr.style="width: {{getTaskActivityPercentage(identityTaskCountData.total_activity, identityTaskCountData.checklist)}}%"
-                [attr.aria-valuenow]="getTaskActivityPercentage(identityTaskCountData.total_activity, identityTaskCountData.checklist)"
-                aria-valuemin="0" aria-valuemax="100">{{ getTaskActivityPercentage(identityTaskCountData.total_activity,
+                attr.style="width: {{common.getTaskPercentage(identityTaskCountData.total_activity, identityTaskCountData.checklist)}}%"
+                [attr.aria-valuenow]="common.getTaskPercentage(identityTaskCountData.total_activity, identityTaskCountData.checklist)"
+                aria-valuemin="0" aria-valuemax="100">{{ common.getTaskPercentage(identityTaskCountData.total_activity,
                 identityTaskCountData.checklist) }}%</div>
         </div>
         <input type="text" class="form-control mb-2" placeholder="Search for activity, standard, etc." [(ngModel)]="searchKeyword">
@@ -58,7 +58,7 @@
                 </thead>
                 <tbody>
                     <tr *ngFor="let data of filterIdentityTaskData(); let i = index" [ngSwitch]="data.category">
-                        <td>{{ getComputedRowNumber(i) }}</td>
+                        <td>{{ common.getComputedRowNumber(index, i) }}</td>
                         <td>{{ data.activity }}</td>
                         <td>{{ data.periode }}</td>
                         <td *ngSwitchCase="'Cleaning'">

@@ -19,7 +19,7 @@
       </thead>
       <tbody>
         <tr *ngFor="let activity of paginatedActivityData; let i = index" [ngSwitch]="activity.category">
-          <td>{{ getComputedRowNumber(i) }}</td>
+          <td>{{ common.getComputedRowNumber(index, i) }}</td>
           <td>{{ activity.activity }}</td>
           <td class="text-muted">{{ activity.machine_area }}</td>
           <td class="text-muted">{{ activity.area }}</td>

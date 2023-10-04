@@ -60,6 +60,12 @@ export const MENU: MenuItem[] = [
       },
     ]
   },
+  {
+    id: 11,
+    label: 'Finding',
+    link: '/finding',
+    icon: 'ri ri-alert-line'
+  }
   
   // {
   //   id: 179,
