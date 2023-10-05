@@ -47,7 +47,7 @@ if (environment.defaultauth === 'firebase') {
     BrowserModule,
     AppRoutingModule,
     LayoutsModule,
-    PagesModule
+    PagesModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },

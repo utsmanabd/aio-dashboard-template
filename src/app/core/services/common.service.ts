@@ -1,10 +1,13 @@
 import { Injectable } from '@angular/core';
 import Swal from 'sweetalert2';
+import { Const } from '../static/const';
 
 @Injectable({
   providedIn: 'root'
 })
+
 export class CommonService {
+
 
   constructor() { }
 
@@ -124,12 +127,19 @@ export class CommonService {
     })
   }
 
-  showErrorAlert(message?: string) {
+  showServerErrorAlert(message: string = Const.ERR_SERVER_MSG, title: string = Const.ERR_SERVER_TITLE) {
+    return this.showErrorAlert(message, title, 'Retry').then((result) => {
+      if (result.value) location.reload()
+    })
+  }
+
+  showErrorAlert(message?: string, title?: string, confirmButton?: string) {
     return Swal.fire({
-      title: 'Not Found',
+      title: title ? title : 'Not Found',
       text: message ? message : 'Something went wrong',
       icon: 'error',
-      confirmButtonText: 'Close'
+      showCloseButton: true,
+      confirmButtonText: confirmButton ? confirmButton : 'Close'
     })
   }
 

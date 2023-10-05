@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommonService } from 'src/app/core/services/common.service';
 import { restApiService } from 'src/app/core/services/rest-api.service';
+import { Const } from 'src/app/core/static/const';
 
 @Component({
   selector: 'app-machine-area',
@@ -24,6 +25,7 @@ export class MachineAreaComponent {
   isMachineAreaNameEmpty: boolean = false
   isSelectedAreaEmpty: boolean = false
 
+  loading: boolean = false
   isLoading: boolean = false
 
   pageSize = 10;
@@ -33,8 +35,6 @@ export class MachineAreaComponent {
   pages: number[] = [];
 
   searchKeyword: string = "";
-  successMessage: string = "";
-  isSuccess: boolean = false;
 
   constructor(
     private apiService: restApiService,
@@ -43,38 +43,49 @@ export class MachineAreaComponent {
     public common: CommonService
   ) {}
 
-  ngOnInit(): void {
-    this.route.queryParams.subscribe((params: any) => {
-      if (params.success === "true") {
-        this.successMessage = "Data has been updated!";
-        this.isSuccess = true;
-      }
-    });
-    this.getMachineAreaData();
-    this.getAreaData()
+  async ngOnInit() {
+    await this.getMachineAreaData().finally(() => this.loading = false)
+    await this.getAreaData().finally(() => this.loading = false)
   }
 
-  getMachineAreaData() {
-    this.apiService.getMachineAreaData().subscribe({
-      next: (res: any) => {
-        this.machineAreaData = res.data;
-        this.totalPages = Math.ceil(this.machineAreaData.length / this.pageSize);
-        this.updatePagination(this.machineAreaData);
-      },
-      error: (err) => console.error(err)
-    });
+  async getMachineAreaData() {
+    return new Promise((resolve, reject) => {
+      this.loading = true
+      this.apiService.getMachineAreaData().subscribe({
+        next: (res: any) => {
+          this.machineAreaData = res.data;
+          this.totalPages = Math.ceil(this.machineAreaData.length / this.pageSize);
+          this.updatePagination(this.machineAreaData);
+          resolve(true)
+        },
+        error: (err) => {
+          console.error(err)
+          reject(err)
+          this.common.showServerErrorAlert(Const.ERR_GET_MSG('Machine Area'), err)
+        }
+      });
+    })
+    
   }
 
-  getAreaData() {
-    this.apiService.getAreaData().subscribe({
-      next: (res: any) => {
-        this.areaData = res.data;
-        this.areaData.forEach((area: any) => {
-          this.areaIdArray.push(area.area_id)
-        });
-      },
-      error: (err) => console.error(err),
-      complete: () => this.selectedArea = this.areaIdArray[0]
+  async getAreaData() {
+    return new Promise((resolve, reject) => {
+      this.loading = true
+      this.apiService.getAreaData().subscribe({
+        next: (res: any) => {
+          this.areaData = res.data;
+          this.areaData.forEach((area: any) => {
+            this.areaIdArray.push(area.area_id)
+          });
+          resolve(true)
+        },
+        error: (err) => {
+          reject(err)
+          console.error(err)
+          this.common.showServerErrorAlert(Const.ERR_GET_MSG('Area'), err)
+        },
+        complete: () => this.selectedArea = this.areaIdArray[0]
+      })
     })
   }
 
@@ -124,11 +135,20 @@ export class MachineAreaComponent {
     this.common.showDeleteWarningAlert().then((result) => {
       if (result.value) {
         const deleteData = { is_removed: 1 };
+        this.loading = true
         this.apiService.updateMachineAreaData(id, deleteData)
-          .subscribe((res: any) => {
-            if (res.data == 1) {
-              this.getMachineAreaData();
-              this.common.showSuccessAlert('Machine has been deleted')
+          .subscribe({
+            next: (res: any) => {
+              this.loading = false
+              if (res.data == 1) {
+                this.getMachineAreaData();
+                this.common.showSuccessAlert('Machine has been deleted')
+              }
+            },
+            error: (err) => {
+              this.loading = false
+              console.error(err);
+              this.common.showErrorAlert(Const.ERR_DELETE_MSG('Machine Area'), err)
             }
           });
       }
@@ -139,9 +159,10 @@ export class MachineAreaComponent {
     this.isLoading = true
     this.apiService.updateMachineAreaData(id, data).subscribe({
       next: (res: any) => this.modalService.dismissAll(),
-      error: (err: any) => {
+      error: (err) => {
         console.error(err)
         this.isLoading = false
+        this.common.showErrorAlert(Const.ERR_UPDATE_MSG('Machine Area'), err)
       },
       complete: () => this.getMachineAreaData()
     })
@@ -154,6 +175,7 @@ export class MachineAreaComponent {
       error: (err: any) => {
         console.error(err)
         this.isLoading = false
+        this.common.showErrorAlert(Const.ERR_INSERT_MSG('Machine Area'), err)
       },
       complete: () => this.getMachineAreaData()
     })

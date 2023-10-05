@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommonService } from 'src/app/core/services/common.service';
 import { restApiService } from 'src/app/core/services/rest-api.service';
+import { Const } from 'src/app/core/static/const';
 
 @Component({
   selector: 'app-tasks',
@@ -33,6 +34,7 @@ export class TasksComponent {
   isSelectedDateEmpty: boolean = false
 
   areaIdArray: any[] = []
+  loading: boolean = false
   isLoading: boolean = false
   
 
@@ -42,17 +44,13 @@ export class TasksComponent {
     private router: Router,
     private modalService: NgbModal,
     public common: CommonService
-  ) {}
+  ) {
+    this.loading = true
+  }
 
-  ngOnInit(): void {
-    this.route.queryParams.subscribe((params: any) => {
-      if (params.success === "true") {
-        this.successMessage = "Data has been updated!";
-        this.isSuccess = true;
-      }
-    });
-    this.getTaskData();
-    this.getAreaData();
+  async ngOnInit() {
+    await this.getTaskData().finally(() => this.loading = false)
+    await this.getAreaData().finally(() => this.loading = false)
   }
 
   ngOnDestroy() {
@@ -78,7 +76,11 @@ export class TasksComponent {
           this.getActivityByAreaId(res.data[0], data.area_id)
         }
       },
-      error: (err: any) => console.error(err),
+      error: (err: any) => {
+        this.isLoading = false
+        console.error(err)
+        this.common.showErrorAlert(Const.ERR_INSERT_MSG("Task", err), Const.ERR_SERVER_TITLE)
+      },
       complete: () => this.getTaskData()
     })
   }
@@ -94,7 +96,10 @@ export class TasksComponent {
           })
         })
       },
-      error: (err) => console.error(err),
+      error: (err) => {
+        console.error(err)
+        this.common.showErrorAlert(Const.ERR_GET_MSG("Task", err), Const.ERR_SERVER_TITLE)
+      },
       complete: () => {
         if (this.activityIdData.length > 0) {
           this.insertTaskActivity(this.activityIdData)
@@ -106,7 +111,11 @@ export class TasksComponent {
   insertTaskActivity(data: any) {
     this.apiService.insertTaskActivity(data).subscribe({
       next: (res) => this.modalService.dismissAll(),
-      error: (err) => console.error(err)
+      error: (err) => {
+        this.isLoading = false
+        console.error(err)
+        this.common.showErrorAlert(Const.ERR_INSERT_MSG("Task Activity", err), Const.ERR_SERVER_TITLE)
+      }
     })
   }
 
@@ -142,27 +151,44 @@ export class TasksComponent {
     this.isSelectedDateEmpty = this.selectedDate.trim() === ""
   }
 
-  getTaskData() {
-    this.apiService.getTaskData().subscribe({
-      next: (res: any) => {
-        this.tasksData = res.data;
-        this.totalPages = Math.ceil(this.tasksData.length / this.pageSize);
-        this.updatePagination(this.tasksData);
-      },
-      error: (err) => console.error(err)
-    });
+  async getTaskData() {
+    return new Promise((resolve, reject) => {
+      this.apiService.getTaskData().subscribe({
+        next: (res: any) => {
+          this.tasksData = res.data;
+          this.totalPages = Math.ceil(this.tasksData.length / this.pageSize);
+          this.updatePagination(this.tasksData);
+          resolve(true)
+        },
+        error: (err) => {
+          this.common.showServerErrorAlert(Const.ERR_GET_MSG("Task"), err);
+          console.error(err)
+          reject(err)
+        }
+      });
+    })
+    
   }
 
-  getAreaData() {
-    this.apiService.getAreaData().subscribe({
-      next: (res: any) => {
-        this.areaData = res.data;
-        this.areaData.forEach((element: any) => {
-          this.areaIdArray.push(element.area_id)
-        });
-      },
-      error: (err) => console.error(err),
-      complete: () => this.selectedArea = this.areaIdArray[0]
+  async getAreaData() {
+    return new Promise((resolve, reject) => {
+      this.apiService.getAreaData().subscribe({
+        next: (res: any) => {
+          this.areaData = res.data;
+          this.areaData.forEach((element: any) => {
+            this.areaIdArray.push(element.area_id)
+          });
+        },
+        error: (err) => {
+          this.common.showServerErrorAlert(Const.ERR_GET_MSG("Area"), err);
+          console.error(err)
+          reject(err)
+        },
+        complete: () => {
+          this.selectedArea = this.areaIdArray[0]
+          resolve(true)
+        }
+      })
     })
   }
 

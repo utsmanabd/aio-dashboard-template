@@ -1,3 +1,4 @@
+<ngx-loading [show]="loading"></ngx-loading>
 <div class="mt-2">
     <div *ngIf="isSuccess" class="alert alert-success" role="alert">
         <strong> {{ successMessage }} </strong>
@@ -90,7 +91,7 @@
         <button type="button" class="btn btn-light" (click)="modal.dismiss()">Cancel</button>
         <button *ngIf="!isLoading" type="button" class="btn btn-success" (click)="onAddTask()">Add Task
             Activity</button>
-        <button *ngIf="isLoading" type="button" class="btn btn-success btn-load">
+        <button *ngIf="isLoading" type="button" class="btn btn-success btn-load" disabled>
             <span class="d-flex align-items-center">
                 <span class="spinner-border flex-shrink-0" role="status">
                     <span class="visually-hidden">Loading...</span>

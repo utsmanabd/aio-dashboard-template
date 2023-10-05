@@ -1,7 +1,5 @@
+<ngx-loading [show]="loading"></ngx-loading>
 <div class="mt-2">
-    <div *ngIf="isSuccess" class="alert alert-success" role="alert">
-        <strong> {{ successMessage }} </strong>
-    </div>
     <h2 class="text-primary">Data Area</h2>
     <div class="d-flex col col-md-5">
         <button (click)="openModal(content)" class="btn btn-primary mb-2 me-1"><i
@@ -76,6 +74,16 @@
 	</div>
 	<div class="modal-footer">
         <button type="button" class="btn btn-light" (click)="modal.dismiss()">Cancel</button>
-		<button type="button" class="btn btn-success" (click)="onSubmitData()">{{ areaId !== undefined ? 'Update Data' : 'Add Data' }}</button>
+		<button *ngIf="!isLoading" type="button" class="btn btn-success" (click)="onSubmitData()">{{ areaId !== undefined ? 'Update Data' : 'Add Data' }}</button>
+        <button *ngIf="isLoading" type="button" class="btn btn-success btn-load" disabled>
+            <span class="d-flex align-items-center">
+                <span class="spinner-border flex-shrink-0" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </span>
+                <span class="flex-grow-1 ms-2">
+                    Loading...
+                </span>
+            </span>
+        </button>
 	</div>
 </ng-template>

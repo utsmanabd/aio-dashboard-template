@@ -12,18 +12,18 @@ export const MENU: MenuItem[] = [
     link: '',
     icon: 'ri ri-dashboard-fill',
   },
-  {
-    id: 3,
-    label: 'Achievements',
-    link: '/achievements',
-    icon: 'ri ri-trophy-fill',
-  },
-  {
-    id: 4,
-    label: 'Testing Page',
-    link: '/testing',
-    icon: 'ri ri-settings-line',
-  },
+  // {
+  //   id: 3,
+  //   label: 'Achievements',
+  //   link: '/achievements',
+  //   icon: 'ri ri-trophy-fill',
+  // },
+  // {
+  //   id: 4,
+  //   label: 'Testing Page',
+  //   link: '/testing',
+  //   icon: 'ri ri-settings-line',
+  // },
   {
     id: 5,
     label: 'Tasks',

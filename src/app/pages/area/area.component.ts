@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommonService } from 'src/app/core/services/common.service';
 import { restApiService } from 'src/app/core/services/rest-api.service';
+import { Const } from 'src/app/core/static/const';
 
 @Component({
   selector: 'app-area',
@@ -23,7 +24,6 @@ export class AreaComponent {
 
   searchKeyword: string = "";
   successMessage: string = "";
-  isSuccess: boolean = false;
 
   areaId: any
   areaName: string = ""
@@ -32,6 +32,7 @@ export class AreaComponent {
   isAreaNameEmpty: boolean = false
   isAreaDetailEmpty: boolean = false
 
+  loading: boolean = false
   isLoading: boolean = false
 
   constructor(
@@ -42,23 +43,23 @@ export class AreaComponent {
   ) {}
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe((params: any) => {
-      if (params.success === "true") {
-        this.successMessage = "Data has been updated!";
-        this.isSuccess = true;
-      }
-    });
     this.getAreaData();
   }
 
   getAreaData() {
+    this.loading = true
     this.apiService.getAreaData().subscribe({
       next: (res: any) => {
+        this.loading = false
         this.areaData = res.data;
         this.totalPages = Math.ceil(this.areaData.length / this.pageSize);
         this.updatePagination(this.areaData);
       },
-      error: (err) => console.error(err)
+      error: (err) => {
+        this.loading = false
+        console.error(err)
+        this.common.showServerErrorAlert(Const.ERR_GET_MSG("Area"), err)
+      }
     });
     
   }
@@ -109,29 +110,53 @@ export class AreaComponent {
     this.common.showDeleteWarningAlert().then((result) => {
       if (result.value) {
         const deleteData = { is_removed: 1 };
-        this.apiService.updateAreaData(areaId, deleteData)
-          .subscribe((res: any) => {
+        this.loading = true
+        this.apiService.updateAreaData(areaId, deleteData).subscribe({
+          next: (res: any) => {
+            this.loading = false;
             if (res.data == 1) {
               this.getAreaData();
               this.common.showSuccessAlert('Area has been deleted')
             }
-          });
+          },
+          error: (err) => {
+            this.loading = false;
+            console.error(err)
+            this.common.showErrorAlert(Const.ERR_DELETE_MSG('Area'), err)
+          }
+        });
       }
     });
   }
 
   updateAreaData(id: any, data: any) {
+    this.isLoading = true
     this.apiService.updateAreaData(id, data).subscribe({
-      next: (res: any) => this.modalService.dismissAll(),
-      error: (err) => console.error(err),
+      next: (res: any) => {
+        this.modalService.dismissAll()
+        this.isLoading = false
+      },
+      error: (err) => {
+        this.isLoading = false
+        console.error(err)
+        this.common.showErrorAlert(Const.ERR_UPDATE_MSG('Area'), err)
+      },
       complete: () => this.getAreaData()
     })
   }
 
   insertAreaData(data: any) {
+    this.isLoading = true
     this.apiService.insertAreaData(data).subscribe({
-      next: (res: any) => this.modalService.dismissAll(),
-      error: (err) => console.error(err),
+      next: (res: any) => {
+        this.modalService.dismissAll()
+        this.isLoading = false
+      },
+      error: (err) => {
+        this.isLoading = false
+        console.error(err)
+        this.common.showErrorAlert(Const.ERR_INSERT_MSG('Area'), err)
+      },
       complete: () => this.getAreaData()
     })
   }

@@ -50,16 +50,16 @@ export const GlobalComponent = {
 
     // Task Api
     task: 'master/task',
-    taskId: 'master/task/',
+    taskId: 'master/task/', // aman
 
     // Finding Api
     finding: 'master/finding/',
     findingDate: 'master/finding/date/',
     findingNotOk: 'master/finding/not-ok/',
-    findingNotOkDate: 'master/finding/not-ok/date/',
+    findingNotOkDate: 'master/finding/not-ok/date/', // note
     findingUndone: 'master/finding/undone/',
-    findingUndoneDate: 'master/finding/undone/date/',
-    checklistArea: 'master/checklist/area/',
+    findingUndoneDate: 'master/finding/undone/date/', // aman
+    checklistArea: 'master/checklist/area/', // note
     checklistAreaDate: 'master/checklist/area/date/',
-    checklistCategory: 'master/checklist/category/date/'
+    checklistCategory: 'master/checklist/category/date/' // note
 }

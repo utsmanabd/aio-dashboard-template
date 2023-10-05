@@ -2,6 +2,7 @@ import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { CommonService } from "src/app/core/services/common.service";
 import { restApiService } from "src/app/core/services/rest-api.service";
+import { Const } from "src/app/core/static/const";
 import { GlobalComponent } from "src/app/global-component";
 
 @Component({
@@ -82,14 +83,20 @@ export class IdentityTaskComponent {
   }
 
   getMachineAreaDataByAreaId(areaId: number) {
+    this.isLoading = true
     this.apiService.getMachineAreaDataByAreaId(areaId).subscribe({
       next: (res: any) => {
         (this.machineAreaData = res.data),
           this.machineAreaData.forEach((element: any) => {
             this.mAreaArray.push(element.m_area_id);
           });
+        this.isLoading = false
       },
-      error: (err) => console.error(err),
+      error: (err) => {
+        this.isLoading = false
+        console.error(err)
+        this.common.showServerErrorAlert(Const.ERR_GET_MSG("Machine Area"), err)
+      },
       complete: () => (this.selectedMachineArea = this.mAreaArray[0]),
     });
   }
@@ -104,6 +111,9 @@ export class IdentityTaskComponent {
       },
       error: (err) => {
         console.error(err)
+        this.common.showErrorAlert(Const.ERR_GET_MSG("Task Activity", err), Const.ERR_SERVER_TITLE, 'Retry').then((result) => {
+          if (result.value) this.onSelectedMachineArea()
+        })
         this.isLoading = false
       },
       complete: () => this.isLoading = false
@@ -113,7 +123,12 @@ export class IdentityTaskComponent {
   getCountTaskActivity(taskId: any, mAreaId: any) {
     this.apiService.getCountTaskActivityById(taskId, mAreaId).subscribe({
       next: (res: any) => this.identityTaskCountData = res.data[0],
-      error: (err) => console.error(err),
+      error: (err) => {
+        console.error(err)
+        this.common.showErrorAlert(Const.ERR_GET_MSG("Task Activity Count", err), Const.ERR_SERVER_TITLE, 'Retry').then((result) => {
+          if (result.value) this.onSelectedMachineArea()
+        })
+      },
     });
   }
 
@@ -127,6 +142,7 @@ export class IdentityTaskComponent {
       error: (err) => {
         console.error(err)
         this.isLoading = false
+        this.common.showErrorAlert(Const.ERR_INSERT_MSG("Image"), err)
       },
       complete: () => {
         this.imageSelected = [];
@@ -240,6 +256,7 @@ export class IdentityTaskComponent {
         error: (err: any) => {
           console.error(err)
           this.isLoading = false
+          this.common.showErrorAlert(Const.ERR_UPDATE_MSG("Task Activity"), err)
         },
         complete: () => {
           this.onSelectedMachineArea()

@@ -16,11 +16,15 @@ import { FindingComponent } from './finding/finding.component';
 
 const routes: Routes = [
     {
-        path: "",
-        component: DashboardComponent
+        path: '',
+        component: AchievementsComponent
     },
     {
-      path: '', loadChildren: () => import('./dashboards/dashboards.module').then(m => m.DashboardsModule)
+      path: 'dashboard',
+      component: DashboardComponent
+    },
+    {
+      path: 'dashboard', loadChildren: () => import('./dashboards/dashboards.module').then(m => m.DashboardsModule)
     },
     {
       path: 'user',
@@ -42,10 +46,10 @@ const routes: Routes = [
       path: 'testing',
       component: FilmComponent
     },
-    {
-      path: 'achievements',
-      component: AchievementsComponent
-    },
+    // {
+    //   path: 'achievements',
+    //   component: AchievementsComponent
+    // },
     {
       path: 'tasks',
       component: TasksComponent

@@ -5,6 +5,7 @@ import { restApiService } from 'src/app/core/services/rest-api.service';
 import { ActivityFormData } from './form-data.model';
 import Swal from 'sweetalert2';
 import { CommonService } from 'src/app/core/services/common.service';
+import { Const } from 'src/app/core/static/const';
 
 @Component({
   selector: 'app-activity',
@@ -40,8 +41,6 @@ export class ActivityComponent {
   pages: number[] = [];
 
   searchKeyword: string = "";
-  successMessage: string = "";
-  isSuccess: boolean = false;
 
   isMachineAreaEmpty: boolean = false;
   isCategoryEmpty: boolean = false;
@@ -50,6 +49,9 @@ export class ActivityComponent {
   isPeriodEmpty: boolean = false;
   isEmpty: boolean[] = []
 
+  loading: boolean = false;
+  isLoading: boolean = false;
+
   constructor(
     private apiService: restApiService,
     private route: ActivatedRoute,
@@ -57,15 +59,9 @@ export class ActivityComponent {
     public common: CommonService
   ) {}
 
-  ngOnInit(): void {
-    this.route.queryParams.subscribe((params: any) => {
-      if (params.success === "true") {
-        this.successMessage = "Data has been updated!";
-        this.isSuccess = true;
-      }
-    });
-    this.getActivityData();
-    this.getMachineAreaData();
+  async ngOnInit() {
+    await this.getActivityData().finally(() => this.loading = false)
+    await this.getMachineAreaData().finally(() => this.loading = false)
   }
 
   onSubmitData() {
@@ -83,11 +79,20 @@ export class ActivityComponent {
     this.common.showDeleteWarningAlert().then((result) => {
       if (result.value) {
         const deleteData = { is_removed: 1 };
+        this.loading = true
         this.apiService.updateActivityData(id, deleteData)
-          .subscribe((res: any) => {
-            if (res.data == 1) {
-              this.getActivityData();
-              this.common.showSuccessAlert('Activity has been deleted')
+          .subscribe({
+            next: (res: any) => {
+              this.loading = false
+              if (res.data == 1) {
+                this.getActivityData();
+                this.common.showSuccessAlert('Activity has been deleted')
+              }
+            },
+            error: (err) => {
+              this.loading = false
+              console.error(err);
+              this.common.showErrorAlert(Const.ERR_DELETE_MSG('Activity'), err)
             }
           });
       }
@@ -95,37 +100,64 @@ export class ActivityComponent {
   }
 
   updateActivityData(id: any, data: any) {
+    this.isLoading = true
     this.apiService.updateActivityData(id, data).subscribe({
-      next: (res: any) => this.modalService.dismissAll(),
-      error: (err: any) => console.error(err),
+      next: (res: any) => {
+        this.modalService.dismissAll()
+        this.isLoading = false
+      },
+      error: (err: any) => {
+        this.isLoading = false
+        console.error(err)
+        this.common.showErrorAlert(Const.ERR_UPDATE_MSG("Activity"), err)
+      },
       complete: () => this.getActivityData()
     })
   }
 
   insertActivityData(data: any) {
+    this.isLoading = true
     this.apiService.insertActivityData(data).subscribe({
-      next: (res: any) => this.modalService.dismissAll(),
-      error: (err: any) => console.error(err),
+      next: (res: any) => {
+        this.modalService.dismissAll()
+        this.isLoading = false
+      },
+      error: (err: any) => {
+        console.error(err)
+        this.isLoading = false
+        this.common.showErrorAlert(Const.ERR_INSERT_MSG("Activity"), err)
+      },
       complete: () => this.getActivityData()
     })
   }
 
-  getActivityData() {
-    this.apiService.getActivityData().subscribe({
-      next: (res: any) => {
-        this.activityData = res.data;
-        // this.machineAreaData = Array.from(new Set(this.activityData.map((item: any) => item.m_area_id)))
-        this.totalPages = Math.ceil(this.activityData.length / this.pageSize);
-        this.updatePagination(this.activityData);
-      },
-      error: (err) => console.error(err)
-    });
+  async getActivityData() {
+    return new Promise((resolve, reject) => {
+      this.loading = true
+      this.apiService.getActivityData().subscribe({
+        next: (res: any) => {
+          this.activityData = res.data;
+          // this.machineAreaData = Array.from(new Set(this.activityData.map((item: any) => item.m_area_id)))
+          this.totalPages = Math.ceil(this.activityData.length / this.pageSize);
+          this.updatePagination(this.activityData);
+          resolve(true)
+        },
+        error: (err) => {
+          console.error(err)
+          reject(err)
+          this.common.showServerErrorAlert(Const.ERR_GET_MSG("Activity"), err)
+        }
+      });
+    })
   }
 
-  getMachineAreaData() {
+  async getMachineAreaData() {
     this.apiService.getMachineAreaData().subscribe({
       next: (res: any) => this.machineAreaData = res.data,
-      error: (err: any) => console.error(err),
+      error: (err: any) => {
+        console.error(err)
+        this.common.showServerErrorAlert(Const.ERR_GET_MSG("Machine Area"), err)
+      },
       complete: () => {
         this.activityFormData.m_area_id = `${this.machineAreaData[0].m_area_id}`
         this.activityFormDataBefore = {...this.activityFormData}

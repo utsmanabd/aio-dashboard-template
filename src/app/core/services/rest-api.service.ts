@@ -33,6 +33,10 @@ export class restApiService {
   cachedFindingUndoneData: any
   cachedFindingChecklistData: any
 
+  cachedFindingByDate: any
+  cachedUndoneByDate: any
+  cachedChecklistCategoryByDate: any
+
   resetCachedData(cachedData?: any) {
     if (cachedData) {
       cachedData = undefined
@@ -47,6 +51,9 @@ export class restApiService {
       this.cachedFindingNotOkData = undefined
       this.cachedFindingUndoneData = undefined
       this.cachedFindingChecklistData = undefined
+      this.cachedFindingByDate = undefined
+      this.cachedUndoneByDate = undefined
+      this.cachedChecklistCategoryByDate = undefined
     }
   }
 
@@ -347,7 +354,12 @@ export class restApiService {
   }
 
   getFindingNotOkByDate(month: number, year: number) {
-    return this.http.get(GlobalComponent.API_URL + GlobalComponent.findingNotOkDate + `${month}/${year}`, this.httpOptions())
+    if (this.cachedFindingByDate) {
+      return of(this.cachedFindingByDate)
+    }
+    return this.http.get(GlobalComponent.API_URL + GlobalComponent.findingNotOkDate + `${month}/${year}`, this.httpOptions()).pipe(
+      tap((data) => this.cachedFindingByDate = data)
+    )
   }
 
   getFindingNotOkById(taskId: number) {
@@ -367,7 +379,13 @@ export class restApiService {
   }
 
   getFindingUndoneByDate(month: number, year: number) {
-    return this.http.get(GlobalComponent.API_URL + GlobalComponent.findingUndoneDate + `${month}/${year}`, this.httpOptions())
+    if (this.cachedUndoneByDate) {
+      return of(this.cachedUndoneByDate)
+    } else {
+      return this.http.get(GlobalComponent.API_URL + GlobalComponent.findingUndoneDate + `${month}/${year}`, this.httpOptions()).pipe(
+        tap((data) => this.cachedUndoneByDate = data)
+      )
+    }
   }
 
   getFindingUndoneById(taskId: number) {
@@ -395,6 +413,12 @@ export class restApiService {
   }
 
   getChecklistCategoryByDate(month: number, year: number) {
-    return this.http.get(GlobalComponent.API_URL + GlobalComponent.checklistCategory + `${month}/${year}`, this.httpOptions())
+    if (this.cachedChecklistCategoryByDate) {
+      return of(this.cachedChecklistCategoryByDate)
+    } else {
+      return this.http.get(GlobalComponent.API_URL + GlobalComponent.checklistCategory + `${month}/${year}`, this.httpOptions()).pipe(
+        tap((data) => this.cachedChecklistCategoryByDate = data)
+      )
+    }
   }
 }

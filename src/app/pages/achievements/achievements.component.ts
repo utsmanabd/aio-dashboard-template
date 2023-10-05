@@ -2,6 +2,8 @@ import { Component } from "@angular/core";
 import { restApiService } from "src/app/core/services/rest-api.service";
 import { ChartType } from "./achievements.model"
 import { CommonService } from "src/app/core/services/common.service";
+import { tap } from "rxjs";
+import { Const } from "src/app/core/static/const";
 
 interface ChartData {
   rawData: any[],
@@ -74,6 +76,8 @@ export class AchievementsComponent {
   year: number
   yearBefore!: number
 
+  isLoading: boolean = false
+
   constructor(private apiService: restApiService, public common: CommonService) {
     const today = new Date()
     this.month = today.getMonth() + 1
@@ -96,11 +100,11 @@ export class AchievementsComponent {
   }
 
   async ngOnInit() {
-    await this.getTaskDataByDate(this.month, this.year)
-    await this.getFindingUndoneByDate(this.month, this.year)
-    await this.getFindingNotOkByDate(this.month, this.year)
-    await this.getChecklistCategoryByDate(this.month, this.year)
-    await this.getTaskAreaActivityById(this.taskActivityChartData.rawData[0].area, this.taskActivityChartData.rawData[0].task_id)
+    await this.getTaskDataByDate(this.month, this.year).finally(() => this.isLoading = false)
+    await this.getFindingUndoneByDate(this.month, this.year).finally(() => this.isLoading = false)
+    await this.getFindingNotOkByDate(this.month, this.year).finally(() => this.isLoading = false)
+    await this.getChecklistCategoryByDate(this.month, this.year).finally(() => this.isLoading = false)
+    await this.getTaskAreaActivityById(this.taskActivityChartData.rawData[0].area, this.taskActivityChartData.rawData[0].task_id).finally(() => this.isLoading = false)
     this._taskActivityChart(
       '["--vz-success", "--vz-info", "--vz-warning", "--vz-danger", "--vz-secondary", "--vz-primary", "--vz-dark"]'
     );
@@ -110,6 +114,7 @@ export class AchievementsComponent {
 
   async getTaskDataByDate(month: number, year: number) {
     return new Promise((resolve, reject) => {
+      this.isLoading = true
       this.apiService.getTaskDataByDate(month, year).subscribe({
         next: (res: any) => {
           if (!res.status) {
@@ -134,13 +139,14 @@ export class AchievementsComponent {
             });
             console.log(this.taskActivityChartData)
             console.log(this.totalActivity)
-            resolve(1)
+            resolve(true)
           }
           
         },
-        error: (err: any) => {
+        error: (err) => {
           console.error(err)
           reject(err)
+          this.common.showServerErrorAlert(Const.ERR_GET_MSG('Task'), err)
         }
       });
     })
@@ -149,10 +155,12 @@ export class AchievementsComponent {
   async getFindingUndoneByDate(month: number, year: number) {
     console.log('finding undone running...')
     return new Promise((resolve, reject) => {
+      this.isLoading = true
       console.log('finding undone running...')
       this.apiService.getFindingUndoneByDate(month, year).subscribe({
         next: (res: any) => {
           if (this.findingUndoneActivity.rawData.length > 0) {
+            this.apiService.resetCachedData(this.apiService.cachedUndoneByDate)
             this.findingUndoneActivity.rawData.splice(0)
             this.findingUndoneActivity.total = 0
             this.findingUndoneActivity.limitData.splice(0)
@@ -163,11 +171,12 @@ export class AchievementsComponent {
           this.findingUndoneActivity.total = data.length
           this.findingUndoneActivity.limitData = this.common.getRandomIndices(dataUndone.length, 5).map(index => dataUndone[index]);
           console.log(this.findingUndoneActivity)
-          resolve(1)
+          resolve(true)
         },
         error: (err: any) => {
           console.error(err)
           reject(err)
+          this.common.showServerErrorAlert(Const.ERR_GET_MSG('Undone'), err)
         }
       })
     })
@@ -175,9 +184,13 @@ export class AchievementsComponent {
   }
   async getFindingNotOkByDate(month: number, year: number) {
     return new Promise((resolve, reject) => {
+      this.isLoading = true
       console.log('finding not ok running...')
       this.apiService.getFindingNotOkByDate(month, year).subscribe({
         next: (res: any) => {
+          if (this.findingNotOkActivity.rawData.length > 0) {
+            this.apiService.resetCachedData(this.apiService.cachedFindingByDate)
+          }
           let data: any[] = res.data
           this.findingNotOkActivity.rawData = data
           this.findingNotOkActivity.total = data.length
@@ -185,11 +198,12 @@ export class AchievementsComponent {
           this.findingNotOkActivity.limitData = findingData.slice(-4).sort((a, b) => findingData.indexOf(b) - findingData.indexOf(a))
 
           console.log(this.findingNotOkActivity)
-          resolve(1)
+          resolve(true)
         },
         error: (err: any) => {
           console.error(err)
           reject(err)
+          this.common.showServerErrorAlert(Const.ERR_GET_MSG('Finding'), err)
         }
       })
     })
@@ -197,15 +211,20 @@ export class AchievementsComponent {
 
   async getChecklistCategoryByDate(month: number, year: number) {
     return new Promise((resolve, reject) => {
+      this.isLoading = true
       console.log('checklist running...')
       this.apiService.getChecklistCategoryByDate(month, year).subscribe({
         next: (res: any) => {
+          if (this.checklistCategoryData) {
+            this.apiService.resetCachedData(this.apiService.cachedChecklistCategoryByDate)
+          }
           this.checklistCategoryData = res.data
-          resolve(1)
+          resolve(true)
         },
         error: (err: any) => {
           console.error(err)
           reject(err)
+          this.common.showServerErrorAlert(Const.ERR_GET_MSG('Checklist Category'), err)
         }
       })
     })
@@ -238,12 +257,13 @@ export class AchievementsComponent {
         error: (err: any) => {
           console.error(err)
           reject(err)
+          this.common.showServerErrorAlert(Const.ERR_GET_MSG('Task Area'), err)
         },
         complete: () => {
           this.setTaskAreaChartValue()
           this.setTaskAreaComparisonChartValue()
           this.setTaskAreaSummary(taskId)
-          resolve(1)
+          resolve(true)
         }
       })
     })

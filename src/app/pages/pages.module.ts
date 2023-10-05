@@ -37,6 +37,7 @@ import {AutocompleteLibModule} from 'angular-ng-autocomplete';
 import { AchievementsComponent } from './achievements/achievements.component';
 import { CountUpDirective } from '../core/directive/count-up.directive';
 import { FindingComponent } from './finding/finding.component';
+import { NgxLoadingModule, ngxLoadingAnimationTypes } from 'ngx-loading';
 
 @NgModule({
   declarations: [
@@ -70,14 +71,16 @@ import { FindingComponent } from './finding/finding.component';
     DropzoneModule,
     NgbAlertModule,
     NgbDatepickerModule,
-    AutocompleteLibModule
+    AutocompleteLibModule,
+    NgxLoadingModule
+    //   .forRoot({
+    //   animationType: ngxLoadingAnimationTypes.threeBounce,
+    //   backdropBackgroundColour: 'rgba(0,0,0,0)', 
+    //   primaryColour: '#49ABE0', 
+    //   secondaryColour: '#49ABE0', 
+    //   tertiaryColour: '#49ABE0'
+    // })
   ],
-  // providers: [
-  //   {
-  //     provide: DROPZONE_CONFIG,
-  //     useValue: DEFAULT_DROPZONE_CONFIG
-  //   }
-  // ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class PagesModule { 
