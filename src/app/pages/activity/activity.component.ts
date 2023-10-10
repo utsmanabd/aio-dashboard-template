@@ -13,9 +13,11 @@ import { Const } from 'src/app/core/static/const';
   styleUrls: ['./activity.component.scss']
 })
 export class ActivityComponent {
-  tableColumn = ["#", "Activity", "Machine Area", "Area", "Category", "Standard", "Periode"];
+  tableColumn = ["#", "Activity", "Machine Area", "Area", "Category", "Standard", "Periode", "Action"];
   periodData = ['W', '2W', 'M', '2M', '3M', '4M', '6M', '1Y']
   keyword = 'period';
+
+  breadCrumbItems!: Array<{}>;
 
   activityFormData: ActivityFormData = {
     m_area_id: '',
@@ -57,11 +59,16 @@ export class ActivityComponent {
     private route: ActivatedRoute,
     private modalService: NgbModal,
     public common: CommonService
-  ) {}
+  ) {
+    this.breadCrumbItems = [
+      { label: 'Master Data' },
+      { label: 'Activity', active: true }
+    ];
+  }
 
-  async ngOnInit() {
-    await this.getActivityData().finally(() => this.loading = false)
-    await this.getMachineAreaData().finally(() => this.loading = false)
+  ngOnInit() {
+    this.getActivityData()
+    this.getMachineAreaData()
   }
 
   onSubmitData() {
@@ -131,38 +138,39 @@ export class ActivityComponent {
     })
   }
 
-  async getActivityData() {
-    return new Promise((resolve, reject) => {
-      this.loading = true
+  getActivityData() {
+    this.loading = true
       this.apiService.getActivityData().subscribe({
         next: (res: any) => {
+          this.loading = false
           this.activityData = res.data;
           // this.machineAreaData = Array.from(new Set(this.activityData.map((item: any) => item.m_area_id)))
           this.totalPages = Math.ceil(this.activityData.length / this.pageSize);
           this.updatePagination(this.activityData);
-          resolve(true)
         },
         error: (err) => {
+          this.loading = false
           console.error(err)
-          reject(err)
           this.common.showServerErrorAlert(Const.ERR_GET_MSG("Activity"), err)
         }
       });
-    })
   }
 
-  async getMachineAreaData() {
-    this.apiService.getMachineAreaData().subscribe({
-      next: (res: any) => this.machineAreaData = res.data,
-      error: (err: any) => {
-        console.error(err)
-        this.common.showServerErrorAlert(Const.ERR_GET_MSG("Machine Area"), err)
-      },
-      complete: () => {
-        this.activityFormData.m_area_id = `${this.machineAreaData[0].m_area_id}`
-        this.activityFormDataBefore = {...this.activityFormData}
-      }
-    })
+  getMachineAreaData() {
+    this.loading = true
+      this.apiService.getMachineAreaData().subscribe({
+        next: (res: any) => this.machineAreaData = res.data,
+        error: (err: any) => {
+          this.loading = false
+          console.error(err)
+          this.common.showServerErrorAlert(Const.ERR_GET_MSG("Machine Area"), err)
+        },
+        complete: () => {
+          this.loading = false
+          this.activityFormData.m_area_id = `${this.machineAreaData[0].m_area_id}`
+          this.activityFormDataBefore = {...this.activityFormData}
+        }
+      })
   }
 
   goToPage(pageNumber: number): void {

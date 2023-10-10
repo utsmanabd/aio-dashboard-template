@@ -11,7 +11,7 @@ import { Const } from 'src/app/core/static/const';
   styleUrls: ['./machine-area.component.scss']
 })
 export class MachineAreaComponent {
-  tableColumn = ["#", "Machine Area", "Area"];
+  tableColumn = ["#", "Machine Area", "Area", "Action"];
   machineAreaData: any;
   machineAreaId: any
   areaData: any
@@ -19,6 +19,7 @@ export class MachineAreaComponent {
   index: number = 0;
   activePages: number[] = [];
   filteredMachineAreaData: any[] = [];
+  breadCrumbItems!: Array<{}>;
 
   selectedArea!: string
   machineAreaName: string = ''
@@ -41,52 +42,52 @@ export class MachineAreaComponent {
     private route: ActivatedRoute,
     private modalService: NgbModal,
     public common: CommonService
-  ) {}
-
-  async ngOnInit() {
-    await this.getMachineAreaData().finally(() => this.loading = false)
-    await this.getAreaData().finally(() => this.loading = false)
+  ) {
+    this.breadCrumbItems = [
+      { label: 'Master Data' },
+      { label: 'Machine Area', active: true }
+    ];
   }
 
-  async getMachineAreaData() {
-    return new Promise((resolve, reject) => {
-      this.loading = true
+  ngOnInit() {
+    this.getMachineAreaData()
+    this.getAreaData()
+  }
+
+  getMachineAreaData() {
+    this.loading = true
       this.apiService.getMachineAreaData().subscribe({
         next: (res: any) => {
+          this.loading = false
           this.machineAreaData = res.data;
           this.totalPages = Math.ceil(this.machineAreaData.length / this.pageSize);
           this.updatePagination(this.machineAreaData);
-          resolve(true)
         },
         error: (err) => {
+          this.loading = false
           console.error(err)
-          reject(err)
           this.common.showServerErrorAlert(Const.ERR_GET_MSG('Machine Area'), err)
         }
       });
-    })
-    
   }
 
-  async getAreaData() {
-    return new Promise((resolve, reject) => {
-      this.loading = true
+  getAreaData() {
+    this.loading = true
       this.apiService.getAreaData().subscribe({
         next: (res: any) => {
+          this.loading = false
           this.areaData = res.data;
           this.areaData.forEach((area: any) => {
             this.areaIdArray.push(area.area_id)
           });
-          resolve(true)
         },
         error: (err) => {
-          reject(err)
+          this.loading = false
           console.error(err)
           this.common.showServerErrorAlert(Const.ERR_GET_MSG('Area'), err)
         },
         complete: () => this.selectedArea = this.areaIdArray[0]
       })
-    })
   }
 
   goToPage(pageNumber: number): void {
@@ -164,7 +165,10 @@ export class MachineAreaComponent {
         this.isLoading = false
         this.common.showErrorAlert(Const.ERR_UPDATE_MSG('Machine Area'), err)
       },
-      complete: () => this.getMachineAreaData()
+      complete: () => {
+        this.getMachineAreaData()
+        this.isLoading = false
+      }
     })
   }
 
@@ -177,7 +181,10 @@ export class MachineAreaComponent {
         this.isLoading = false
         this.common.showErrorAlert(Const.ERR_INSERT_MSG('Machine Area'), err)
       },
-      complete: () => this.getMachineAreaData()
+      complete: () => {
+        this.getMachineAreaData()
+        this.isLoading = false
+      }
     })
   }
 

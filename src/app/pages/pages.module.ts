@@ -1,7 +1,7 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { NgbToastModule, NgbProgressbarModule, NgbAlertModule, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
+import { CommonModule, DatePipe } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgbToastModule, NgbProgressbarModule, NgbAlertModule, NgbDatepickerModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { FlatpickrModule } from 'angularx-flatpickr';
 import { NgApexchartsModule } from 'ng-apexcharts';
@@ -38,6 +38,7 @@ import { AchievementsComponent } from './achievements/achievements.component';
 import { CountUpDirective } from '../core/directive/count-up.directive';
 import { FindingComponent } from './finding/finding.component';
 import { NgxLoadingModule, ngxLoadingAnimationTypes } from 'ngx-loading';
+import { FullCalendarModule } from '@fullcalendar/angular';
 
 @NgModule({
   declarations: [
@@ -72,7 +73,10 @@ import { NgxLoadingModule, ngxLoadingAnimationTypes } from 'ngx-loading';
     NgbAlertModule,
     NgbDatepickerModule,
     AutocompleteLibModule,
-    NgxLoadingModule
+    NgxLoadingModule,
+    NgbTooltipModule,
+    ReactiveFormsModule,
+    FullCalendarModule
     //   .forRoot({
     //   animationType: ngxLoadingAnimationTypes.threeBounce,
     //   backdropBackgroundColour: 'rgba(0,0,0,0)', 
@@ -81,6 +85,7 @@ import { NgxLoadingModule, ngxLoadingAnimationTypes } from 'ngx-loading';
     //   tertiaryColour: '#49ABE0'
     // })
   ],
+  providers: [DatePipe],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class PagesModule { 

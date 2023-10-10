@@ -7,9 +7,9 @@
                     <div>
                         <h4>CILT Dashboard<span class="text-primary"></span></h4>
                     </div>
-                    <div class="d-flex flex-row align-items-center me-2">
+                    <div class="d-flex flex-row align-items-center">
                             <div class="me-2">
-                                <select id="monthPicker" class="form-select" aria-label="Default select example" [(ngModel)]="month">
+                                <select id="monthPicker" class="form-select form-select-sm" aria-label="Default select example" [(ngModel)]="month">
                                     <option value="1">January</option>
                                     <option value="2">February</option>
                                     <option value="3">March</option>
@@ -25,9 +25,9 @@
                                 </select>
                             </div>
                             <div class="me-2">
-                                <input class="form-control" type="number" min="1900" max="3000" step="1" [(ngModel)]="year" />
+                                <input class="form-control form-control-sm" type="number" min="1900" max="3000" step="1" [(ngModel)]="year" />
                             </div>
-                            <button type="button" (click)="onChangeDate()" class="btn btn-success">Apply</button>
+                            <button type="button" (click)="onChangeDate()" class="btn btn-sm btn-success">Apply</button>
                     </div>
                 </div>
                 

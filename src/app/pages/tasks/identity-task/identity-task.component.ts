@@ -52,10 +52,11 @@ export class IdentityTaskComponent {
   ) {}
 
   ngOnInit() {
-    this.route.queryParams.subscribe((params) => {
-      this.taskId = +params["id"] || null;
-      this.areaId = params["areaId"] || null;
-    });
+    this.route.params.subscribe(params => {
+      this.taskId = params['task-id']
+      this.areaId = params['area-id']
+      console.log(params)
+    })
     if (this.areaId !== null) this.getMachineAreaDataByAreaId(this.areaId);
   }
 
@@ -76,6 +77,7 @@ export class IdentityTaskComponent {
   }
 
   onSelectedMachineArea() {
+    console.log(this.taskId)
     console.log(`Clicked: ${this.selectedMachineArea}`);
     if (this.taskId !== null && this.areaId !== null) {
       this.getTaskActivity(this.taskId, this.selectedMachineArea);
@@ -86,18 +88,23 @@ export class IdentityTaskComponent {
     this.isLoading = true
     this.apiService.getMachineAreaDataByAreaId(areaId).subscribe({
       next: (res: any) => {
-        (this.machineAreaData = res.data),
+        this.isLoading = false
+        if (res.data.length > 0) {
+          this.machineAreaData = res.data,
           this.machineAreaData.forEach((element: any) => {
             this.mAreaArray.push(element.m_area_id);
           });
-        this.isLoading = false
+          this.selectedMachineArea = this.mAreaArray[0]
+        } else {
+          this.router.navigate(['../tasks'])
+          this.common.showErrorAlert("Cannot find Area with ID: " + this.areaId)
+        }
       },
       error: (err) => {
         this.isLoading = false
         console.error(err)
         this.common.showServerErrorAlert(Const.ERR_GET_MSG("Machine Area"), err)
-      },
-      complete: () => (this.selectedMachineArea = this.mAreaArray[0]),
+      }
     });
   }
 
@@ -105,9 +112,15 @@ export class IdentityTaskComponent {
     this.isLoading = true
     this.apiService.getTaskActivityById(taskId, mAreaId).subscribe({
       next: (res: any) => {
-        this.identityTaskDataBefore = res.data.map((a: any) => ({ ...a }));
-        this.identityTaskData = res.data;
-        this.getCountTaskActivity(taskId, mAreaId);
+        if (res.data.length > 0) {
+          this.identityTaskDataBefore = res.data.map((a: any) => ({ ...a }));
+          this.identityTaskData = res.data;
+          this.getCountTaskActivity(taskId, mAreaId);
+        } else {
+          this.common.showErrorAlert("Cannot find Task Activity with Task ID: " + this.taskId)
+        }
+        this.isLoading = false
+        
       },
       error: (err) => {
         console.error(err)
@@ -115,8 +128,7 @@ export class IdentityTaskComponent {
           if (result.value) this.onSelectedMachineArea()
         })
         this.isLoading = false
-      },
-      complete: () => this.isLoading = false
+      }
     });
   }
 

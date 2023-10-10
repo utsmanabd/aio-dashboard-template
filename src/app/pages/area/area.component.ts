@@ -11,10 +11,12 @@ import { Const } from 'src/app/core/static/const';
   styleUrls: ['./area.component.scss']
 })
 export class AreaComponent {
-  tableColumn = ["#", "Area", "Detail"];
+  tableColumn = ["#", "Area", "Detail", "Action"];
   areaData: any;
   index: number = 0;
   activePages: number[] = [];
+
+  breadCrumbItems!: Array<{}>;
 
   pageSize = 10;
   currentPage = 1;
@@ -37,10 +39,14 @@ export class AreaComponent {
 
   constructor(
     private apiService: restApiService,
-    private route: ActivatedRoute,
     private modalService: NgbModal,
     public common: CommonService
-  ) {}
+  ) {
+    this.breadCrumbItems = [
+      { label: 'Master Data' },
+      { label: 'Area', active: true }
+    ];
+  }
 
   ngOnInit(): void {
     this.getAreaData();

@@ -79,7 +79,7 @@ export class TasksComponent {
       error: (err: any) => {
         this.isLoading = false
         console.error(err)
-        this.common.showErrorAlert(Const.ERR_INSERT_MSG("Task", err), Const.ERR_SERVER_TITLE)
+        this.common.showErrorAlert(Const.ERR_INSERT_MSG("Task"), err)
       },
       complete: () => this.getTaskData()
     })
@@ -98,7 +98,7 @@ export class TasksComponent {
       },
       error: (err) => {
         console.error(err)
-        this.common.showErrorAlert(Const.ERR_GET_MSG("Task", err), Const.ERR_SERVER_TITLE)
+        this.common.showErrorAlert(Const.ERR_GET_MSG("Task"), err)
       },
       complete: () => {
         if (this.activityIdData.length > 0) {
@@ -114,7 +114,7 @@ export class TasksComponent {
       error: (err) => {
         this.isLoading = false
         console.error(err)
-        this.common.showErrorAlert(Const.ERR_INSERT_MSG("Task Activity", err), Const.ERR_SERVER_TITLE)
+        this.common.showErrorAlert(Const.ERR_INSERT_MSG("Task Activity"), err)
       }
     })
   }
@@ -138,12 +138,8 @@ export class TasksComponent {
 
   onIdentityTaskClick(tasks: any): void {
     let taskId = tasks.task_id
-    this.router.navigate([`/tasks/identity-task`, taskId], {
-      queryParams: {
-        id: taskId,
-        areaId: tasks.area_id,
-      },
-    });
+    let areaId = tasks.area_id
+    this.router.navigate([`/tasks/identity-task/${taskId}/${areaId}`]);
   }
 
   validateForm() {
