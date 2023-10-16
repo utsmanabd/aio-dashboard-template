@@ -36,13 +36,12 @@ export class FilmComponent implements OnInit {
   constructor(private modalService: NgbModal, private formBuilder: UntypedFormBuilder, private datePipe: DatePipe, private restApiService: restApiService, private changeDetector: ChangeDetectorRef) { }
 
   ngOnInit(): void {
-    console.log('TEEEE')
     /**
      * BreadCrumb
      */
     this.breadCrumbItems = [
-      { label: 'Apps' },
-      { label: 'Calendar', active: true }
+      { label: 'Admin' },
+      { label: 'Planner Calendar', active: true }
     ];
 
     // Validation
@@ -67,13 +66,18 @@ export class FilmComponent implements OnInit {
     ],
     initialView: 'dayGridMonth',
     events: [
-      { id: createEventId(), title: 'event 1', date: '2023-10-27', allDay: true },
-      { id: createEventId(), title: 'event 2', date: '2023-10-28', allDay: true, display: 'background', backgroundColor: 'red' },
-      { id: createEventId(), title: 'event 2', date: '2023-10-29', allDay: true, display: 'background', backgroundColor: 'green' },
-      { id: createEventId(), title: 'event 2', date: '2023-10-30', allDay: true},
+      { id: createEventId(), title: 'Filling: 90%', date: '2023-10-27', allDay: true },
+      { id: createEventId(), title: 'Preparation: 75%', date: '2023-10-27', allDay: true, backgroundColor: 'grey' },
+      { id: createEventId(), title: 'Caser: 75%', date: '2023-10-27', allDay: true, backgroundColor: 'green' },
+      { id: createEventId(), title: 'Blow: 75%', date: '2023-10-27', allDay: true, backgroundColor: 'black' },
+      { id: createEventId(), title: 'Injection: 75%', date: '2023-10-27', allDay: true, backgroundColor: 'purple' },
+      { id: createEventId(), title: 'IBF: 75%', date: '2023-10-27', allDay: true, backgroundColor: 'blue' },
+      { id: createEventId(), title: 'Caser: 10%', date: '2023-10-28', allDay: true, backgroundColor: 'red' },
+      { id: createEventId(), title: 'Preparation: 50%', date: '2023-10-29', allDay: true, backgroundColor: 'green' },
+      { id: createEventId(), title: 'Injection: 30%', date: '2023-10-30', allDay: true},
     ],
     weekends: true,
-    editable: true,
+    // editable: true,
     selectable: true,
     selectMirror: true,
     dayMaxEvents: true,
@@ -82,11 +86,13 @@ export class FilmComponent implements OnInit {
     eventsSet: this.handleEvents.bind(this),
     // you c  an update a remote database when these fire:
     eventAdd: (arg) => {
+      console.log("EVENT ADD")
       console.log("id: ", arg.event.id)
       console.log("title: ", arg.event.title)
       console.log("date: ", arg.event.startStr)
     },
     eventChange: (arg) => {
+      console.log("EVENT CHANGE")
       console.log("id: ", arg.event.id)
       console.log("title: ", arg.event.title)
       console.log("date: ", arg.event.startStr)
@@ -117,11 +123,10 @@ export class FilmComponent implements OnInit {
   handleEventClick(clickInfo: EventClickArg) {
     console.log(clickInfo.event)
     if (clickInfo.event.id !== "") {
-      confirm("YOHOO")
+      if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
+        clickInfo.event.remove();
+      }
     }
-    // if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
-    //   clickInfo.event.remove();
-    // }
   }
 
   currentEvents: EventApi[] = [];

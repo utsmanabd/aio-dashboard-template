@@ -112,15 +112,13 @@ export class IdentityTaskComponent {
     this.isLoading = true
     this.apiService.getTaskActivityById(taskId, mAreaId).subscribe({
       next: (res: any) => {
-        if (res.data.length > 0) {
-          this.identityTaskDataBefore = res.data.map((a: any) => ({ ...a }));
-          this.identityTaskData = res.data;
-          this.getCountTaskActivity(taskId, mAreaId);
-        } else {
-          this.common.showErrorAlert("Cannot find Task Activity with Task ID: " + this.taskId)
-        }
         this.isLoading = false
-        
+        this.identityTaskDataBefore = res.data.map((a: any) => ({ ...a }));
+        this.identityTaskData = res.data;
+        this.getCountTaskActivity(taskId, mAreaId);
+        if (res.data.length < 1) {
+          this.common.showErrorAlert("Task activity on selected machine area is empty!")
+        }
       },
       error: (err) => {
         console.error(err)
@@ -189,7 +187,7 @@ export class IdentityTaskComponent {
       return parseInt(match[1], 10);
     }
     return null;
-}
+  }
 
   getIndexById(arr: any[], id: number): number {
     for (let i = 0; i < arr.length; i++) {

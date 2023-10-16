@@ -13,6 +13,8 @@ import { MachineAreaComponent } from './machine-area/machine-area.component';
 import { IdentityTaskComponent } from './tasks/identity-task/identity-task.component';
 import { AchievementsComponent } from './achievements/achievements.component';
 import { FindingComponent } from './finding/finding.component';
+import { PlannerTaskComponent } from './planner-task/planner-task.component';
+import { DetailTaskComponent } from './planner-task/detail-task/detail-task.component';
 
 const routes: Routes = [
     {
@@ -77,6 +79,14 @@ const routes: Routes = [
     {
       path: 'finding',
       component: FindingComponent
+    },
+    {
+      path: 'planner/tasks',
+      component: PlannerTaskComponent
+    },
+    {
+      path: 'planner/tasks/detail/:date',
+      component: DetailTaskComponent
     }
 ];
 

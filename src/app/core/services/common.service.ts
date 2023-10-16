@@ -51,9 +51,12 @@ export class CommonService {
   }
 
   // -- Date
-  getDate(timestamp: any): string {
-    let date = new Date(timestamp).toLocaleDateString()
-    return date
+  getDate(timestamp: any): string | null {
+    if (timestamp) {
+      let date = new Date(timestamp).toLocaleDateString()
+      return date
+    }
+    return null
   }
 
   getMonthName(month: number): string {
@@ -96,7 +99,7 @@ export class CommonService {
     }
   }
 
-  // -- Math Functions
+  // -- Return number functions
   getRandomIndices(max: number, count: number): number[] {
     const indices: any[] = [];
     while (indices.length < count) {
@@ -114,7 +117,52 @@ export class CommonService {
     return result
   }
 
-  // -- Alerts
+  getDayCount(lastUpdatedDate: Date, dateNow: Date): number {
+    if (lastUpdatedDate !== null) {
+      const msDifference = new Date(dateNow).getTime() - new Date(lastUpdatedDate).getTime();
+      const dayDifference = msDifference / (1000 * 60 * 60 * 24);
+      return Math.floor(dayDifference);
+    } else return -1
+  }
+
+  getPeriodDayCount(period: string): number {
+    period = period.toUpperCase()
+    const multiplier: { [key: string]: number } = {
+      'D': 1,
+      'W': 7,
+      'M': 30,
+      'Y': 365
+    };
+  
+    const regex = /^(\d+)?([DWMY])$/;
+    const matches = period.match(regex);
+  
+    if (matches) {
+      const count = matches[1] ? parseInt(matches[1]) : 1;
+      const unit = matches[2];
+      return count * multiplier[unit];
+    } else {
+      throw new Error('The string format is not valid');
+    }
+  }
+  
+  // Returns array
+  getUniqueData(arr: any[], property: string): any[] {
+    let uniqueData: { [key: string]: any } = {};
+    let result: any[] = [];
+  
+    for (let obj of arr) {
+      let value = obj[property];
+      if (!uniqueData[value]) {
+        uniqueData[value] = obj;
+        result.push(obj);
+      }
+    }
+  
+    return result;
+  }
+
+  // -- Show alerts
   showSuccessAlert(message?: string, cancelMessage?: string) {
     return Swal.fire({
       title: 'Success!',
@@ -127,7 +175,7 @@ export class CommonService {
     })
   }
 
-  showServerErrorAlert(message: string = Const.ERR_SERVER_MSG, title: string = Const.ERR_SERVER_TITLE) {
+  async showServerErrorAlert(message: string = Const.ERR_SERVER_MSG, title: string = Const.ERR_SERVER_TITLE) {
     return this.showErrorAlert(message, title, 'Retry').then((result) => {
       if (result.value) location.reload()
     })

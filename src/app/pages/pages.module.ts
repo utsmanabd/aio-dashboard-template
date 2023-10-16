@@ -1,7 +1,7 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgbToastModule, NgbProgressbarModule, NgbAlertModule, NgbDatepickerModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbToastModule, NgbProgressbarModule, NgbAlertModule, NgbDatepickerModule, NgbTooltipModule, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { FlatpickrModule } from 'angularx-flatpickr';
 import { NgApexchartsModule } from 'ng-apexcharts';
@@ -39,6 +39,8 @@ import { CountUpDirective } from '../core/directive/count-up.directive';
 import { FindingComponent } from './finding/finding.component';
 import { NgxLoadingModule, ngxLoadingAnimationTypes } from 'ngx-loading';
 import { FullCalendarModule } from '@fullcalendar/angular';
+import { PlannerTaskComponent } from './planner-task/planner-task.component';
+import { DetailTaskComponent } from './planner-task/detail-task/detail-task.component';
 
 @NgModule({
   declarations: [
@@ -54,7 +56,9 @@ import { FullCalendarModule } from '@fullcalendar/angular';
     IdentityTaskComponent,
     AchievementsComponent,
     CountUpDirective,
-    FindingComponent
+    FindingComponent,
+    PlannerTaskComponent,
+    DetailTaskComponent
   ],
   imports: [
     CommonModule,
@@ -76,7 +80,8 @@ import { FullCalendarModule } from '@fullcalendar/angular';
     NgxLoadingModule,
     NgbTooltipModule,
     ReactiveFormsModule,
-    FullCalendarModule
+    FullCalendarModule,
+    NgbNavModule
     //   .forRoot({
     //   animationType: ngxLoadingAnimationTypes.threeBounce,
     //   backdropBackgroundColour: 'rgba(0,0,0,0)', 

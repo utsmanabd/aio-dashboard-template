@@ -36,6 +36,12 @@ export const MENU: MenuItem[] = [
     isTitle: true
   },
   {
+    id: 12,
+    label: 'Planner Tasks',
+    link: '/planner/tasks',
+    icon: 'ri ri-calendar-event-line'
+  },
+  {
     id: 7,
     label: 'Master Data',
     icon: 'ri-lock-2-line',

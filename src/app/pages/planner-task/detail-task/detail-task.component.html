@@ -1,0 +1,80 @@
+<ngx-loading [show]="loading"></ngx-loading>
+<app-breadcrumbs title="Create Task: {{ dateSelected }}" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+<div class="card">
+    <div class="card-body" *ngIf="areaData && activityData">
+        <p class="text-muted">Select Area: </p>
+        <!-- Nav tabs -->
+        <ul ngbNav #Pills="ngbNav" [activeId]="activeAreaId" class="nav nav-pills nav-success mb-3">
+            <li *ngFor="let area of areaData" [ngbNavItem]="area.area_id" class="nav-item waves-effect waves-light">
+                <a ngbNavLink (click)="onAreaClick(area.area_id)">
+                    {{area.area}}
+                </a>
+                <ng-template ngbNavContent>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0 table-striped table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">
+                                        <div class="form-check">
+                                            <form>
+                                                <input (change)="onChecklistAll($event)" class="form-check-input" name="selectedActivity" type="checkbox" value="0" id="selectedActivity">
+                                                <label class="form-check-label" for="selectedActivity"></label>
+                                            </form>
+                                        </div>
+                                    </th>
+                                    <th scope="col" *ngFor="let col of columnData">{{ col }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let data of filteredActivityData; let i = index">
+                                    <th scope="row">
+                                        <div class="form-check">
+                                            <form>
+                                                <input [(ngModel)]="data.is_selected"
+                                                    (change)="onActivityCheck($event)" class="form-check-input" name="selectedActivity{{data.activity_id}}"
+                                                    type="checkbox" [value]="data.activity_id" id="selectedActivity{{data.activity_id}}">
+                                                <label class="form-check-label" for="selectedActivity{{data.activity_id}}"></label>
+                                            </form>
+                                        </div>
+                                    </th>
+                                    <td>{{ i + 1 }}</td>
+                                    <td>
+                                        <h5 class="fs-6">
+                                            <a class="text-reset">{{ data.activity }}</a>
+                                        </h5>
+                                        <span class="fs-7 text-muted">({{ data.standard }})</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{common.getCategoryBadge(data.category)}}">
+                                            {{ data.category }}
+                                          </span>
+                                    </td>
+                                    <td>{{ data.periode }}</td>
+                                    <td>{{ data.machine_area }}</td>
+                                    <td>
+                                        {{ common.getDate(data.last_updated) ? common.getDate(data.last_updated) : '-' }}
+                                    </td>
+                                    <td *ngIf="isRecommended(common.getDayCount(data.last_updated, dateSelected), common.getPeriodDayCount(data.periode));else notRecommended" 
+                                        class="text-success"><i class="ri-checkbox-circle-line fs-17 align-middle"></i>
+                                    </td>
+                                    <ng-template #notRecommended>
+                                        <td class="text-danger"><i class="ri-close-circle-line fs-17 align-middle"></i></td>
+                                    </ng-template>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <!-- end table -->
+                    </div>
+                    <!-- end table responsive -->
+                    <div class="p-3 d-flex justify-content-center">
+                        <button (click)="onCreateTask(area.area_id)" type="button" class="btn btn-success">Create Task for {{ area.area }}</button>
+                    </div>
+                </ng-template>
+            </li>
+        </ul>
+        <!-- Tab panes -->
+        <div class="tab-content text-muted">
+            <div [ngbNavOutlet]="Pills"></div>
+        </div>
+    </div><!-- end card-body -->
+</div><!-- end card -->

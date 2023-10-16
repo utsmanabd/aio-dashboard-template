@@ -297,6 +297,12 @@ export class restApiService {
     )
   }
 
+  updateTaskData(taskId: number, taskData: any) {
+    return this.http.put(GlobalComponent.API_URL + GlobalComponent.taskId + taskId, {form_data: taskData}, this.httpOptions()).pipe(
+      tap(() => this.resetCachedData())
+    )
+  }
+
   getTaskActivityById(taskId: number, mAreaId: number) {
     return this.http.get(GlobalComponent.API_URL + GlobalComponent.taskActivityId + `id/${taskId}/${mAreaId}`, this.httpOptions())
   }
@@ -315,6 +321,14 @@ export class restApiService {
 
   updateTaskActivity(data: any) {
     return this.http.post(GlobalComponent.API_URL + GlobalComponent.taskActivityId + `batch`, {form_data: data}, this.httpOptions()).pipe(
+      tap(() => {
+        this.resetCachedData()
+      })
+    )
+  }
+
+  updateTaskActivityByTaskId(taskId: number, data: any) {
+    return this.http.put(GlobalComponent.API_URL + GlobalComponent.taskActivityId + `task-id/${taskId}`, {form_data: data}, this.httpOptions()).pipe(
       tap(() => {
         this.resetCachedData()
       })

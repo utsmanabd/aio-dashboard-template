@@ -1,0 +1,21 @@
+<ngx-loading [show]="loading"></ngx-loading>
+<!-- Start Breadcrumbs -->
+<app-breadcrumbs title="CALENDAR" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+<!-- End Breadcrumbs -->
+
+<div class="row" *ngIf="eventData">
+    <div class="col-12">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card card-h-100">
+                    <div class="card-body">
+                        <div id="calendar"></div>
+                        <full-calendar [options]="calendarOptions"></full-calendar>
+                    </div>
+                </div>
+            </div><!-- end col -->
+        </div><!--end row-->
+
+        <div style='clear:both'></div>
+    </div>
+</div>
