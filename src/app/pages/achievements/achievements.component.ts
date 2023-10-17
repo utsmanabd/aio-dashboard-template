@@ -113,6 +113,7 @@ export class AchievementsComponent {
   }
 
   async getTaskDataByDate(month: number, year: number) {
+    console.log('task data by date running...')
     return new Promise((resolve, reject) => {
       this.isLoading = true
       this.apiService.getTaskDataByDate(month, year).subscribe({
@@ -153,12 +154,12 @@ export class AchievementsComponent {
   }
 
   async getFindingUndoneByDate(month: number, year: number) {
-    console.log('finding undone running...')
     return new Promise((resolve, reject) => {
       this.isLoading = true
       console.log('finding undone running...')
       this.apiService.getFindingUndoneByDate(month, year).subscribe({
         next: (res: any) => {
+
           if (this.findingUndoneActivity.rawData.length > 0) {
             this.apiService.resetCachedData(this.apiService.cachedUndoneByDate)
             this.findingUndoneActivity.rawData.splice(0)
@@ -169,9 +170,12 @@ export class AchievementsComponent {
           let dataUndone = [...data]
           this.findingUndoneActivity.rawData = data
           this.findingUndoneActivity.total = data.length
+          console.log("BEFORE RANDOM INDICES")
           this.findingUndoneActivity.limitData = this.common.getRandomIndices(dataUndone.length, 5).map(index => dataUndone[index]);
+          console.log("AFTER RANDOM INDICES")
           console.log(this.findingUndoneActivity)
           resolve(true)
+          console.log("SUCCESS")
         },
         error: (err: any) => {
           console.error(err)

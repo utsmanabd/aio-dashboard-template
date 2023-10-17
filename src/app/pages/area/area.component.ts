@@ -52,6 +52,10 @@ export class AreaComponent {
     this.getAreaData();
   }
 
+  ngOnDestroy() {
+    this.modalService.dismissAll()
+  }
+
   getAreaData() {
     this.loading = true
     this.apiService.getAreaData().subscribe({

@@ -71,6 +71,10 @@ export class ActivityComponent {
     this.getMachineAreaData()
   }
 
+  ngOnDestroy() {
+    this.modalService.dismissAll()
+  }
+
   onSubmitData() {
     this.validateForm()
     if (!this.isEmpty.includes(true)) {

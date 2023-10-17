@@ -30,6 +30,7 @@ import { Const } from "src/app/core/static/const";
 })
 export class PlannerTaskComponent {
   breadCrumbItems!: Array<{}>;
+  taskData: any
 
   calendarEvents!: any[];
   editEvent: any;
@@ -75,13 +76,10 @@ export class PlannerTaskComponent {
     },
   };
 
-  @ViewChild("editmodalShow") editmodalShow!: TemplateRef<any>;
-  @ViewChild("modalShow") modalShow!: TemplateRef<any>;
+  @ViewChild("detailTask") detailModal!: TemplateRef<any>;
 
   constructor(
     private modalService: NgbModal,
-    private formBuilder: UntypedFormBuilder,
-    private datePipe: DatePipe,
     private apiService: restApiService,
     private changeDetector: ChangeDetectorRef,
     private router: Router,
@@ -94,6 +92,10 @@ export class PlannerTaskComponent {
       { label: "Tasks", active: true },
     ];
     await this.getTaskData().finally(() => this.loading = false)
+  }
+
+  ngOnDestroy() {
+    this.modalService.dismissAll()
   }
 
   async getTaskData() {
@@ -166,13 +168,19 @@ export class PlannerTaskComponent {
   handleEventClick(clickInfo: EventClickArg) {
     let taskId = clickInfo.event.id
     if (taskId) {
-      console.log(clickInfo.event);
-      console.log(clickInfo.event._def.extendedProps)
+      // const taskData = clickInfo.event._def.extendedProps
+      // this.openModal(this.detailModal, taskData)
       if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
         clickInfo.event.remove();
       }
     }
   }
+
+  openModal(content: any, taskData: any) {
+    this.taskData = taskData.allData
+    console.log(this.taskData)
+		this.modalService.open(content, { centered: true });
+	}
 
   async removeTaskData(taskId: number) {
     new Promise((resolve, reject) => {

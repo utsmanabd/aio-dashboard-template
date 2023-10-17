@@ -5,6 +5,11 @@ import { CommonService } from 'src/app/core/services/common.service';
 import { restApiService } from 'src/app/core/services/rest-api.service';
 import { Const } from 'src/app/core/static/const';
 
+interface ActiveArea {
+  area: string;
+  area_id: number;
+}
+
 @Component({
   selector: 'app-detail-task',
   templateUrl: './detail-task.component.html',
@@ -15,11 +20,17 @@ export class DetailTaskComponent {
   dateSelected: any
   loading: boolean = false
 
+  isAreaSelected: boolean = false
+
   columnData = ["#", "Activity / Standard", "Category", "Period", "Machine Area", "Last Updated", "Recommended"]
   activityData: any[] = []
   areaData: any[] = []
   filteredActivityData: any[] = []
-  activeAreaId!: number
+
+  activeArea: ActiveArea = {
+    area: '',
+    area_id: -1,
+  }
 
   index: number = 0
 
@@ -49,35 +60,39 @@ export class DetailTaskComponent {
           this.activityData = res.data
           let areaData: any[] = []
           for (let data of this.activityData) {
-            areaData.push({area_id: data.area_id, area: data.area})
+            areaData.push({area_id: data.area_id, area: data.area, image: data.image_area})
           }
           if (areaData.length > 0) {
             this.areaData = this.common.getUniqueData(areaData, 'area_id')
-            this.activeAreaId = this.areaData[0].area_id
           }
         },
         error: (err) => {
           reject(err);
-          console.error(err);
           this.common.showServerErrorAlert(Const.ERR_GET_MSG("Activity"), err)
         },
         complete: () => {
           resolve(true)
-          this.onAreaClick(this.activeAreaId)
         }
       })
     })
   }
 
-  onAreaClick(id: number) {
+  backToArea() {
+    this.isAreaSelected = false
+  }
+
+  onAreaClick(id: number, area: string) {
     this.filteredActivityData = this.activityData.filter(data => data.area_id == id)
     this.filteredActivityData.forEach((data) => {
       data.is_selected = this.isRecommended(this.common.getDayCount(data.last_updated, this.dateSelected), this.common.getPeriodDayCount(data.periode))
     })
+    this.isAreaSelected = true
+    const activeArea: ActiveArea = {area: area, area_id: id}
+    this.activeArea = activeArea
   }
 
-  isRecommended(dayDifference: number, dayPeriod: number): boolean {
-    if (dayDifference != -1) {
+  isRecommended(dayDifference: number | null, dayPeriod: number): boolean {
+    if (dayDifference != null) {
       return dayDifference >= dayPeriod ? true : false
     }
     else return true

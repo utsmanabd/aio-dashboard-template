@@ -54,6 +54,10 @@ export class MachineAreaComponent {
     this.getAreaData()
   }
 
+  ngOnDestroy() {
+    this.modalService.dismissAll()
+  }
+
   getMachineAreaData() {
     this.loading = true
       this.apiService.getMachineAreaData().subscribe({

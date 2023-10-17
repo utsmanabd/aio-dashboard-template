@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import Swal from 'sweetalert2';
 import { Const } from '../static/const';
+import { DatePipe } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +10,7 @@ import { Const } from '../static/const';
 export class CommonService {
 
 
-  constructor() { }
+  constructor(private datePipe: DatePipe) { }
 
   // -- Table Numbers
   getComputedRowNumber(globalIndex: number, index: number): number {
@@ -68,6 +69,10 @@ export class CommonService {
     return monthNames[month - 1];
   }
 
+  formatDate(date: Date): string | null {
+    return this.datePipe.transform(date, 'dd-MM-yyyy'); // Sesuaikan format sesuai kebutuhan Anda
+  }
+
   // -- HTML class manipulations
   getPercentageBadge(percentage: number): string {
     switch (true) {
@@ -101,6 +106,7 @@ export class CommonService {
 
   // -- Return number functions
   getRandomIndices(max: number, count: number): number[] {
+    if (max < count) count = max
     const indices: any[] = [];
     while (indices.length < count) {
         const randomIndex = Math.floor(Math.random() * max);
@@ -117,12 +123,12 @@ export class CommonService {
     return result
   }
 
-  getDayCount(lastUpdatedDate: Date, dateNow: Date): number {
+  getDayCount(lastUpdatedDate: Date, dateNow: Date): number | null {
     if (lastUpdatedDate !== null) {
       const msDifference = new Date(dateNow).getTime() - new Date(lastUpdatedDate).getTime();
       const dayDifference = msDifference / (1000 * 60 * 60 * 24);
       return Math.floor(dayDifference);
-    } else return -1
+    } else return null
   }
 
   getPeriodDayCount(period: string): number {

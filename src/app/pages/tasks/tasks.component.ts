@@ -55,6 +55,7 @@ export class TasksComponent {
 
   ngOnDestroy() {
     this.activityIdData = []
+    this.modalService.dismissAll()
   }
 
   onAddTask() {

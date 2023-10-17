@@ -1,80 +1,139 @@
 <ngx-loading [show]="loading"></ngx-loading>
 <app-breadcrumbs title="Create Task: {{ dateSelected }}" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+<button (click)="backToArea()" *ngIf="isAreaSelected" type="button" class="mb-3 btn btn-info"><i
+        class="ri-arrow-left-line label-icon align-middle fs-16 me-2"></i> Back to Area</button>
 <div class="card">
-    <div class="card-body" *ngIf="areaData && activityData">
-        <p class="text-muted">Select Area: </p>
-        <!-- Nav tabs -->
-        <ul ngbNav #Pills="ngbNav" [activeId]="activeAreaId" class="nav nav-pills nav-success mb-3">
-            <li *ngFor="let area of areaData" [ngbNavItem]="area.area_id" class="nav-item waves-effect waves-light">
-                <a ngbNavLink (click)="onAreaClick(area.area_id)">
-                    {{area.area}}
-                </a>
-                <ng-template ngbNavContent>
-                    <div class="table-responsive">
-                        <table class="table align-middle mb-0 table-striped table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th scope="col">
-                                        <div class="form-check">
-                                            <form>
-                                                <input (change)="onChecklistAll($event)" class="form-check-input" name="selectedActivity" type="checkbox" value="0" id="selectedActivity">
-                                                <label class="form-check-label" for="selectedActivity"></label>
-                                            </form>
-                                        </div>
-                                    </th>
-                                    <th scope="col" *ngFor="let col of columnData">{{ col }}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let data of filteredActivityData; let i = index">
-                                    <th scope="row">
-                                        <div class="form-check">
-                                            <form>
-                                                <input [(ngModel)]="data.is_selected"
-                                                    (change)="onActivityCheck($event)" class="form-check-input" name="selectedActivity{{data.activity_id}}"
-                                                    type="checkbox" [value]="data.activity_id" id="selectedActivity{{data.activity_id}}">
-                                                <label class="form-check-label" for="selectedActivity{{data.activity_id}}"></label>
-                                            </form>
-                                        </div>
-                                    </th>
-                                    <td>{{ i + 1 }}</td>
-                                    <td>
-                                        <h5 class="fs-6">
-                                            <a class="text-reset">{{ data.activity }}</a>
-                                        </h5>
-                                        <span class="fs-7 text-muted">({{ data.standard }})</span>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-{{common.getCategoryBadge(data.category)}}">
-                                            {{ data.category }}
-                                          </span>
-                                    </td>
-                                    <td>{{ data.periode }}</td>
-                                    <td>{{ data.machine_area }}</td>
-                                    <td>
-                                        {{ common.getDate(data.last_updated) ? common.getDate(data.last_updated) : '-' }}
-                                    </td>
-                                    <td *ngIf="isRecommended(common.getDayCount(data.last_updated, dateSelected), common.getPeriodDayCount(data.periode));else notRecommended" 
-                                        class="text-success"><i class="ri-checkbox-circle-line fs-17 align-middle"></i>
-                                    </td>
-                                    <ng-template #notRecommended>
-                                        <td class="text-danger"><i class="ri-close-circle-line fs-17 align-middle"></i></td>
-                                    </ng-template>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <!-- end table -->
-                    </div>
-                    <!-- end table responsive -->
-                    <div class="p-3 d-flex justify-content-center">
-                        <button (click)="onCreateTask(area.area_id)" type="button" class="btn btn-success">Create Task for {{ area.area }}</button>
-                    </div>
-                </ng-template>
-            </li>
-        </ul>
-        <!-- Tab panes -->
-        <div class="tab-content text-muted">
-            <div [ngbNavOutlet]="Pills"></div>
+    <ng-container *ngIf="!isAreaSelected">
+        <div class="card-header">
+            <h4 class="mt-2 mb-2">Select Area: </h4>
         </div>
-    </div><!-- end card-body -->
+        <div class="card-body" *ngIf="areaData && activityData">
+            <div class="row wrapper">
+                <div class="col p-3 d-flex justify-content-center" *ngFor="let area of areaData">
+                    <a href="javascript:void(0);" (click)="onAreaClick(area.area_id, area.area)">
+                        <div class="app-card">
+                            <img src="http://localhost:3279/api/image/{{area.image}}" />
+                            <div class="overlay"></div>
+                            <h4 class="area-title">{{area.area}}</h4>
+                            <!-- <div class="info">
+                                <b>{{ area.area }}</b>
+                                <button>Read More</button>
+                            </div> -->
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+    <ng-container *ngIf="isAreaSelected">
+        <div class="card-header border-0">
+            <div class="d-flex align-items-center">
+                <h4 class="mb-0 flex-grow-1">Area: <span class="text-primary">{{ activeArea.area }}</span></h4>
+                <div class="flex-shrink-0">
+                    <button (click)="onCreateTask(activeArea.area_id)" class="btn btn-danger add-btn me-1"><i class="ri-add-line align-bottom me-1"></i> Create Task</button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body border border-dashed border-end-0 border-start-0">
+            <div class="row g-3">
+                <div class="col-xxl-1 col-sm-4">
+                    <button type="button" class="btn btn-primary">Auto Select</button>
+                </div>
+                <!--end col-->
+                <div class="col-xxl-5 col-sm-12">
+                    <div class="search-box">
+                        <input type="text" name="searchTerm" class="form-control"
+                            placeholder="Search for tasks or something...">
+                        <i class="ri-search-line search-icon"></i>
+                    </div>
+                </div>
+                <!--end col-->
+
+                <div class="col-xxl-3 col-sm-4">
+                    <input class="form-control flatpickr-input" type="text" mwlFlatpickr [altInput]="true"
+                        [convertModelValue]="true" placeholder="Select date range" id="isDate" mode="range">
+                </div>
+                <!--end col-->
+
+                <div class="col-xxl-3 col-sm-4">
+                    <div class="input-light">
+                        <select class="form-control bg-light border-light" data-choices data-choices-search-false
+                            name="choices-single-default" id="idStatus">
+                            <option value="">Status</option>
+                            <option value="New">New</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Inprogress">Inprogress</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+                <!--end col-->
+            </div>
+            <!--end row-->
+
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0 table-striped table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">
+                                <div class="form-check">
+                                    <form>
+                                        <input (change)="onChecklistAll($event)" class="form-check-input"
+                                            name="selectedActivity" type="checkbox" value="0" id="selectedActivity">
+                                        <label class="form-check-label" for="selectedActivity"></label>
+                                    </form>
+                                </div>
+                            </th>
+                            <th scope="col" *ngFor="let col of columnData">{{ col }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let data of filteredActivityData; let i = index">
+                            <th scope="row">
+                                <div class="form-check">
+                                    <form>
+                                        <input [(ngModel)]="data.is_selected" (change)="onActivityCheck($event)"
+                                            class="form-check-input" name="selectedActivity{{data.activity_id}}"
+                                            type="checkbox" [value]="data.activity_id"
+                                            id="selectedActivity{{data.activity_id}}">
+                                        <label class="form-check-label"
+                                            for="selectedActivity{{data.activity_id}}"></label>
+                                    </form>
+                                </div>
+                            </th>
+                            <td>{{ i + 1 }}</td>
+                            <td>
+                                <h5 class="fs-6">
+                                    <a class="text-reset">{{ data.activity }}</a>
+                                </h5>
+                                <span class="fs-7 text-muted">({{ data.standard }})</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-{{common.getCategoryBadge(data.category)}}">
+                                    {{ data.category }}
+                                </span>
+                            </td>
+                            <td>{{ data.periode }}</td>
+                            <td>{{ data.machine_area }}</td>
+                            <td>
+                                {{ common.getDate(data.last_updated) ? common.getDate(data.last_updated) + " (" + common.getDayCount(data.last_updated, dateSelected) + " days ago)" : '-' }}
+                            </td>
+                            <td *ngIf="isRecommended(common.getDayCount(data.last_updated, dateSelected), common.getPeriodDayCount(data.periode));else notRecommended"
+                                class="text-success"><i class="ri-checkbox-circle-line fs-17 align-middle"></i>
+                            </td>
+                            <ng-template #notRecommended>
+                                <td class="text-danger"><i class="ri-close-circle-line fs-17 align-middle"></i></td>
+                            </ng-template>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="p-3 d-flex justify-content-center">
+                    <button (click)="onCreateTask(activeArea.area_id)" class="btn btn-danger add-btn me-1"><i class="ri-add-line align-bottom me-1"></i> Create Task</button>
+                </div>
+                <!-- end table -->
+            </div>
+        </div><!-- end card-body -->
+    </ng-container>
 </div><!-- end card -->
