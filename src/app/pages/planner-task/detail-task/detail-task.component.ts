@@ -4,6 +4,7 @@ import { result } from 'lodash';
 import { CommonService } from 'src/app/core/services/common.service';
 import { restApiService } from 'src/app/core/services/rest-api.service';
 import { Const } from 'src/app/core/static/const';
+import { GlobalComponent } from 'src/app/global-component';
 
 interface ActiveArea {
   area: string;
@@ -21,6 +22,7 @@ export class DetailTaskComponent {
   loading: boolean = false
 
   isAreaSelected: boolean = false
+  imageUrl = GlobalComponent.API_URL + GlobalComponent.image
 
   columnData = ["#", "Activity / Standard", "Category", "Period", "Machine Area", "Last Updated", "Recommended"]
   activityData: any[] = []
@@ -48,8 +50,25 @@ export class DetailTaskComponent {
     this.route.params.subscribe(params => {
       this.dateSelected = params['date']
     })
+    await this.getAreaData().finally(() => this.loading = false)
     await this.getActivityData().finally(() => this.loading = false)
     
+  }
+
+  async getAreaData() {
+    return new Promise((resolve, reject) => {
+      this.loading = true
+      this.apiService.getAreaData().subscribe({
+        next: (res: any) => {
+          this.areaData = res.data
+          console.log(this.areaData)
+          resolve(true)
+        },
+        error: (err) => {
+          reject(err);
+        }
+      })
+    })
   }
 
   async getActivityData() {
@@ -58,13 +77,6 @@ export class DetailTaskComponent {
       this.apiService.getActivityData().subscribe({
         next: (res: any) => {
           this.activityData = res.data
-          let areaData: any[] = []
-          for (let data of this.activityData) {
-            areaData.push({area_id: data.area_id, area: data.area, image: data.image_area})
-          }
-          if (areaData.length > 0) {
-            this.areaData = this.common.getUniqueData(areaData, 'area_id')
-          }
         },
         error: (err) => {
           reject(err);
@@ -111,21 +123,24 @@ export class DetailTaskComponent {
   }
 
   onCreateTask(areaId: number) {
-    let taskData = { area_id: areaId, date: this.dateSelected}
-    this.insertTaskData(taskData).then((taskId) => {
-      let activityData: any[] = []
-      this.filteredActivityData.forEach((activity) => {
-        if (activity.is_selected) {
-          activityData.push({
-            task_id: taskId,
-            activity_id: activity.activity_id
-          })
+    const isAllDataNotSelected = this.filteredActivityData.every(activity => activity.is_selected === false)
+    if (!isAllDataNotSelected) {
+      let taskData = { area_id: areaId, date: this.dateSelected}
+      this.insertTaskData(taskData).then((taskId) => {
+        let activityData: any[] = []
+        this.filteredActivityData.forEach((activity) => {
+          if (activity.is_selected) {
+            activityData.push({
+              task_id: taskId,
+              activity_id: activity.activity_id
+            })
+          }
+        })
+        if (activityData.length > 0) {
+          this.insertTaskActivity(activityData)
         }
       })
-      if (activityData.length > 0) {
-        this.insertTaskActivity(activityData)
-      }
-    })
+    }
   }
 
   insertTaskActivity(activityData: any) {

@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { restApiService } from 'src/app/core/services/rest-api.service';
+import { GlobalComponent } from 'src/app/global-component';
 
 @Component({
   selector: 'app-finding',
@@ -10,6 +11,8 @@ export class FindingComponent {
 
   columnsFinding = ["Activity", "Comment", "Mahcine/Area", "PIC", "Picture"]
   findingData: any[] = [];
+
+  imageUrl = GlobalComponent.API_URL + GlobalComponent.image
 
   constructor(private apiService: restApiService) {}
 

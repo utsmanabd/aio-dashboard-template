@@ -1,39 +1,39 @@
 <ngx-loading [show]="isLoading"></ngx-loading>
-<div *ngIf="taskAreaComparisonChart && taskActivityChart && findingUndoneActivity && taskAreaActivityChart">
-    <div class="row">
-        <div class="col">
-            <div class="card p-3">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h4>CILT Dashboard<span class="text-primary"></span></h4>
-                    </div>
-                    <div class="d-flex flex-row align-items-center">
-                            <div class="me-2">
-                                <select id="monthPicker" class="form-select form-select-sm" aria-label="Default select example" [(ngModel)]="month">
-                                    <option value="1">January</option>
-                                    <option value="2">February</option>
-                                    <option value="3">March</option>
-                                    <option value="4">April</option>
-                                    <option value="5">May</option>
-                                    <option value="6">June</option>
-                                    <option value="7">July</option>
-                                    <option value="8">August</option>
-                                    <option value="9">September</option>
-                                    <option value="10">October</option>
-                                    <option value="11">November</option>
-                                    <option value="12">December</option>
-                                </select>
-                            </div>
-                            <div class="me-2">
-                                <input class="form-control form-control-sm" type="number" min="1900" max="3000" step="1" [(ngModel)]="year" />
-                            </div>
-                            <button type="button" (click)="onChangeDate()" class="btn btn-sm btn-success">Apply</button>
-                    </div>
+<div class="row">
+    <div class="col">
+        <div class="card p-3">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <h4>CILT Dashboard<span class="text-primary"></span></h4>
                 </div>
-                
+                <div class="d-flex flex-row align-items-center">
+                        <div class="me-2">
+                            <select id="monthPicker" class="form-select form-select-sm" aria-label="Default select example" [(ngModel)]="month">
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
+                        <div class="me-2">
+                            <input class="form-control form-control-sm" type="number" min="1900" max="3000" step="1" [(ngModel)]="year" />
+                        </div>
+                        <button type="button" (click)="onChangeDate()" class="btn btn-sm btn-success">Apply</button>
+                </div>
             </div>
+            
         </div>
     </div>
+</div>
+<ng-container *ngIf="taskAreaComparisonChart && taskActivityChart && findingUndoneActivity && taskAreaActivityChart">
     <div class="row">
         <div class="col-xl-6">
             <div class="card">
@@ -158,69 +158,76 @@
     <div class="row">
         <div class="col">
             <div class="card p-3">
-                <h4>Selected Area: <span class="text-info">{{areaTitle}}</span></h4>
-                <div>
-                    <button *ngFor="let data of taskActivityChartData.rawData" (click)="getTaskAreaActivityById(data.area, data.task_id)" class="btn btn-sm btn-soft-secondary mb-2 me-2">{{ data.area }}</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-xl-6">
-            <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title mb-0">Total Activity vs Total Done Chart</h4>
-                </div><!-- end card header -->
-                <div class="card-header p-0 border-0 bg-soft-light">
-                    <div class="row g-0 text-center">
+                    <div class="d-flex justify-content-between">
+                        <h4>Area: <span class="text-info me-3">{{areaTitle}}</span></h4>
+                        <div>
+                            <button *ngFor="let data of taskActivityChartData.rawData" (click)="getTaskAreaActivityById(data.area, data.area_id)" class="btn btn-sm btn-soft-secondary mb-2 me-2">{{ data.area }}</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body bg-soft-light">
+                    <div class="row g-0 text-center shadow-sm p-1" style="background-color: white; border-radius: 4px;">
                         <div class="col-6 col-sm-3">
-                            <div class="p-3 border border-dashed border-start-0 border-end-0">
+                            <div class="p-3">
                                 <h5 class="mb-1 text-success"><span class="counter-value">{{areaAchievements}}</span>%</h5>
                                 <p class="text-muted mb-0">Achievements</p>
                             </div>
                         </div><!--end col-->
                         <div class="col-6 col-sm-3">
-                            <div class="p-3 border border-dashed border-start-0">
+                            <div class="p-3">
                                 <h5 class="mb-1"><span class="counter-value">{{areaTotalActivity}}</span></h5>
                                 <p class="text-muted mb-0">Activity</p>
                             </div>
                         </div><!--end col-->
                         <div class="col-6 col-sm-3">
-                            <div class="p-3 border border-dashed border-start-0">
+                            <div class="p-3">
                                 <h5 class="mb-1"><span class="counter-value">{{areaUndoneActivity}}</span></h5>
                                 <p class="text-muted mb-0">Undone</p>
                             </div>
                         </div><!--end col-->
                         <div class="col-6 col-sm-3">
-                            <div class="p-3 border border-dashed border-start-0">
+                            <div class="p-3">
                                 <h5 class="mb-1"><span class="counter-value text-danger">{{areaTotalFinding}}</span></h5>
                                 <p class="text-muted mb-0">Finding</p>
                             </div>
                         </div><!--end col-->
                     </div>
-                </div><!-- end card header -->
-                <div class="card-body">
-                    <apx-chart [series]="taskAreaComparisonChart.series" [chart]="taskAreaComparisonChart.chart"
-                        [dataLabels]="taskAreaComparisonChart.dataLabels" [plotOptions]="taskAreaComparisonChart.plotOptions"
-                        [xaxis]="taskAreaComparisonChart.xaxis" [stroke]="taskAreaComparisonChart.stroke"
-                        [colors]="taskAreaComparisonChart.colors" dir="ltr"></apx-chart>
-                </div><!-- end card-body -->
-            </div><!-- end card -->
-        </div>
-        <div class="col-xl-6">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title">Task Area Activity</h4>
-                </div><!-- end card header -->
-                <div class="card-body">
-                    <apx-chart [series]="taskAreaActivityChart.series" [chart]="taskAreaActivityChart.chart"
-                        [dataLabels]="taskAreaActivityChart.dataLabels" [stroke]="taskAreaActivityChart.stroke"
-                        [colors]="taskAreaActivityChart.colors" [title]="taskAreaActivityChart.title"
-                        [subtitle]="taskAreaActivityChart.subtitle" [plotOptions]="taskAreaActivityChart.plotOptions"
-                        [yaxis]="taskAreaActivityChart.yaxis" [xaxis]="taskAreaActivityChart.xaxis"
-                        [tooltip]="taskAreaActivityChart.tooltip" dir="ltr"></apx-chart>
-                </div><!-- end card-body -->
-            </div><!-- end card -->
+                    <div class="row mt-3">
+                        <div class="col-xl-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title mb-0">Total Activity vs Total Done Chart</h4>
+                                </div><!-- end card header -->
+                                <div class="card-header p-0 border-0 bg-soft-light">
+                                    
+                                </div><!-- end card header -->
+                                <div class="card-body">
+                                    <apx-chart [series]="taskAreaComparisonChart.series" [chart]="taskAreaComparisonChart.chart"
+                                        [dataLabels]="taskAreaComparisonChart.dataLabels" [plotOptions]="taskAreaComparisonChart.plotOptions"
+                                        [xaxis]="taskAreaComparisonChart.xaxis" [stroke]="taskAreaComparisonChart.stroke"
+                                        [colors]="taskAreaComparisonChart.colors" dir="ltr"></apx-chart>
+                                </div><!-- end card-body -->
+                            </div><!-- end card -->
+                        </div>
+                        <div class="col-xl-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title mb-0">Task Area Activity</h4>
+                                </div><!-- end card header -->
+                                <div class="card-body">
+                                    <apx-chart [series]="taskAreaActivityChart.series" [chart]="taskAreaActivityChart.chart"
+                                        [dataLabels]="taskAreaActivityChart.dataLabels" [stroke]="taskAreaActivityChart.stroke"
+                                        [colors]="taskAreaActivityChart.colors" [title]="taskAreaActivityChart.title"
+                                        [subtitle]="taskAreaActivityChart.subtitle" [plotOptions]="taskAreaActivityChart.plotOptions"
+                                        [yaxis]="taskAreaActivityChart.yaxis" [xaxis]="taskAreaActivityChart.xaxis"
+                                        [tooltip]="taskAreaActivityChart.tooltip" dir="ltr"></apx-chart>
+                                </div><!-- end card-body -->
+                            </div><!-- end card -->
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <div class="row">
@@ -228,20 +235,6 @@
             <div class="card">
                 <div class="card-header align-items-center d-flex">
                     <h4 class="card-title mb-0 flex-grow-1">Recent Finding</h4>
-                    <div class="flex-shrink-0">
-                        <div class="dropdown card-header-dropdown" ngbDropdown>
-                            <a class="text-reset dropdown-btn arrow-none" href="javascript:void(0);"
-                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                                ngbDropdownToggle>
-                                <span class="text-muted">Report<i class="mdi mdi-chevron-down ms-1"></i></span>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-end" ngbDropdownMenu>
-                                <a class="dropdown-item" href="javascript:void(0);">Download Report</a>
-                                <a class="dropdown-item" href="javascript:void(0);">Export</a>
-                                <a class="dropdown-item" href="javascript:void(0);">Import</a>
-                            </div>
-                        </div>
-                    </div>
                 </div><!-- end card header -->
 
                 <div class="card-body">
@@ -268,7 +261,7 @@
                                     <td>{{ data.pic }}</td>
                                     <td>
                                         <div class="flex-shrink-0 me-2">
-                                            <img src="http://localhost:3279/api/image/{{ data.picture ? data.picture : 'no-image-found.jpg' }}" alt="" class="p-2" width="70" />
+                                            <img src="{{imageUrl}}{{ data.picture ? data.picture : 'no-image-found.jpg' }}" alt="" class="p-2" width="70" />
                                         </div>
                                     </td>
                                 </tr>
@@ -282,10 +275,10 @@
                     </div>
                     <ng-template #noFinding>
                         <div class="text-center mt-3">
-                            <h4 class="card-title">Finding not found</h4>
+                            <h4 class="card-title">No findings were found!</h4>
                         </div>
                         <div class="d-flex justify-content-center">
-                            <img src="../../../assets/images/no-finding.png" alt="no-finding" height="300">
+                            <img src="assets/images/no-finding.svg" alt="no-finding" height="300">
                         </div>
                     </ng-template>
                 </div> <!-- .card-body-->
@@ -295,24 +288,10 @@
             <div class="card">
                 <div class="card-header align-items-center d-flex">
                     <h4 class="card-title mb-0 flex-grow-1">Undone Activity</h4>
-                    <div class="flex-shrink-0">
-                        <div class="dropdown card-header-dropdown" ngbDropdown>
-                            <a class="text-reset dropdown-btn arrow-none" href="javascript:void(0);"
-                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                                ngbDropdownToggle>
-                                <span class="text-muted">Report<i class="mdi mdi-chevron-down ms-1"></i></span>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-end" ngbDropdownMenu>
-                                <a class="dropdown-item" href="javascript:void(0);">Download Report</a>
-                                <a class="dropdown-item" href="javascript:void(0);">Export</a>
-                                <a class="dropdown-item" href="javascript:void(0);">Import</a>
-                            </div>
-                        </div>
-                    </div>
                 </div><!-- end card header -->
 
                 <div class="card-body">
-                    <div class="table-responsive table-card">
+                    <div class="table-responsive table-card" *ngIf="findingUndoneActivity.limitData.length > 0;else noUndone">
                         <table class="table table-hover table-centered align-middle table-nowrap mb-0">
                             <thead class="table-light">
                                 <tr>
@@ -338,9 +317,16 @@
                             <a href="" class="text-muted text-decoration-underline">See more...</a>
                         </div>
                     </div>
-
+                    <ng-template #noUndone>
+                        <div class="text-center mt-3">
+                            <h4 class="card-title">All activities are done!</h4>
+                        </div>
+                        <div class="d-flex justify-content-center">
+                            <img src="assets/images/no-undone.svg" alt="no-finding" height="300">
+                        </div>
+                    </ng-template>
                 </div> <!-- .card-body-->
             </div> <!-- .card-->
         </div>
     </div>
-</div>
+</ng-container>

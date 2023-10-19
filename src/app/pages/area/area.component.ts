@@ -4,6 +4,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommonService } from 'src/app/core/services/common.service';
 import { restApiService } from 'src/app/core/services/rest-api.service';
 import { Const } from 'src/app/core/static/const';
+import { GlobalComponent } from 'src/app/global-component';
 
 @Component({
   selector: 'app-area',
@@ -11,10 +12,12 @@ import { Const } from 'src/app/core/static/const';
   styleUrls: ['./area.component.scss']
 })
 export class AreaComponent {
-  tableColumn = ["#", "Area", "Detail", "Action"];
+  tableColumn = ["#", "Area", "Detail", "Image", "Action"];
   areaData: any;
   index: number = 0;
   activePages: number[] = [];
+
+  imageUrl = GlobalComponent.API_URL + GlobalComponent.image
 
   breadCrumbItems!: Array<{}>;
 

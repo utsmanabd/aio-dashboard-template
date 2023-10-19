@@ -27,6 +27,10 @@
                         <td>{{ data.name }}</td>
                         <td><i class="text-muted">{{ data.detail }}</i></td>
                         <td>
+                            <img *ngIf="data.image" src="{{imageUrl}}{{data.image}}" height="75" alt="{{data.image}}">
+                            <div *ngIf="!data.image">-</div>
+                        </td>
+                        <td>
                             <div class="hstack gap-3 flex-wrap">
                                 <a class="link-success fs-15" (click)="openModal(content, data)"><i
                                         class="ri-edit-2-line"></i></a>

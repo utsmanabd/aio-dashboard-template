@@ -422,8 +422,8 @@ export class restApiService {
     return this.http.get(GlobalComponent.API_URL + GlobalComponent.checklistAreaDate + `${month}/${year}`, this.httpOptions())
   }
 
-  getActivityChecklistById(taskId: number) {
-    return this.http.get(GlobalComponent.API_URL + GlobalComponent.checklistArea + `${taskId}`, this.httpOptions())
+  getActivityChecklistById(areaId: number, month: number, year: number) {
+    return this.http.get(GlobalComponent.API_URL + GlobalComponent.checklistArea + `${areaId}/${month}/${year}`, this.httpOptions())
   }
 
   getChecklistCategoryByDate(month: number, year: number) {

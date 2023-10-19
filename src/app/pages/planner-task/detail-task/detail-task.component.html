@@ -1,20 +1,20 @@
 <ngx-loading [show]="loading"></ngx-loading>
 <app-breadcrumbs title="Create Task: {{ dateSelected }}" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
-<button (click)="backToArea()" *ngIf="isAreaSelected" type="button" class="mb-3 btn btn-info"><i
+<button (click)="backToArea()" *ngIf="isAreaSelected" type="button" class="mb-3 btn btn-info btn-label"><i
         class="ri-arrow-left-line label-icon align-middle fs-16 me-2"></i> Back to Area</button>
 <div class="card">
     <ng-container *ngIf="!isAreaSelected">
         <div class="card-header">
             <h4 class="mt-2 mb-2">Select Area: </h4>
         </div>
-        <div class="card-body" *ngIf="areaData && activityData">
+        <div class="card-body" *ngIf="areaData">
             <div class="row wrapper">
                 <div class="col p-3 d-flex justify-content-center" *ngFor="let area of areaData">
-                    <a href="javascript:void(0);" (click)="onAreaClick(area.area_id, area.area)">
+                    <a href="javascript:void(0);" (click)="onAreaClick(area.area_id, area.name)">
                         <div class="app-card">
-                            <img src="http://localhost:3279/api/image/{{area.image}}" />
+                            <img src="{{area.image ? imageUrl + area.image : 'assets/images/default-area.JPG'}}" />
                             <div class="overlay"></div>
-                            <h4 class="area-title">{{area.area}}</h4>
+                            <h4 class="area-title">{{area.name}}</h4>
                             <!-- <div class="info">
                                 <b>{{ area.area }}</b>
                                 <button>Read More</button>
@@ -72,7 +72,7 @@
             <!--end row-->
 
         </div>
-        <div class="card-body">
+        <div class="card-body" *ngIf="activityData">
             <div class="table-responsive">
                 <table class="table align-middle mb-0 table-striped table-hover">
                     <thead class="table-light">
@@ -118,7 +118,10 @@
                             <td>{{ data.periode }}</td>
                             <td>{{ data.machine_area }}</td>
                             <td>
-                                {{ common.getDate(data.last_updated) ? common.getDate(data.last_updated) + " (" + common.getDayCount(data.last_updated, dateSelected) + " days ago)" : '-' }}
+                                <h5 class="fs-6">
+                                    <a class="text-reset">{{ common.getDate(data.last_updated) }}</a>
+                                </h5>
+                               <span>{{ data.last_updated | dateAgo: dateSelected }}</span>
                             </td>
                             <td *ngIf="isRecommended(common.getDayCount(data.last_updated, dateSelected), common.getPeriodDayCount(data.periode));else notRecommended"
                                 class="text-success"><i class="ri-checkbox-circle-line fs-17 align-middle"></i>

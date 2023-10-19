@@ -37,7 +37,7 @@ export const MENU: MenuItem[] = [
   },
   {
     id: 12,
-    label: 'Planner Tasks',
+    label: 'Scheduler',
     link: '/planner/tasks',
     icon: 'ri ri-calendar-event-line'
   },

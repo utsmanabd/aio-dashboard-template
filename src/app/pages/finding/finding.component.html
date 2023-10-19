@@ -24,7 +24,7 @@
                         <td>{{ data.pic }}</td>
                         <td>
                             <div class="flex-shrink-0 me-2">
-                                <img src="http://localhost:3279/api/image/{{ data.picture ? data.picture : 'no-image-found.jpg' }}" alt="" class="p-2" width="70" />
+                                <img src="{{imageUrl}}{{ data.picture ? data.picture : 'no-image-found.jpg' }}" alt="" class="p-2" width="70" />
                             </div>
                         </td>
                     </tr>

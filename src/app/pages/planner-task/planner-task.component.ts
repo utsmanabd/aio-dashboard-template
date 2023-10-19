@@ -148,6 +148,7 @@ export class PlannerTaskComponent {
   }
 
   handleDateSelect(selectInfo: DateSelectArg) {
+    console.log(selectInfo)
     const date = selectInfo.startStr;
     const calendarApi = selectInfo.view.calendar;
     this.router.navigate([`/planner/tasks/detail/${date}`]);
@@ -167,6 +168,7 @@ export class PlannerTaskComponent {
 
   handleEventClick(clickInfo: EventClickArg) {
     let taskId = clickInfo.event.id
+    console.log(clickInfo.event)
     if (taskId) {
       // const taskData = clickInfo.event._def.extendedProps
       // this.openModal(this.detailModal, taskData)

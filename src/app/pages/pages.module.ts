@@ -41,6 +41,7 @@ import { NgxLoadingModule, ngxLoadingAnimationTypes } from 'ngx-loading';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { PlannerTaskComponent } from './planner-task/planner-task.component';
 import { DetailTaskComponent } from './planner-task/detail-task/detail-task.component';
+import { DateAgoPipe } from '../core/pipe/date-ago.pipe';
 
 @NgModule({
   declarations: [
@@ -58,7 +59,8 @@ import { DetailTaskComponent } from './planner-task/detail-task/detail-task.comp
     CountUpDirective,
     FindingComponent,
     PlannerTaskComponent,
-    DetailTaskComponent
+    DetailTaskComponent,
+    DateAgoPipe
   ],
   imports: [
     CommonModule,
