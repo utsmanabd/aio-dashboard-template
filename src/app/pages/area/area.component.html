@@ -28,7 +28,6 @@
                         <td><i class="text-muted">{{ data.detail }}</i></td>
                         <td>
                             <img *ngIf="data.image" src="{{imageUrl}}{{data.image}}" height="75" alt="{{data.image}}">
-                            <div *ngIf="!data.image">-</div>
                         </td>
                         <td>
                             <div class="hstack gap-3 flex-wrap">
@@ -85,6 +84,15 @@
                 <input id="areaDetail" class="form-control" placeholder="Enter area detail or description"
                     name="areaDetail" [(ngModel)]="areaDetail" />
             </div>
+            <div class="mb-1">
+                <img *ngIf="areaImage && !isEditImage" [src]="imageUrl + areaImage" alt="activity_picture" style="width: 150px;" >
+                <div *ngIf="!areaImage || isEditImage">
+                    <label for="areaImage">Image</label>
+                    <input name="areaImage" class="form-control form-control-sm" id="areaImage"
+                        type="file" (change)="onImageSelected($event)">
+                </div> 
+            </div>
+            <button *ngIf="areaImage && !isEditImage" class="btn btn-primary btn-sm" (click)="onEditImage()">Change Image</button>        
         </form>
     </div>
     <div class="modal-footer">

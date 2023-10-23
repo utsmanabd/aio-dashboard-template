@@ -68,6 +68,10 @@ export class restApiService {
     )
   }
 
+  uploadAreaImage(files: FormData) {
+    return this.http.post(GlobalComponent.API_URL + `master/` + GlobalComponent.areaImage, files)
+  }
+
   getActorData(): Observable<any> {
     if (this.cachedActorData !== undefined) {
       return of(this.cachedActorData);

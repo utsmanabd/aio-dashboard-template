@@ -1,15 +1,15 @@
-import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { CommonService } from 'src/app/core/services/common.service';
-import { restApiService } from 'src/app/core/services/rest-api.service';
-import { Const } from 'src/app/core/static/const';
-import { GlobalComponent } from 'src/app/global-component';
+import { Component } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { CommonService } from "src/app/core/services/common.service";
+import { restApiService } from "src/app/core/services/rest-api.service";
+import { Const } from "src/app/core/static/const";
+import { GlobalComponent } from "src/app/global-component";
 
 @Component({
-  selector: 'app-area',
-  templateUrl: './area.component.html',
-  styleUrls: ['./area.component.scss']
+  selector: "app-area",
+  templateUrl: "./area.component.html",
+  styleUrls: ["./area.component.scss"],
 })
 export class AreaComponent {
   tableColumn = ["#", "Area", "Detail", "Image", "Action"];
@@ -17,7 +17,7 @@ export class AreaComponent {
   index: number = 0;
   activePages: number[] = [];
 
-  imageUrl = GlobalComponent.API_URL + GlobalComponent.image
+  imageUrl = GlobalComponent.API_URL + GlobalComponent.areaImage;
 
   breadCrumbItems!: Array<{}>;
 
@@ -30,15 +30,19 @@ export class AreaComponent {
   searchKeyword: string = "";
   successMessage: string = "";
 
-  areaId: any
-  areaName: string = ""
-  areaDetail: string = ""
+  areaId: any;
+  areaName: string = "";
+  areaDetail: string = "";
+  areaImage: string = "";
+  isEditImage: boolean = false;
 
-  isAreaNameEmpty: boolean = false
-  isAreaDetailEmpty: boolean = false
+  selectedImage: File | undefined;
 
-  loading: boolean = false
-  isLoading: boolean = false
+  isAreaNameEmpty: boolean = false;
+  isAreaDetailEmpty: boolean = false;
+
+  loading: boolean = false;
+  isLoading: boolean = false;
 
   constructor(
     private apiService: restApiService,
@@ -46,8 +50,8 @@ export class AreaComponent {
     public common: CommonService
   ) {
     this.breadCrumbItems = [
-      { label: 'Master Data' },
-      { label: 'Area', active: true }
+      { label: "Master Data" },
+      { label: "Area", active: true },
     ];
   }
 
@@ -56,25 +60,29 @@ export class AreaComponent {
   }
 
   ngOnDestroy() {
-    this.modalService.dismissAll()
+    this.modalService.dismissAll();
+  }
+
+  onImageSelected(event: any) {
+    const file: File = event.target.files[0];
+    this.selectedImage = file;
   }
 
   getAreaData() {
-    this.loading = true
+    this.loading = true;
     this.apiService.getAreaData().subscribe({
       next: (res: any) => {
-        this.loading = false
+        this.loading = false;
         this.areaData = res.data;
         this.totalPages = Math.ceil(this.areaData.length / this.pageSize);
         this.updatePagination(this.areaData);
       },
       error: (err) => {
-        this.loading = false
-        console.error(err)
-        this.common.showServerErrorAlert(Const.ERR_GET_MSG("Area"), err)
-      }
+        this.loading = false;
+        console.error(err);
+        this.common.showServerErrorAlert(Const.ERR_GET_MSG("Area"), err);
+      },
     });
-    
   }
 
   goToPage(pageNumber: number): void {
@@ -91,99 +99,171 @@ export class AreaComponent {
       this.currentPage * this.pageSize
     );
 
-    this.activePages = this.common.calculateActivePages(this.currentPage, this.totalPages);
+    this.activePages = this.common.calculateActivePages(
+      this.currentPage,
+      this.totalPages
+    );
   }
 
   applyFilter(): void {
     this.currentPage = 1;
-    const filteredAreaData = this.areaData.filter(
-      (activity: any) =>
-        activity.name
-          .toLowerCase()
-          .includes(this.searchKeyword.trim().toLowerCase())
+    const filteredAreaData = this.areaData.filter((activity: any) =>
+      activity.name
+        .toLowerCase()
+        .includes(this.searchKeyword.trim().toLowerCase())
     );
     this.totalPages = Math.ceil(filteredAreaData.length / this.pageSize);
     this.updatePagination(filteredAreaData);
   }
 
-  onSubmitData() {
-    this.validateForm()
+  async onSubmitData() {
+    this.validateForm();
     if (!this.isAreaNameEmpty) {
-      let data = {name: this.areaName, detail: this.areaDetail}
-      if (this.areaId !== undefined) {
-        this.updateAreaData(this.areaId, data)
+      let data = { name: this.areaName, detail: this.areaDetail, image: this.areaImage as string | null };
+      if (this.areaId) {
+        if (this.selectedImage) {
+          const renamedFile = this.common.renameFile(this.selectedImage, this.areaId)
+          await this.uploadImage(renamedFile).then(fileName => data.image = fileName as string)
+        }
+        await this.updateAreaData(this.areaId, data)
+          .finally(() => {
+            this.isLoading = false
+            this.modalService.dismissAll()
+            this.getAreaData()
+          });
       } else {
-        this.insertAreaData(data)
+        data.image = null
+        await this.insertAreaData(data).then(async (areaId) => {
+          if (this.selectedImage) {
+            const renamedFile = this.common.renameFile(this.selectedImage, areaId)
+            await this.uploadImage(renamedFile).then(async fileName => {
+              let dataImage = { image: fileName as string }
+              await this.updateAreaData(areaId, dataImage)
+            })
+          }
+        }).finally(() => {
+          this.isLoading = false
+          this.modalService.dismissAll()
+          this.getAreaData()
+        })
       }
-      
     }
+  }
+
+  async uploadImage(file: File) {
+    return new Promise((resolve, reject) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      this.apiService.uploadAreaImage(formData).subscribe({
+        next: (res: any) => {
+          console.log(res)
+          const fileName = res.filename
+          resolve(fileName)
+        },
+        error: (err) => {
+          reject(err)
+          this.common.showErrorAlert(Const.ERR_INSERT_MSG("Area Image"), err)
+        },
+        complete: () => console.log("IMAGE UPLOADED")
+      })
+    })
   }
 
   onDeleteData(areaId: any) {
     this.common.showDeleteWarningAlert().then((result) => {
       if (result.value) {
         const deleteData = { is_removed: 1 };
-        this.loading = true
+        this.loading = true;
         this.apiService.updateAreaData(areaId, deleteData).subscribe({
           next: (res: any) => {
             this.loading = false;
             if (res.data == 1) {
               this.getAreaData();
-              this.common.showSuccessAlert('Area has been deleted')
+              this.common.showSuccessAlert("Area has been deleted");
             }
           },
           error: (err) => {
             this.loading = false;
-            console.error(err)
-            this.common.showErrorAlert(Const.ERR_DELETE_MSG('Area'), err)
-          }
+            console.error(err);
+            this.common.showErrorAlert(Const.ERR_DELETE_MSG("Area"), err);
+          },
         });
       }
     });
   }
 
-  updateAreaData(id: any, data: any) {
-    this.isLoading = true
-    this.apiService.updateAreaData(id, data).subscribe({
-      next: (res: any) => {
-        this.modalService.dismissAll()
-        this.isLoading = false
-      },
-      error: (err) => {
-        this.isLoading = false
-        console.error(err)
-        this.common.showErrorAlert(Const.ERR_UPDATE_MSG('Area'), err)
-      },
-      complete: () => this.getAreaData()
+  async updateImage(file: File) {
+    return new Promise((resolve, reject) => {
+      console.log("update image running...")
+      this.isLoading = true;
+      this.uploadImage(file).then(() => {
+        console.log("IMAGE UPDATED")
+        // const previousFile = this.areaImage
+        // this.apiService.removeImage(previousFile).subscribe({
+        //   next: (res: any) => {
+        //     resolve(true)
+        //     console.log("IMAGE UPDATED")
+        //   },
+        //   error: (err) => {
+        //     reject(err)
+        //     this.common.showErrorAlert(Const.ERR_DELETE_MSG("Previous Area Image"), err)
+        //   }
+        // });       
+      }).finally(() => this.isLoading = false)
+      
     })
   }
 
-  insertAreaData(data: any) {
-    this.isLoading = true
-    this.apiService.insertAreaData(data).subscribe({
-      next: (res: any) => {
-        this.modalService.dismissAll()
-        this.isLoading = false
-      },
-      error: (err) => {
-        this.isLoading = false
-        console.error(err)
-        this.common.showErrorAlert(Const.ERR_INSERT_MSG('Area'), err)
-      },
-      complete: () => this.getAreaData()
+  async updateAreaData(id: any, data: any) {
+    return new Promise(async (resolve, reject) => {
+      console.log('update area data running...')
+      this.isLoading = true;
+      this.apiService.updateAreaData(id, data).subscribe({
+        next: (res: any) => {
+          resolve(true);
+        },
+        error: (err) => {
+          console.error(err);
+          reject(err);
+          this.common.showErrorAlert(Const.ERR_UPDATE_MSG("Area"), err);
+        },
+      });
+    });
+  }
+
+  async insertAreaData(data: any) {
+    return new Promise((resolve, reject) => {
+      this.isLoading = true;
+      this.apiService.insertAreaData(data).subscribe({
+        next: (res: any) => {
+          const areaId = res.data
+          resolve(areaId)
+        },
+        error: (err) => {
+          reject(err)
+          this.common.showErrorAlert(Const.ERR_INSERT_MSG("Area"), err);
+        },
+      });
     })
+  }
+
+  onEditImage(): boolean {
+    return this.isEditImage === true ? this.isEditImage = false : this.isEditImage = true
   }
 
   openModal(content: any, areaData?: any) {
-    if (areaData !== undefined) {
-      this.areaId = areaData.area_id
-      this.areaName = areaData.name
-      this.areaDetail = areaData.detail
+    if (areaData) {
+      this.areaId = areaData.area_id;
+      this.areaName = areaData.name;
+      this.areaDetail = areaData.detail;
+      this.areaImage = areaData.image;
     }
-    this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then(
-      (result) => this.resetModalValue(),
-			(reason) => this.resetModalValue()
-    )
+    this.modalService
+      .open(content, { ariaLabelledBy: "modal-basic-title" })
+      .result.then(
+        (result) => this.resetModalValue(),
+        (reason) => this.resetModalValue()
+      );
   }
 
   validateForm() {
@@ -191,9 +271,13 @@ export class AreaComponent {
   }
 
   resetModalValue() {
-    this.areaId = undefined
-    this.areaName = ''
-    this.areaDetail = ''
-    this.isAreaNameEmpty = false
+    this.isLoading = false
+    this.areaId = undefined;
+    this.areaName = "";
+    this.areaDetail = "";
+    this.areaImage = "";
+    this.isAreaNameEmpty = false;
+    this.selectedImage = undefined
+    this.isEditImage = false
   }
 }

@@ -46,12 +46,22 @@ export class CommonService {
   }
 
   // -- File Handler
-  renameFile(file: File, newFileName: string): File {
+  renameFile(file: File, fileId: any): File {
+    const fileExt = file.name.split(".").pop();
+    const newFileName = `${fileId}.` + fileExt;
     const renamedFile = new File([file], newFileName, { type: file.type });
     return renamedFile;
   }
 
   // -- Date
+  getTodayDate() {
+    const today = new Date();
+    const year = today.getFullYear().toString().padStart(4, '0');
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    const day = today.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
   getDate(timestamp: any): string | null {
     if (timestamp) {
       let date = new Date(timestamp).toLocaleDateString()

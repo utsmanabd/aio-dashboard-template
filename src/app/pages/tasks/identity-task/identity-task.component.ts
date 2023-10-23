@@ -66,13 +66,7 @@ export class IdentityTaskComponent {
 
   onImageSelected(event: any, activityId: any) {
     const file = event.target.files[0];
-
-    const fileName = file.name;
-    const fileExt = fileName.split(".").pop();
-
-    const newFileName = `${activityId}.` + fileExt;
-    const renamedFile = this.common.renameFile(file, newFileName);
-
+    const renamedFile = this.common.renameFile(file, activityId)
     this.imageSelected.push(renamedFile);
   }
 

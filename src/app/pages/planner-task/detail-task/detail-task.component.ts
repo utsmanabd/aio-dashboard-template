@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { result } from 'lodash';
 import { CommonService } from 'src/app/core/services/common.service';
 import { restApiService } from 'src/app/core/services/rest-api.service';
 import { Const } from 'src/app/core/static/const';
@@ -19,10 +18,12 @@ interface ActiveArea {
 export class DetailTaskComponent {
   breadCrumbItems: Array<{}>;
   dateSelected: any
+  dateNow: string
   loading: boolean = false
 
   isAreaSelected: boolean = false
-  imageUrl = GlobalComponent.API_URL + GlobalComponent.image
+  imageUrl = GlobalComponent.API_URL + GlobalComponent.areaImage
+  searchKeyword: string = ''
 
   columnData = ["#", "Activity / Standard", "Category", "Period", "Machine Area", "Last Updated", "Recommended"]
   activityData: any[] = []
@@ -44,6 +45,7 @@ export class DetailTaskComponent {
       { label: 'Tasks' },
       { label: 'Detail', active: true },
     ];
+    this.dateNow = common.getTodayDate()
   }
 
   async ngOnInit() {
@@ -98,6 +100,7 @@ export class DetailTaskComponent {
     this.filteredActivityData.forEach((data) => {
       data.is_selected = this.isRecommended(this.common.getDayCount(data.last_updated, this.dateSelected), this.common.getPeriodDayCount(data.periode))
     })
+    console.log(this.filteredActivityData)
     this.isAreaSelected = true
     const activeArea: ActiveArea = {area: area, area_id: id}
     this.activeArea = activeArea
@@ -172,6 +175,34 @@ export class DetailTaskComponent {
     })
   }
 
+  filteredData() {
+    return this.filteredActivityData.filter(
+      (data) =>
+        data.activity
+          .toLowerCase()
+          .includes(this.searchKeyword.trim().toLowerCase()) ||
+        data.periode
+          .toLowerCase()
+          .includes(this.searchKeyword.trim().toLowerCase()) ||
+        data.category
+          .toLowerCase()
+          .includes(this.searchKeyword.trim().toLowerCase()) ||
+        data.machine_area
+          .toLowerCase()
+          .includes(this.searchKeyword.trim().toLowerCase())
+    );
+  }
 
-  
+  onAutoSelectCheck(event: any) {
+    const filterId = event.target.id
+    if (filterId == 'recommended') {
+      this.filteredData().forEach(data => data.is_selected = this.isRecommended(this.common.getDayCount(data.last_updated, this.dateSelected), this.common.getPeriodDayCount(data.periode)))
+    }
+    if (filterId == 'period') {
+      this.filteredData().forEach(data => data.is_selected = data.periode == 'W' ? true : false)
+    }
+    if (filterId == 'category') {
+      this.filteredData().forEach(data => data.is_selected = data.category == 'Cleaning' ? true : false)
+    }
+  }
 }

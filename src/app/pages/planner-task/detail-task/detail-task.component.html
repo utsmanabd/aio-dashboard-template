@@ -1,7 +1,5 @@
 <ngx-loading [show]="loading"></ngx-loading>
 <app-breadcrumbs title="Create Task: {{ dateSelected }}" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
-<button (click)="backToArea()" *ngIf="isAreaSelected" type="button" class="mb-3 btn btn-info btn-label"><i
-        class="ri-arrow-left-line label-icon align-middle fs-16 me-2"></i> Back to Area</button>
 <div class="card">
     <ng-container *ngIf="!isAreaSelected">
         <div class="card-header">
@@ -28,44 +26,55 @@
     <ng-container *ngIf="isAreaSelected">
         <div class="card-header border-0">
             <div class="d-flex align-items-center">
+                <button (click)="backToArea()" type="button" class="shadow-none btn btn-soft-primary me-2"><i
+                        class="ri-arrow-left-line"></i></button>
                 <h4 class="mb-0 flex-grow-1">Area: <span class="text-primary">{{ activeArea.area }}</span></h4>
                 <div class="flex-shrink-0">
-                    <button (click)="onCreateTask(activeArea.area_id)" class="btn btn-danger add-btn me-1"><i class="ri-add-line align-bottom me-1"></i> Create Task</button>
+                    <button (click)="onCreateTask(activeArea.area_id)" class="btn btn-success add-btn me-1"><i
+                            class="ri-add-line align-bottom me-1"></i> Create Task</button>
                 </div>
             </div>
         </div>
         <div class="card-body border border-dashed border-end-0 border-start-0">
             <div class="row g-3">
-                <div class="col-xxl-1 col-sm-4">
-                    <button type="button" class="btn btn-primary">Auto Select</button>
-                </div>
                 <!--end col-->
                 <div class="col-xxl-5 col-sm-12">
+                    <label>Search</label>
                     <div class="search-box">
-                        <input type="text" name="searchTerm" class="form-control"
-                            placeholder="Search for tasks or something...">
+                        <input type="text" name="searchTerm" class="form-control" [(ngModel)]="searchKeyword"
+                            placeholder="Search for activity or something...">
                         <i class="ri-search-line search-icon"></i>
                     </div>
                 </div>
-                <!--end col-->
 
-                <div class="col-xxl-3 col-sm-4">
-                    <input class="form-control flatpickr-input" type="text" mwlFlatpickr [altInput]="true"
-                        [convertModelValue]="true" placeholder="Select date range" id="isDate" mode="range">
-                </div>
-                <!--end col-->
-
-                <div class="col-xxl-3 col-sm-4">
+                <div class="col-xxl-3 col-sm-12">
                     <div class="input-light">
-                        <select class="form-control bg-light border-light" data-choices data-choices-search-false
-                            name="choices-single-default" id="idStatus">
-                            <option value="">Status</option>
-                            <option value="New">New</option>
-                            <option value="Pending">Pending</option>
-                            <option value="Inprogress">Inprogress</option>
-                            <option value="Completed">Completed</option>
+                        <label for="filterBy">Filter by:</label>
+                        <select class="form-select" id="filterBy">
+                            <option class="text-muted" selected>All</option>
+                            <option value="1">Machine Area</option>
+                            <option value="2">Period</option>
+                            <option value="3">Category</option>
                         </select>
                     </div>
+                </div>
+
+                <div class="col-xxl-4 col-sm-12">
+                    <div class="d-flex flex-column align-items-start me-2">
+                        <label>Auto select by: </label>
+                        <!-- Radio Buttons -->
+                        <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                            <input value="1" (change)="onAutoSelectCheck($event)" type="radio" class="btn-check" name="btnradio" id="recommended" autocomplete="off" [checked]="true">
+                            <label class="btn btn-soft-primary shadow-none" for="recommended">Recommended</label>
+                            
+                            <input value="2" (change)="onAutoSelectCheck($event)" type="radio" class="btn-check" name="btnradio" id="period" autocomplete="off">
+                            <label class="btn btn-soft-primary shadow-none" for="period">Period (W)</label>
+    
+                            <input value="3" (change)="onAutoSelectCheck($event)" type="radio" class="btn-check" name="btnradio" id="category" autocomplete="off">
+                            <label class="btn btn-soft-primary shadow-none" for="category">Category (Cleaning)</label>
+                        </div>
+                    </div>
+                    
                 </div>
                 <!--end col-->
             </div>
@@ -90,7 +99,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let data of filteredActivityData; let i = index">
+                        <tr *ngFor="let data of filteredData(); let i = index">
                             <th scope="row">
                                 <div class="form-check">
                                     <form>
@@ -121,7 +130,7 @@
                                 <h5 class="fs-6">
                                     <a class="text-reset">{{ common.getDate(data.last_updated) }}</a>
                                 </h5>
-                               <span>{{ data.last_updated | dateAgo: dateSelected }}</span>
+                                <span>{{ data.last_updated | dateAgo: dateSelected }}</span>
                             </td>
                             <td *ngIf="isRecommended(common.getDayCount(data.last_updated, dateSelected), common.getPeriodDayCount(data.periode));else notRecommended"
                                 class="text-success"><i class="ri-checkbox-circle-line fs-17 align-middle"></i>
@@ -133,7 +142,8 @@
                     </tbody>
                 </table>
                 <div class="p-3 d-flex justify-content-center">
-                    <button (click)="onCreateTask(activeArea.area_id)" class="btn btn-danger add-btn me-1"><i class="ri-add-line align-bottom me-1"></i> Create Task</button>
+                    <button (click)="onCreateTask(activeArea.area_id)" class="btn btn-success add-btn me-1"><i
+                            class="ri-add-line align-bottom me-1"></i> Create Task</button>
                 </div>
                 <!-- end table -->
             </div>

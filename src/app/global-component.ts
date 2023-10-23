@@ -31,6 +31,7 @@ export const GlobalComponent = {
     upload: 'master/image',
     uploadMultiple: 'master/image/multi',
     image: 'image/',
+    areaImage: 'image/area/',
 
     // Activity Api
     activity: 'master/activity',
