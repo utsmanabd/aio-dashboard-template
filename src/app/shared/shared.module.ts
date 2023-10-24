@@ -6,7 +6,6 @@ import { NgbNavModule, NgbAccordionModule, NgbDropdownModule } from '@ng-bootstr
 import { NgxUsefulSwiperModule } from 'ngx-useful-swiper';
 
 // Counter
-import { CountToModule } from 'angular-count-to';
 
 import { BreadcrumbsComponent } from './breadcrumbs/breadcrumbs.component';
 import { ScrollspyDirective } from './scrollspy.directive';
@@ -22,8 +21,6 @@ import { ScrollspyDirective } from './scrollspy.directive';
     NgbNavModule,
     NgbAccordionModule,
     NgbDropdownModule,
-    NgxUsefulSwiperModule ,
-    CountToModule
   ],
   exports: [
     BreadcrumbsComponent,

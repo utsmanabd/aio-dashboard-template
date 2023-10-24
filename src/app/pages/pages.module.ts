@@ -76,7 +76,6 @@ import { NotFoundComponent } from './not-found/not-found.component';
     SimplebarAngularModule,
     PagesRoutingModule,
     SharedModule,
-    NgxUsefulSwiperModule ,
     LightboxModule,
     DashboardsModule,
     DropzoneModule,

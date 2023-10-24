@@ -5,7 +5,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 // Feather Icon
 import { FeatherModule } from 'angular-feather';
 import { allIcons } from 'angular-feather/icons';
-import { CountToModule } from 'angular-count-to';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import { NgbDropdownModule, NgbNavModule, NgbTypeaheadModule, NgbPaginationModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { SimplebarAngularModule } from 'simplebar-angular';
@@ -27,14 +26,12 @@ import { SharedModule } from '../../shared/shared.module';
   imports: [
     CommonModule,
     FeatherModule.pick(allIcons),
-    CountToModule,
     NgbToastModule,
     LeafletModule,
     NgbDropdownModule,
     NgbNavModule,
     SimplebarAngularModule,
     NgApexchartsModule,
-    NgxUsefulSwiperModule ,
     FlatpickrModule.forRoot(),
     DashboardsRoutingModule,
     SharedModule,
