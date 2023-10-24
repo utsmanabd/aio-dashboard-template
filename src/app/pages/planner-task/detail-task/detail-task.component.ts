@@ -28,7 +28,11 @@ export class DetailTaskComponent {
   columnData = ["#", "Activity / Standard", "Category", "Period", "Machine Area", "Last Updated", "Recommended"]
   activityData: any[] = []
   areaData: any[] = []
+  periodData: any[] = []
+  categoryData = ['Cleaning', 'Inspecting', 'Lubricating', 'Tightening']
+  sortData = ['Activity', 'Category', 'Period', 'Machine Area', 'Last Updated']
   filteredActivityData: any[] = []
+  filteredActivityDataBefore: any[] = []
 
   activeArea: ActiveArea = {
     area: '',
@@ -36,6 +40,9 @@ export class DetailTaskComponent {
   }
 
   index: number = 0
+  isRecommendedSelected: boolean = false
+  isPeriodSelected: boolean = false
+  isCategorySelected: boolean = false
 
   activityIdData: number[] = []
 
@@ -46,6 +53,7 @@ export class DetailTaskComponent {
       { label: 'Detail', active: true },
     ];
     this.dateNow = common.getTodayDate()
+    this.isRecommendedSelected = true
   }
 
   async ngOnInit() {
@@ -100,6 +108,9 @@ export class DetailTaskComponent {
     this.filteredActivityData.forEach((data) => {
       data.is_selected = this.isRecommended(this.common.getDayCount(data.last_updated, this.dateSelected), this.common.getPeriodDayCount(data.periode))
     })
+    this.filteredActivityDataBefore = this.filteredActivityData.map(a => ({ ...a }));
+    this.periodData = this.common.getUniqueData(this.filteredActivityData, 'periode').map(data => data.periode)
+    console.log(this.periodData)
     console.log(this.filteredActivityData)
     this.isAreaSelected = true
     const activeArea: ActiveArea = {area: area, area_id: id}
@@ -193,16 +204,87 @@ export class DetailTaskComponent {
     );
   }
 
-  onAutoSelectCheck(event: any) {
+  onAutoSelectClick(event: any, property?: any) {
     const filterId = event.target.id
-    if (filterId == 'recommended') {
-      this.filteredData().forEach(data => data.is_selected = this.isRecommended(this.common.getDayCount(data.last_updated, this.dateSelected), this.common.getPeriodDayCount(data.periode)))
+    if (!property) {
+      if (filterId == 'btnRecommended') {
+        this.isCategorySelected = false
+        this.isPeriodSelected = false
+        this.filteredActivityData.forEach(data => {
+          let dayCount = this.common.getDayCount(data.last_updated, this.dateSelected)
+          let periodCount = this.common.getPeriodDayCount(data.periode)
+          data.is_selected = this.isRecommended(dayCount, periodCount)
+        })
+        this.isRecommendedSelected = true
+      }
+    } else {
+      if (filterId == 'btnPeriod') {
+        this.isRecommendedSelected = false
+        this.isCategorySelected = false
+        this.filteredActivityData.forEach(data => data.is_selected = data.periode == `${property}` ? true : false)
+        this.isPeriodSelected = true
+      } else if (filterId == 'btnCategory') {
+        this.isPeriodSelected = false
+        this.isRecommendedSelected = false
+        this.filteredActivityData.forEach(data => data.is_selected = data.category == `${property}` ? true : false)
+        this.isCategorySelected = true
+      }
     }
-    if (filterId == 'period') {
-      this.filteredData().forEach(data => data.is_selected = data.periode == 'W' ? true : false)
+  }
+
+  onSortClick(event: any) {
+    if (event.target.value == 'Default') {
+      this.filteredActivityData = this.filteredActivityDataBefore
     }
-    if (filterId == 'category') {
-      this.filteredData().forEach(data => data.is_selected = data.category == 'Cleaning' ? true : false)
+
+    if (event.target.value == "Activity") {
+      let sort = this.filteredData().slice().sort((a, b) => {
+        const A = a.activity.toLowerCase()
+        const B = b.activity.toLowerCase()
+
+        return A < B ? -1 : A > B ? 1 : 0
+      })
+      this.filteredActivityData = sort
+    }
+
+    if (event.target.value == "Category") {
+      let sort = this.filteredData().slice().sort((a, b) => {
+        const A = a.category.toLowerCase()
+        const B = b.category.toLowerCase()
+
+        return A < B ? -1 : A > B ? 1 : 0
+      })
+      this.filteredActivityData = sort
+    }
+
+    if (event.target.value == "Period") {
+      let sort = this.filteredData().slice().sort((a, b) => {
+        const A = this.common.getPeriodDayCount(a.periode)
+        const B = this.common.getPeriodDayCount(b.periode)
+
+        return A - B
+      })
+      this.filteredActivityData = sort
+    
+    }
+    if (event.target.value == "Machine Area") {
+      let sort = this.filteredData().slice().sort((a, b) => {
+        const A = a.machine_area.toLowerCase()
+        const B = b.machine_area.toLowerCase()
+
+        return A < B ? -1 : A > B ? 1 : 0
+      })
+      this.filteredActivityData = sort
+    }
+
+    if (event.target.value == "Last Updated") {
+      let sort = this.filteredData().slice().sort((a, b) => {
+        const A = new Date(a.last_updated)
+        const B = new Date(b.last_updated)
+
+        return B.getTime() - A.getTime();
+      })
+      this.filteredActivityData = sort
     }
   }
 }

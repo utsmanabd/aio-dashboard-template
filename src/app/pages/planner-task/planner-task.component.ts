@@ -22,6 +22,8 @@ import listPlugin from "@fullcalendar/list";
 import { Router } from "@angular/router";
 import { CommonService } from "src/app/core/services/common.service";
 import { Const } from "src/app/core/static/const";
+import { result } from "lodash";
+import { FullCalendarComponent } from "@fullcalendar/angular";
 
 @Component({
   selector: "app-planner-task",
@@ -47,6 +49,11 @@ export class PlannerTaskComponent {
 
   calendarOptions: CalendarOptions = {
     plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],
+    headerToolbar: {
+      left: 'dayGridMonth,dayGridWeek,dayGridDay',
+      center: 'title',
+      right: 'today,prevYear,prev,next,nextYear'
+    },
     initialView: "dayGridMonth",
     events: [],
     weekends: true,
@@ -77,6 +84,7 @@ export class PlannerTaskComponent {
   };
 
   @ViewChild("detailTask") detailModal!: TemplateRef<any>;
+  @ViewChild("calendar") calendarComponent!: FullCalendarComponent
 
   constructor(
     private modalService: NgbModal,
@@ -170,17 +178,29 @@ export class PlannerTaskComponent {
     let taskId = clickInfo.event.id
     console.log(clickInfo.event)
     if (taskId) {
-      // const taskData = clickInfo.event._def.extendedProps
-      // this.openModal(this.detailModal, taskData)
-      if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
-        clickInfo.event.remove();
-      }
+      const taskData = clickInfo.event._def.extendedProps
+      this.openModal(this.detailModal, taskData)
+      // if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
+      //   clickInfo.event.remove();
+      // }
     }
+  }
+
+  onDeleteTask(taskId: number) {
+    this.common.showDeleteWarningAlert(Const.ALERT_DEL_MSG("Task")).then((result) => {
+      if (result.value) {
+        this.removeTaskData(taskId).then(() => {
+          this.calendarComponent.getApi().getEventById(`${taskId}`)?.remove()
+          this.loading = false;
+          this.common.showSuccessAlert(Const.SUCCESS_DEL_MSG('Task'))
+          this.modalService.dismissAll()
+        })
+      }
+    })
   }
 
   openModal(content: any, taskData: any) {
     this.taskData = taskData.allData
-    console.log(this.taskData)
 		this.modalService.open(content, { centered: true });
 	}
 

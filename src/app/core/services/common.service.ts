@@ -70,6 +70,20 @@ export class CommonService {
     return null
   }
 
+  getLocaleDate(date: string): string {
+    const dateObj = new Date(date);
+    const month = dateObj.toLocaleString('default', { month: 'short' });
+    const day = dateObj.getDate();
+    const year = dateObj.getFullYear();
+    return `${day} ${month}, ${year}`;
+  }
+
+  getTime(date: string): string {
+    const dateObj = new Date(date);
+    const time = dateObj.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    return time;
+}
+
   getMonthName(month: number): string {
     const monthNames = [
       "January", "February", "March", "April", "May", "June",

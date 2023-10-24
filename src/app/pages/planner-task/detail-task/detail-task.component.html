@@ -1,9 +1,12 @@
 <ngx-loading [show]="loading"></ngx-loading>
 <app-breadcrumbs title="Create Task: {{ dateSelected }}" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+<div class="auth-one-bg-position auth-one-bg" id="auth-particles">
+    <div class="bg-overlay"></div>
+</div>
 <div class="card">
     <ng-container *ngIf="!isAreaSelected">
         <div class="card-header">
-            <h4 class="mt-2 mb-2">Select Area: </h4>
+            <h4 class="card-title">Select Area</h4>
         </div>
         <div class="card-body" *ngIf="areaData">
             <div class="row wrapper">
@@ -13,10 +16,6 @@
                             <img src="{{area.image ? imageUrl + area.image : 'assets/images/default-area.JPG'}}" />
                             <div class="overlay"></div>
                             <h4 class="area-title">{{area.name}}</h4>
-                            <!-- <div class="info">
-                                <b>{{ area.area }}</b>
-                                <button>Read More</button>
-                            </div> -->
                         </div>
                     </a>
                 </div>
@@ -38,7 +37,7 @@
         <div class="card-body border border-dashed border-end-0 border-start-0">
             <div class="row g-3">
                 <!--end col-->
-                <div class="col-xxl-5 col-sm-12">
+                <div class="col-xxl-5 col-sm-6">
                     <label>Search</label>
                     <div class="search-box">
                         <input type="text" name="searchTerm" class="form-control" [(ngModel)]="searchKeyword"
@@ -47,14 +46,12 @@
                     </div>
                 </div>
 
-                <div class="col-xxl-3 col-sm-12">
+                <div class="col-xxl-3 col-sm-6">
                     <div class="input-light">
-                        <label for="filterBy">Filter by:</label>
-                        <select class="form-select" id="filterBy">
-                            <option class="text-muted" selected>All</option>
-                            <option value="1">Machine Area</option>
-                            <option value="2">Period</option>
-                            <option value="3">Category</option>
+                        <label for="sortBy">Sort by:</label>
+                        <select (change)="onSortClick($event)" class="form-select" id="sortBy">
+                            <option class="text-muted" selected>Default</option>
+                            <option *ngFor="let item of sortData">{{ item }}</option>
                         </select>
                     </div>
                 </div>
@@ -63,15 +60,28 @@
                     <div class="d-flex flex-column align-items-start me-2">
                         <label>Auto select by: </label>
                         <!-- Radio Buttons -->
-                        <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-                            <input value="1" (change)="onAutoSelectCheck($event)" type="radio" class="btn-check" name="btnradio" id="recommended" autocomplete="off" [checked]="true">
-                            <label class="btn btn-soft-primary shadow-none" for="recommended">Recommended</label>
-                            
-                            <input value="2" (change)="onAutoSelectCheck($event)" type="radio" class="btn-check" name="btnradio" id="period" autocomplete="off">
-                            <label class="btn btn-soft-primary shadow-none" for="period">Period (W)</label>
-    
-                            <input value="3" (change)="onAutoSelectCheck($event)" type="radio" class="btn-check" name="btnradio" id="category" autocomplete="off">
-                            <label class="btn btn-soft-primary shadow-none" for="category">Category (Cleaning)</label>
+                        <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                            <button id="btnRecommended" (click)="onAutoSelectClick($event)" type="button" class="btn btn-{{isRecommendedSelected ? 'primary' : 'soft-primary'}}">Recommended</button>
+                            <div class="btn-group" role="group" ngbDropdown>
+                                <button id="btnGroupDrop1" type="button"
+                                    class="btn btn-{{isPeriodSelected ? 'primary' : 'soft-primary'}} dropdown-toggle arrow-none" data-bs-toggle="dropdown"
+                                    aria-expanded="false" ngbDropdownToggle>
+                                    Period <i class="mdi mdi-chevron-down"></i>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1" ngbDropdownMenu>
+                                    <li *ngFor="let period of periodData"><a id="btnPeriod" (click)="onAutoSelectClick($event, period)" class="dropdown-item" href="javascript:void(0);">{{ period }}</a></li>
+                                </ul>
+                            </div>
+                            <div class="btn-group" role="group" ngbDropdown>
+                                <button id="btnGroupDrop2" type="button"
+                                    class="btn btn-{{isCategorySelected ? 'primary' : 'soft-primary'}} dropdown-toggle arrow-none" data-bs-toggle="dropdown"
+                                    aria-expanded="false" ngbDropdownToggle>
+                                    Category <i class="mdi mdi-chevron-down"></i>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop2" ngbDropdownMenu>
+                                    <li *ngFor="let category of categoryData"><a id="btnCategory" (click)="onAutoSelectClick($event, category)" class="dropdown-item" href="javascript:void(0);">{{ category }}</a></li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                     
