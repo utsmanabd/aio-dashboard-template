@@ -17,7 +17,7 @@ export class AreaComponent {
   index: number = 0;
   activePages: number[] = [];
 
-  imageUrl = GlobalComponent.API_URL + GlobalComponent.areaImage;
+  imageUrl = GlobalComponent.API_URL + GlobalComponent.image;
 
   breadCrumbItems!: Array<{}>;
 

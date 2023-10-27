@@ -27,9 +27,12 @@
             <div class="d-flex align-items-center">
                 <button (click)="backToArea()" type="button" class="shadow-none btn btn-soft-primary me-2"><i
                         class="ri-arrow-left-line"></i></button>
-                <h4 class="mb-0 flex-grow-1">Area: <span class="text-primary">{{ activeArea.area }}</span></h4>
-                <div class="flex-shrink-0">
-                    <button (click)="onCreateTask(activeArea.area_id)" class="btn btn-success add-btn me-1"><i
+                <div class="mb-0 flex-grow-1">
+                    <h4 class="mb-0">Area: <span class="text-primary">{{ activeArea.area }}</span></h4>
+                    <span class="fs-7 text-muted">{{ dateSelected }}</span>
+                </div>
+                <div class="flex-shrink-0 ms-2">
+                    <button (click)="onCreateTask(activeArea.area_id)" class="btn {{isSmallScreen ? 'btn-sm' : ''}} btn-success add-btn me-1" [disabled]="loading"><i
                             class="ri-add-line align-bottom me-1"></i> Create Task</button>
                 </div>
             </div>
@@ -57,10 +60,10 @@
                 </div>
 
                 <div class="col-xxl-4 col-sm-12">
-                    <div class="d-flex flex-column align-items-start me-2">
+                    <div class="d-flex flex-column align-items-{{ isSmallScreen ? 'center' : 'start' }} me-2">
                         <label>Auto select by: </label>
                         <!-- Radio Buttons -->
-                        <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                        <div class="btn-group{{ isSmallScreen ? '-vertical' : ''}}" role="group" aria-label="Button group with nested dropdown">
                             <button id="btnRecommended" (click)="onAutoSelectClick($event)" type="button" class="btn btn-{{isRecommendedSelected ? 'primary' : 'soft-primary'}}">Recommended</button>
                             <div class="btn-group" role="group" ngbDropdown>
                                 <button id="btnGroupDrop1" type="button"
@@ -152,7 +155,7 @@
                     </tbody>
                 </table>
                 <div class="p-3 d-flex justify-content-center">
-                    <button (click)="onCreateTask(activeArea.area_id)" class="btn btn-success add-btn me-1"><i
+                    <button (click)="onCreateTask(activeArea.area_id)" class="btn btn-success add-btn me-1" [disabled]="loading"><i
                             class="ri-add-line align-bottom me-1"></i> Create Task</button>
                 </div>
                 <!-- end table -->

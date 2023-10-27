@@ -1,11 +1,10 @@
 export const GlobalComponent = {
     // Api Calling
     API_URL : 'http://localhost:3279/api/',
-    REST_API_URL: 'http://localhost:3179/api/',
     headerToken : {'Authorization': `${localStorage.getItem('token')}`},
 
     // Auth Api
-    AUTH_API:"http://localhost:3179/api/auth/",
+    AUTH_API:"http://localhost:3279/api/auth/",
     refreshToken: 'update-token',
 
     // Actor Api
@@ -28,10 +27,9 @@ export const GlobalComponent = {
     filmId: 'master/film/',
 
     // Upload and File Api
-    upload: 'master/image',
-    uploadMultiple: 'master/image/multi',
+    upload: 'master/image/',
+    uploadMultiple: 'master/image/multi/',
     image: 'image/',
-    areaImage: 'image/area/',
 
     // Activity Api
     activity: 'master/activity',

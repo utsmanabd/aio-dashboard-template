@@ -42,6 +42,7 @@ import { FullCalendarModule } from '@fullcalendar/angular';
 import { PlannerTaskComponent } from './planner-task/planner-task.component';
 import { DetailTaskComponent } from './planner-task/detail-task/detail-task.component';
 import { DateAgoPipe } from '../core/pipe/date-ago.pipe';
+import { LayoutModule } from '@angular/cdk/layout';
 
 @NgModule({
   declarations: [
@@ -63,6 +64,7 @@ import { DateAgoPipe } from '../core/pipe/date-ago.pipe';
     DateAgoPipe
   ],
   imports: [
+    LayoutModule,
     CommonModule,
     FormsModule,
     FlatpickrModule.forRoot(),

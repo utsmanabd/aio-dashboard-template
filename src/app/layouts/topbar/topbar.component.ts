@@ -47,7 +47,7 @@ export class TopbarComponent implements OnInit {
   ngOnInit(): void {
     this.userData = this.TokenStorageService.getUser();
     console.log(this.userData);
-    this.imageUrl = `${GlobalComponent.REST_API_URL}${GlobalComponent.image}${this.userData.photo}`
+    this.imageUrl = `${GlobalComponent.API_URL}${GlobalComponent.image}${this.userData.photo}`
     this.element = document.documentElement;
 
     // Cookies wise Language set

@@ -4,6 +4,7 @@ import { CommonService } from 'src/app/core/services/common.service';
 import { restApiService } from 'src/app/core/services/rest-api.service';
 import { Const } from 'src/app/core/static/const';
 import { GlobalComponent } from 'src/app/global-component';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
 interface ActiveArea {
   area: string;
@@ -22,7 +23,7 @@ export class DetailTaskComponent {
   loading: boolean = false
 
   isAreaSelected: boolean = false
-  imageUrl = GlobalComponent.API_URL + GlobalComponent.areaImage
+  imageUrl = GlobalComponent.API_URL + GlobalComponent.image
   searchKeyword: string = ''
 
   columnData = ["#", "Activity / Standard", "Category", "Period", "Machine Area", "Last Updated", "Recommended"]
@@ -45,8 +46,18 @@ export class DetailTaskComponent {
   isCategorySelected: boolean = false
 
   activityIdData: number[] = []
+  isSmallScreen: boolean = false
 
-  constructor(private route: ActivatedRoute, private router: Router, private apiService: restApiService, public common: CommonService) {
+  constructor(
+    private route: ActivatedRoute, 
+    private router: Router, 
+    private apiService: restApiService, 
+    public common: CommonService,
+    private breakpointObserver: BreakpointObserver
+  ) {
+    this.breakpointObserver.observe([Breakpoints.XSmall]).subscribe(result => {
+      this.isSmallScreen = result.breakpoints[Breakpoints.XSmall];
+    })
     this.breadCrumbItems = [
       { label: 'Planner' },
       { label: 'Tasks' },
@@ -158,13 +169,15 @@ export class DetailTaskComponent {
   }
 
   insertTaskActivity(activityData: any) {
+    this.loading = true
     this.apiService.insertTaskActivity(activityData).subscribe({
       next: (res: any) => {
+        this.loading = false
         this.common.showSuccessAlert("Task created successfully")
         this.router.navigate(['/planner/tasks'])
       },
       error: (err) => {
-        console.error(err)
+        this.loading = false
         this.common.showErrorAlert(Const.ERR_INSERT_MSG("Activity"), err)
       }
     })

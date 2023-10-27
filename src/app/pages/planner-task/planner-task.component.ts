@@ -57,7 +57,7 @@ export class PlannerTaskComponent {
     initialView: "dayGridMonth",
     events: [],
     weekends: true,
-    // editable: true,
+    editable: true,
     selectable: true,
     selectMirror: true,
     dayMaxEvents: true,
@@ -76,6 +76,8 @@ export class PlannerTaskComponent {
       console.log("id: ", arg.event.id);
       console.log("title: ", arg.event.title);
       console.log("date: ", arg.event.startStr);
+      const newDate = {date: arg.event.startStr}
+      this.updateTaskData(+arg.event.id, newDate)
     },
     eventRemove: (arg) => {
       console.log(`${arg.event.title} removed`);
@@ -144,6 +146,21 @@ export class PlannerTaskComponent {
     })
   }
 
+  async updateTaskData(taskId: number, data: any) {
+    return new Promise((resolve, reject) => {
+      this.apiService.updateTaskData(taskId, data).subscribe({
+        next: (res: any) => {
+          resolve(true)
+          console.log("SUCCESS CHANGE DATE")
+        },
+        error: (err) => {
+          this.common.showErrorAlert(Const.ERR_UPDATE_MSG("Task"), err)
+          reject(err)
+        }
+      })
+    })
+  }
+
   getTaskAreaColor(areaId: number, areaData: number[]): string {
     let color = ['#4B38B3', '#3577F1', '#45CB85', '#299CDB', '#FFBE0B', '#F06548', '#343A40', '#F3F6F9'];
     let index = areaData.indexOf(areaId);
@@ -158,20 +175,7 @@ export class PlannerTaskComponent {
   handleDateSelect(selectInfo: DateSelectArg) {
     console.log(selectInfo)
     const date = selectInfo.startStr;
-    const calendarApi = selectInfo.view.calendar;
     this.router.navigate([`/planner/tasks/detail/${date}`]);
-
-    calendarApi.unselect(); // clear date selection
-
-    // if (title) {
-    //   calendarApi.addEvent({
-    //     id: createEventId(),
-    //     title,
-    //     start: selectInfo.startStr,
-    //     end: selectInfo.endStr,
-    //     allDay: selectInfo.allDay,
-    //   });
-    // }
   }
 
   handleEventClick(clickInfo: EventClickArg) {
@@ -179,7 +183,8 @@ export class PlannerTaskComponent {
     console.log(clickInfo.event)
     if (taskId) {
       const taskData = clickInfo.event._def.extendedProps
-      this.openModal(this.detailModal, taskData)
+      const date = clickInfo.event.startStr
+      this.openModal(this.detailModal, taskData, date)
       // if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
       //   clickInfo.event.remove();
       // }
@@ -187,43 +192,51 @@ export class PlannerTaskComponent {
   }
 
   onDeleteTask(taskId: number) {
-    this.common.showDeleteWarningAlert(Const.ALERT_DEL_MSG("Task")).then((result) => {
+    this.common.showDeleteWarningAlert(Const.ALERT_DEL_MSG("Task")).then(async (result) => {
       if (result.value) {
-        this.removeTaskData(taskId).then(() => {
-          this.calendarComponent.getApi().getEventById(`${taskId}`)?.remove()
-          this.loading = false;
-          this.common.showSuccessAlert(Const.SUCCESS_DEL_MSG('Task'))
-          this.modalService.dismissAll()
+        await this.removeTaskData(taskId).then((success) => {
+          if (success) {
+            this.calendarComponent.getApi().getEventById(`${taskId}`)?.remove()
+            this.loading = false;
+            this.common.showSuccessAlert(Const.SUCCESS_DEL_MSG('Task'))
+            this.modalService.dismissAll()
+          }
         })
       }
     })
   }
 
-  openModal(content: any, taskData: any) {
+  openModal(content: any, taskData: any, date: string) {
     this.taskData = taskData.allData
+    this.taskData.date = date
 		this.modalService.open(content, { centered: true });
 	}
 
   async removeTaskData(taskId: number) {
-    new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this.loading = true
       this.apiService.updateTaskData(taskId, {is_removed: 1}).subscribe({
-        next: (res: any) => {
+        next: async (res: any) => {
           console.log(res.data)
           if (res.data > 0) {
             this.apiService.updateTaskActivityByTaskId(taskId, {is_removed: 1}).subscribe({
               next: (res: any) => {
                 this.ngOnInit()
-                resolve(res.data)
+                resolve(true)
               },
               error: (err) => {
-                this.common.showErrorAlert(Const.ERR_DELETE_MSG("Task Activity"), err)
                 reject(err)
+                this.loading = false
+                this.common.showErrorAlert(Const.ERR_DELETE_MSG("Task Activity"), err)
               }
             })
           }
         },
-        error: (err) => this.common.showErrorAlert(Const.ERR_DELETE_MSG("Task"), err)
+        error: (err) => {
+          this.loading = false
+          this.common.showErrorAlert(Const.ERR_DELETE_MSG("Task"), err)
+          reject(err)
+        }
       })
     })
     

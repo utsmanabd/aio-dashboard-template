@@ -69,7 +69,7 @@ export class restApiService {
   }
 
   uploadAreaImage(files: FormData) {
-    return this.http.post(GlobalComponent.API_URL + `master/` + GlobalComponent.areaImage, files)
+    return this.http.post(GlobalComponent.API_URL + GlobalComponent.upload + `area`, files)
   }
 
   getActorData(): Observable<any> {
@@ -340,7 +340,7 @@ export class restApiService {
   }
 
   uploadMultipleImage(files: FormData) {
-    return this.http.post(GlobalComponent.API_URL + GlobalComponent.uploadMultiple, files)
+    return this.http.post(GlobalComponent.API_URL + GlobalComponent.uploadMultiple + `task-activity`, files)
   }
 
   getFindingCount() {

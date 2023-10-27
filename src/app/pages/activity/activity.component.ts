@@ -79,8 +79,10 @@ export class ActivityComponent {
     this.validateForm()
     if (!this.isEmpty.includes(true)) {
       if (this.activityId !== undefined) {
+        this.activityFormData.periode = this.activityFormData.periode.toUpperCase()
         this.updateActivityData(this.activityId, this.activityFormData)
       } else {
+        this.activityFormData.periode = this.activityFormData.periode.toUpperCase()
         this.insertActivityData(this.activityFormData)
       }
     }
@@ -94,11 +96,11 @@ export class ActivityComponent {
         this.apiService.updateActivityData(id, deleteData)
           .subscribe({
             next: (res: any) => {
-              this.loading = false
               if (res.data == 1) {
                 this.getActivityData();
                 this.common.showSuccessAlert('Activity has been deleted')
               }
+              this.loading = false
             },
             error: (err) => {
               this.loading = false
@@ -231,7 +233,7 @@ export class ActivityComponent {
     this.isCategoryEmpty = this.activityFormData.category_id === '';
     this.isActivityEmpty = this.activityFormData.name.trim() === '';
     this.isStandardEmpty = this.activityFormData.standard.trim() === '';
-    this.isPeriodEmpty = this.activityFormData.periode.trim() === '';
+    this.isPeriodEmpty = !/^[0-9]*[DWMY]$/.test(this.activityFormData.periode.trim().toUpperCase())
     this.isEmpty.push(this.isMachineAreaEmpty, this.isCategoryEmpty, this.isActivityEmpty, this.isStandardEmpty, this.isPeriodEmpty)
     console.log(this.isEmpty)
   }
