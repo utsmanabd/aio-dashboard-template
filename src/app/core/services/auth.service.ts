@@ -102,7 +102,7 @@ export class AuthenticationService {
   }
 
   refreshToken(refreshToken: string) {
-    return this.http.post(GlobalComponent.AUTH_API + GlobalComponent.refreshToken, { refreshToken: refreshToken }, httpOptions)
+    return this.http.post(GlobalComponent.AUTH_API + GlobalComponent.refreshToken, { refresh_token: refreshToken }, httpOptions)
   }
 
   /**

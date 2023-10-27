@@ -307,8 +307,8 @@ export class restApiService {
     )
   }
 
-  getTaskActivityById(taskId: number, mAreaId: number) {
-    return this.http.get(GlobalComponent.API_URL + GlobalComponent.taskActivityId + `id/${taskId}/${mAreaId}`, this.httpOptions())
+  getTaskActivityById(taskId: number, mAreaId?: number) {
+    return this.http.get(GlobalComponent.API_URL + GlobalComponent.taskActivityId + `${mAreaId ? 'id/' + taskId.toString() + '/' + mAreaId.toString() : 'task-id/' + taskId.toString()}`, this.httpOptions())
   }
 
   getCountTaskActivityById(taskId: number, mAreaId: number) {

@@ -38,16 +38,16 @@ export class TopbarComponent implements OnInit {
   countryName: any;
   cookieValue: any;
 
-  imageUrl: string =''
+  imageUrl: string = `${GlobalComponent.API_URL}${GlobalComponent.image}`
 
   constructor(@Inject(DOCUMENT) private document: any, private eventService: EventService, public languageService: LanguageService,
     public _cookiesService: CookieService, public translate: TranslateService, private authService: AuthenticationService, private authFackservice: AuthfakeauthenticationService,
-    private router: Router, private TokenStorageService: TokenStorageService) { }
+    private router: Router, private TokenStorageService: TokenStorageService) {
+      this.userData = this.TokenStorageService.getUser();
+    }
 
   ngOnInit(): void {
-    this.userData = this.TokenStorageService.getUser();
     console.log(this.userData);
-    this.imageUrl = `${GlobalComponent.API_URL}${GlobalComponent.image}${this.userData.photo}`
     this.element = document.documentElement;
 
     // Cookies wise Language set

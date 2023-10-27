@@ -34,15 +34,6 @@ export class PlannerTaskComponent {
   breadCrumbItems!: Array<{}>;
   taskData: any
 
-  calendarEvents!: any[];
-  editEvent: any;
-  formEditData!: UntypedFormGroup;
-  newEventDate: any;
-  category!: any[];
-  submitted = false;
-
-  formData!: UntypedFormGroup;
-
   eventData: any[] = []
 
   loading: boolean = false
@@ -63,24 +54,13 @@ export class PlannerTaskComponent {
     dayMaxEvents: true,
     select: this.handleDateSelect.bind(this),
     eventClick: this.handleEventClick.bind(this),
-    eventsSet: this.handleEvents.bind(this),
     // you c  an update a remote database when these fire:
-    eventAdd: (arg) => {
-      console.log("EVENT ADD");
-      console.log("id: ", arg.event.id);
-      console.log("title: ", arg.event.title);
-      console.log("date: ", arg.event.startStr);
-    },
+    eventAdd: (arg) => {},
     eventChange: (arg) => {
-      console.log("EVENT CHANGE");
-      console.log("id: ", arg.event.id);
-      console.log("title: ", arg.event.title);
-      console.log("date: ", arg.event.startStr);
       const newDate = {date: arg.event.startStr}
       this.updateTaskData(+arg.event.id, newDate)
     },
     eventRemove: (arg) => {
-      console.log(`${arg.event.title} removed`);
       this.removeTaskData(+arg.event.id).finally(() => this.loading = false)
     },
   };
@@ -127,7 +107,7 @@ export class PlannerTaskComponent {
                 date: task.date,
                 title: `${task.area}: ${this.common.getTaskPercentage(task.total_activity, task.checklist)}%`,
                 allDay: true,
-                backgroundColor: this.getTaskAreaColor(task.area_id, areaData),
+                backgroundColor: this.common.getTaskAreaColor(task.area_id, areaData),
                 allData: task,
                 donePercentage: this.common.getTaskPercentage(task.total_activity, task.checklist)
               })
@@ -159,17 +139,6 @@ export class PlannerTaskComponent {
         }
       })
     })
-  }
-
-  getTaskAreaColor(areaId: number, areaData: number[]): string {
-    let color = ['#4B38B3', '#3577F1', '#45CB85', '#299CDB', '#FFBE0B', '#F06548', '#343A40', '#F3F6F9'];
-    let index = areaData.indexOf(areaId);
-    
-    if (index !== -1) {
-      return color[index % color.length];
-    } else {
-      return color[areaId % color.length];
-    }
   }
 
   handleDateSelect(selectInfo: DateSelectArg) {
@@ -240,12 +209,5 @@ export class PlannerTaskComponent {
       })
     })
     
-  }
-
-  currentEvents: EventApi[] = [];
-
-  handleEvents(events: EventApi[]) {
-    this.currentEvents = events;
-    this.changeDetector.detectChanges(); // workaround for pressionChangedAfterItHasBeenCheckedError
   }
 }

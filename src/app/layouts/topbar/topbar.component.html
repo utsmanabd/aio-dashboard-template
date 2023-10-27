@@ -655,8 +655,8 @@
                     <button type="button" class="btn shadow-none" id="page-header-user-dropdown"
                         data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ngbDropdownToggle>
                         <span class="d-flex align-items-center">
-                            <img class="rounded-circle header-profile-user" src="{{ imageUrl }}"
-                                alt="Header Avatar" *ngIf="imageUrl !== undefined">
+                            <img class="rounded-circle header-profile-user" src="{{ userData.photo ? imageUrl + userData.photo : 'assets/images/users/user-dummy-img.jpg' }}"
+                                alt="Header Avatar" *ngIf="imageUrl">
                             <span class="text-start ms-xl-2">
                                 <span
                                     class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">{{userData.name}}</span>

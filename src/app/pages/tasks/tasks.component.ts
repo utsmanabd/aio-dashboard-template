@@ -4,6 +4,18 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommonService } from 'src/app/core/services/common.service';
 import { restApiService } from 'src/app/core/services/rest-api.service';
 import { Const } from 'src/app/core/static/const';
+import {
+  CalendarOptions,
+  DateSelectArg,
+  EventApi,
+  EventClickArg,
+} from "@fullcalendar/core";
+import interactionPlugin from "@fullcalendar/interaction";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import listPlugin from "@fullcalendar/list";
+import { FullCalendarComponent } from "@fullcalendar/angular";
+import { TokenStorageService } from 'src/app/core/services/token-storage.service';
 
 @Component({
   selector: 'app-tasks',
@@ -12,11 +24,13 @@ import { Const } from 'src/app/core/static/const';
 })
 export class TasksComponent {
   tableColumn = ["#", "Date", "Area", "Progress", "Action"];
-  tasksData: any;
+  tasksData: any[] = [];
   areaData: any;
   activityIdData: any[] =[]
   index: number = 0;
   activePages: number[] = [];
+
+  eventData: any[] = []
 
   pageSize = 10;
   currentPage = 1;
@@ -36,19 +50,41 @@ export class TasksComponent {
   areaIdArray: any[] = []
   loading: boolean = false
   isLoading: boolean = false
+  isTableView: boolean = false;
+  isCalendarView: boolean = false;
+  userData: any
   
+  calendarOptions: CalendarOptions = {
+    plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],
+    headerToolbar: {
+      left: 'dayGridMonth,dayGridWeek,dayGridDay',
+      center: 'title',
+      right: 'today,prevYear,prev,next,nextYear'
+    },
+    initialView: "dayGridMonth",
+    events: [],
+    weekends: true,
+    editable: false,
+    selectable: true,
+    selectMirror: true,
+    dayMaxEvents: true,
+    eventClick: this.handleEventClick.bind(this),
+  };
 
   constructor(
     private apiService: restApiService,
     private route: ActivatedRoute,
     private router: Router,
     private modalService: NgbModal,
-    public common: CommonService
+    public common: CommonService,
+    private tokenService: TokenStorageService
   ) {
-    this.loading = true
+    this.isCalendarView = true
+    console.log(this.userData)
   }
 
   async ngOnInit() {
+    this.userData = this.tokenService.getUser()
     await this.getTaskData().finally(() => this.loading = false)
     await this.getAreaData().finally(() => this.loading = false)
   }
@@ -56,6 +92,10 @@ export class TasksComponent {
   ngOnDestroy() {
     this.activityIdData = []
     this.modalService.dismissAll()
+  }
+
+  handleEventClick() {
+
   }
 
   onAddTask() {
@@ -148,19 +188,57 @@ export class TasksComponent {
     this.isSelectedDateEmpty = this.selectedDate.trim() === ""
   }
 
+  onSelectedViewCheck(event: any) {
+    if (event.target.id == 'btnCalendar') {
+      this.isTableView = false
+      this.isCalendarView = true
+    } else if (event.target.id == 'btnTableView') {
+      this.isCalendarView = false
+      this.isTableView = true
+    }
+  }
+
   async getTaskData() {
     return new Promise((resolve, reject) => {
+      this.loading = true
       this.apiService.getTaskData().subscribe({
         next: (res: any) => {
-          this.tasksData = res.data;
-          this.totalPages = Math.ceil(this.tasksData.length / this.pageSize);
-          this.updatePagination(this.tasksData);
+          let data: any[] = res.data
+          if (!this.userData.area_id) {
+            this.tasksData = data;
+          } else {
+            this.tasksData = data.filter(task => task.area_id == this.userData.area_id);
+          }
           resolve(true)
         },
         error: (err) => {
           this.common.showServerErrorAlert(Const.ERR_GET_MSG("Task"), err);
           console.error(err)
           reject(err)
+        },
+        complete: () => {
+          this.totalPages = Math.ceil(this.tasksData.length / this.pageSize);
+          this.updatePagination(this.tasksData);
+          let areaData: any[] = []
+          for (let area of this.tasksData) {
+            if (!areaData.includes(area.area_id)) {
+              areaData.push(area.area_id)
+            }
+          }
+          if (areaData.length > 0) {
+            this.tasksData.forEach((task) => {
+              this.eventData.push({
+                id: task.task_id,
+                date: task.date,
+                title: `${task.area}: ${this.common.getTaskPercentage(task.total_activity, task.checklist)}%`,
+                allDay: true,
+                backgroundColor: this.common.getTaskAreaColor(task.area_id, areaData),
+                allData: task,
+                donePercentage: this.common.getTaskPercentage(task.total_activity, task.checklist)
+              })
+            })
+            this.calendarOptions.events = this.eventData
+          }
         }
       });
     })

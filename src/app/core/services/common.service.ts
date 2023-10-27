@@ -128,6 +128,17 @@ export class CommonService {
     }
   }
 
+  getTaskAreaColor(areaId: number, areaData: number[]): string {
+    let color = ['#4B38B3', '#3577F1', '#45CB85', '#299CDB', '#FFBE0B', '#F06548', '#343A40', '#F3F6F9'];
+    let index = areaData.indexOf(areaId);
+    
+    if (index !== -1) {
+      return color[index % color.length];
+    } else {
+      return color[areaId % color.length];
+    }
+  }
+
   // -- Return number functions
   getRandomIndices(max: number, count: number): number[] {
     if (max < count) count = max

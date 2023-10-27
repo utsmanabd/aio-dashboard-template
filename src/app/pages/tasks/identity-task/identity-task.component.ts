@@ -31,7 +31,7 @@ export class IdentityTaskComponent {
   index: number = 0;
 
   selectedMachineArea!: string;
-  machineAreaData: any;
+  machineAreaData: any[] = [];
 
   mAreaArray: any[] = [];
 
@@ -78,16 +78,36 @@ export class IdentityTaskComponent {
     }
   }
 
+  getTaskActivityByTaskId(taskId: number) {
+    this.apiService.getTaskActivityById(taskId).subscribe({
+      next: (res: any) => {
+        let data: any[] = res.data
+        let machineId: any = {};
+
+        data.forEach(item => {
+          machineId[item.machine_area] = item.m_area_id
+        })
+        for (let mArea in machineId) {
+          this.machineAreaData.push({machine_area: mArea, m_area_id: machineId[mArea]})
+        }
+        console.log(this.machineAreaData)
+      },
+      error: (err) => this.common.showErrorAlert(Const.ERR_GET_MSG("Task Activity"), err)
+    })
+  }
+
   getMachineAreaDataByAreaId(areaId: number) {
     this.isLoading = true
     this.apiService.getMachineAreaDataByAreaId(areaId).subscribe({
       next: (res: any) => {
         this.isLoading = false
         if (res.data.length > 0) {
-          this.machineAreaData = res.data,
+          this.machineAreaData = res.data
+          console.log(this.machineAreaData)
           this.machineAreaData.forEach((element: any) => {
             this.mAreaArray.push(element.m_area_id);
           });
+          console.log(this.mAreaArray);
           this.selectedMachineArea = this.mAreaArray[0]
         } else {
           this.router.navigate(['../tasks'])
