@@ -61,7 +61,7 @@ const routes: Routes = [
       redirectTo: 'tasks'
     },
     {
-      path: 'tasks/identity-task/:task-id/:area-id',
+      path: 'tasks/identity-task/:task-id',
       component: IdentityTaskComponent
     },
     {

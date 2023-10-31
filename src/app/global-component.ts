@@ -60,5 +60,13 @@ export const GlobalComponent = {
     findingUndoneDate: 'master/finding/undone/date/', // aman
     checklistArea: 'master/checklist/area/', // note
     checklistAreaDate: 'master/checklist/area/date/',
-    checklistCategory: 'master/checklist/category/date/' // note
+    checklistCategory: 'master/checklist/category/date/', // note
+
+    REFRESH_TOKEN_KEY: 'refreshToken',
+    TOKEN_KEY: 'token',
+    USER_KEY: 'currentUser',
+
+    USER_ENCRYPTION_KEY: 'intern-prodOC3-1',
+    ACCESS_TOKEN_ENCRYPTION_KEY: 'intern-prodOC3-2',
+    REFRESH_TOKEN_ENCRYPTION_KEY: 'intern-prodOC3-3'
 }

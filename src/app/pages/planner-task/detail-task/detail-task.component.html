@@ -11,7 +11,7 @@
         <div class="card-body" *ngIf="areaData">
             <div class="row wrapper">
                 <div class="col p-3 d-flex justify-content-center" *ngFor="let area of areaData">
-                    <a href="javascript:void(0);" (click)="onAreaClick(area.area_id, area.name)">
+                    <a href="javascript:void(0);" (click)="onAreaClick(area.area_id)">
                         <div class="app-card">
                             <img src="{{area.image ? imageUrl + area.image : 'assets/images/default-area.JPG'}}" />
                             <div class="overlay"></div>

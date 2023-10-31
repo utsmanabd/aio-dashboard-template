@@ -8,17 +8,12 @@ import {
 
 // Auth Services
 import { AuthenticationService } from "../services/auth.service";
-import { AuthfakeauthenticationService } from "../services/authfake.service";
-import { environment } from "../../../environments/environment";
-import { TokenStorageService } from "../services/token-storage.service";
 
 @Injectable({ providedIn: "root" })
 export class AuthGuard implements CanActivate {
   constructor(
     private router: Router,
-    private tokenStorageService: TokenStorageService,
     private authenticationService: AuthenticationService,
-    private authFackservice: AuthfakeauthenticationService
   ) {}
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {

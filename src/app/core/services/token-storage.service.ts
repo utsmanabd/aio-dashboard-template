@@ -1,9 +1,6 @@
 import { Injectable } from '@angular/core';
-
-const REFRESH_TOKEN_KEY = 'refreshToken';
-const TOKEN_KEY = 'token';
-const USER_KEY = 'currentUser';
-
+import * as CryptoJS from 'crypto-js';
+import { GlobalComponent } from 'src/app/global-component';
 
 @Injectable({
   providedIn: 'root'
@@ -12,13 +9,15 @@ export class TokenStorageService {
 
   constructor() { }
 
-  public getUser(): any {
-    const user = window.localStorage.getItem(USER_KEY);    
-    if (user) {
-      return JSON.parse(user);
-    }
+  encryptData(data: string, key: string, isObject: boolean = false): string {
+    let rawData = isObject ? JSON.stringify(data) : data
+    const encrypted = CryptoJS.AES.encrypt(rawData, key).toString();
+    return encrypted;
+  }
 
-    return {};
+  decryptData(encryptedData: string, key: string, isObject: boolean = false): string {
+    const decrypted = CryptoJS.AES.decrypt(encryptedData, key).toString(CryptoJS.enc.Utf8);
+    return isObject ? JSON.parse(decrypted) : decrypted;
   }
 
   setAuthData(token: any, refreshToken: any, userData: any) {
@@ -28,23 +27,60 @@ export class TokenStorageService {
   }
 
   setUserData(userData: any) {
-    localStorage.setItem(USER_KEY, JSON.stringify(userData))
+    const encryptedUserData = this.encryptData(userData, GlobalComponent.USER_ENCRYPTION_KEY, true)
+    localStorage.setItem(GlobalComponent.USER_KEY, encryptedUserData)
   }
 
   setToken(token: string) {
-    localStorage.setItem(TOKEN_KEY, token);
+    const encryptedToken = this.encryptData(token, GlobalComponent.ACCESS_TOKEN_ENCRYPTION_KEY)
+    localStorage.setItem(GlobalComponent.TOKEN_KEY, encryptedToken);
   }
 
   setRefreshToken(refreshToken: string) {
-    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken)
+    const encryptedRefreshToken = this.encryptData(refreshToken, GlobalComponent.REFRESH_TOKEN_ENCRYPTION_KEY)
+    localStorage.setItem(GlobalComponent.REFRESH_TOKEN_KEY, encryptedRefreshToken)
   }
 
   getToken(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
+    const token = localStorage.getItem(GlobalComponent.TOKEN_KEY);
+    if (token) {
+      try {
+        const decryptedData = this.decryptData(token, GlobalComponent.ACCESS_TOKEN_ENCRYPTION_KEY)
+        return decryptedData
+      } catch (err) {
+        console.error(err)
+        return null
+      }
+    }
+    return null
   }
 
   getRefreshToken(): string | null {
-    return localStorage.getItem(REFRESH_TOKEN_KEY)
+    const refreshToken = localStorage.getItem(GlobalComponent.REFRESH_TOKEN_KEY)
+    if (refreshToken) {
+      try {
+        const decryptedData = this.decryptData(refreshToken, GlobalComponent.REFRESH_TOKEN_ENCRYPTION_KEY)
+        return decryptedData
+      } catch (err) {
+        console.error(err)
+        return null
+      }
+    }
+    return null
+  }
+
+  getUser(): string | null {
+    const user = window.localStorage.getItem(GlobalComponent.USER_KEY);
+    if (user) {
+      try {
+        const decryptedData = this.decryptData(user, GlobalComponent.USER_ENCRYPTION_KEY, true)
+        return decryptedData;
+      } catch (err) {
+        console.error(err);
+        return null
+      }
+    }
+    return null;
   }
 
   public isTokenValid(): boolean {

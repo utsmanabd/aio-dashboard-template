@@ -23,20 +23,20 @@ export class AuthenticationService {
   private jwtHelper: JwtHelperService = new JwtHelperService();
 
   user!: User;
-  public currentUserAuth: Observable<UserData>;
+  // public currentUserAuth: Observable<UserData>;
   // currentUserValues: any;
-  private currentUserSubject: BehaviorSubject<UserData>;
+  // private currentUserSubject: BehaviorSubject<UserData>;
 
   constructor(private http: HttpClient, private tokenService: TokenStorageService) {
-    this.currentUserSubject = new BehaviorSubject<UserData>(
-      JSON.parse(localStorage.getItem("currentUser")!)
-    );
-    this.currentUserAuth = this.currentUserSubject.asObservable();
+    // this.currentUserSubject = new BehaviorSubject<UserData>(
+    //   JSON.parse(localStorage.getItem("currentUser")!)
+    // );
+    // this.currentUserAuth = this.currentUserSubject.asObservable();
   }
 
-  public get currentUserValue(): UserData {
-    return this.currentUserSubject.value;
-  }
+  // public get currentUserValue(): UserData {
+  //   return this.currentUserSubject.value;
+  // }
 
   /**
    * Performs the register
@@ -95,13 +95,13 @@ export class AuthenticationService {
   logout() {
     // logout the user
     // return getFirebaseBackend()!.logout();
-    localStorage.removeItem("currentUser");
-    localStorage.removeItem("token");
-    localStorage.removeItem("refreshToken");
-    this.currentUserSubject.next(null!);
+    localStorage.removeItem(GlobalComponent.USER_KEY);
+    localStorage.removeItem(GlobalComponent.TOKEN_KEY);
+    localStorage.removeItem(GlobalComponent.REFRESH_TOKEN_KEY);
+    // this.currentUserSubject.next(null!);
   }
 
-  refreshToken(refreshToken: string) {
+  updateToken(refreshToken: string) {
     return this.http.post(GlobalComponent.AUTH_API + GlobalComponent.refreshToken, { refresh_token: refreshToken }, httpOptions)
   }
 
@@ -119,7 +119,7 @@ export class AuthenticationService {
   }
 
   isLoggedIn() {
-    return !!localStorage.getItem("token");
+    return !!this.tokenService.getToken();
   }
 
   isAuthenticated(): boolean {

@@ -1,5 +1,9 @@
 export class UserData {
-    id!: number;
+    area!: string | null;
+    area_id!: string | null;
+    level!: string;
+    level_id!: number
+    user_id!: number;
     nik!: string;
     name!: string;
     role_id!: number;

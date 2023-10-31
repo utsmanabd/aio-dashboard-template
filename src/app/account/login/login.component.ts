@@ -7,10 +7,7 @@ import {
 import { ActivatedRoute, Router } from "@angular/router";
 
 // Login Auth
-import { environment } from "../../../environments/environment";
 import { AuthenticationService } from "../../core/services/auth.service";
-import { AuthfakeauthenticationService } from "../../core/services/authfake.service";
-import { first } from "rxjs/operators";
 import { ToastService } from "./toast-service";
 import { TokenStorageService } from "src/app/core/services/token-storage.service";
 
@@ -52,6 +49,11 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe((params: any) => {
+      if (params.returnUrl) {
+        this.returnUrl = params.returnUrl
+      }
+    })
     /**
      * Form Validatyion
      */
@@ -65,15 +67,16 @@ export class LoginComponent implements OnInit {
     if (!this.authenticationService.isAuthenticated()) {
       const refreshToken = this.tokenService.getRefreshToken();
       if (refreshToken !== null) {
-        this.refreshToken(refreshToken)
+        this.updateToken(refreshToken)
       } else {
         return;
       }
     } else {
       this.isOnRefresh = true
-      this.router.navigate(['/'])
+      if (this.returnUrl) this.router.navigateByUrl(this.returnUrl)
+      else this.router.navigate(['/'])
     }
-    this.returnUrl = this.route.snapshot.queryParams["returnUrl"] || "/";
+    // this.returnUrl = this.route.snapshot.queryParams["returnUrl"] || "/";
   }
 
   // convenience getter for easy access to form fields
@@ -101,13 +104,17 @@ export class LoginComponent implements OnInit {
               this.tokenService.setToken(data.token);
               this.tokenService.setUserData(data.userData);
             } else {
+              // console.log("REMEMBERED")
               this.tokenService.setAuthData(
                 data.token,
                 data.refreshToken,
                 data.userData
               );
+              // console.log(this.tokenService.getRefreshToken())
             }
-            this.router.navigate(["/"]);
+            if (this.returnUrl) this.router.navigateByUrl(this.returnUrl)
+            else this.router.navigate(["/"]);
+          
           } else {
             this.errorMessage = data.message
             this.isLoginFailed = true;
@@ -170,9 +177,9 @@ export class LoginComponent implements OnInit {
     this.fieldTextType = !this.fieldTextType;
   }
 
-  refreshToken(token: any) {
+  updateToken(token: any) {
     this.isOnRefresh = true
-    this.authenticationService.refreshToken(token).subscribe({
+    this.authenticationService.updateToken(token).subscribe({
       next: (res: any) => {
         if (!res.error && res.accessToken) {
           this.tokenService.setToken(res.accessToken);
@@ -185,8 +192,9 @@ export class LoginComponent implements OnInit {
       },
       error: (err) => console.error(err),
       complete: () => {
-        this.router.navigate(['/'])
         this.isOnRefresh = false
+        if (this.returnUrl) this.router.navigateByUrl(this.returnUrl)
+        else this.router.navigate(['/'])
       }
     })
   }

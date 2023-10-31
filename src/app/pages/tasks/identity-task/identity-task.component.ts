@@ -2,8 +2,14 @@ import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { CommonService } from "src/app/core/services/common.service";
 import { restApiService } from "src/app/core/services/rest-api.service";
+import { TokenStorageService } from "src/app/core/services/token-storage.service";
 import { Const } from "src/app/core/static/const";
 import { GlobalComponent } from "src/app/global-component";
+
+interface MachineData {
+  m_area_id: number,
+  machine_area: string
+}
 
 @Component({
   selector: "app-identity-task",
@@ -12,9 +18,10 @@ import { GlobalComponent } from "src/app/global-component";
 })
 export class IdentityTaskComponent {
   taskId: number | null = null;
-  areaId: number | null = null;
+  // areaId: number | null = null;
 
-  identityTaskData: any;
+  taskActivityData: any[] = []
+  identityTaskData: any[] = [];
   identityTaskCountData: any;
 
   tableColumns = [
@@ -22,7 +29,6 @@ export class IdentityTaskComponent {
     "Activity",
     "Period",
     "Category",
-    "Standard",
     "Condition",
     "Comment",
     "Picture",
@@ -30,8 +36,11 @@ export class IdentityTaskComponent {
   ];
   index: number = 0;
 
-  selectedMachineArea!: string;
-  machineAreaData: any[] = [];
+  selectedMachineArea!: number;
+  machineAreaData: MachineData[] = [{
+    m_area_id: 0,
+    machine_area: ""
+  }];
 
   mAreaArray: any[] = [];
 
@@ -43,25 +52,30 @@ export class IdentityTaskComponent {
   identityTaskDataBefore: any;
 
   isLoading: boolean = false;
+  userData: any
+  breadCrumbItems!: Array<{}>;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private apiService: restApiService,
-    public common: CommonService
-  ) {}
-
-  ngOnInit() {
-    this.route.params.subscribe(params => {
-      this.taskId = params['task-id']
-      this.areaId = params['area-id']
-      console.log(params)
-    })
-    if (this.areaId !== null) this.getMachineAreaDataByAreaId(this.areaId);
+    public common: CommonService,
+    private tokenService: TokenStorageService
+  ) {
+    this.breadCrumbItems = [
+      { label: 'Tasks' },
+      { label: 'Identity Task', active: true }
+    ];
   }
 
-  ngOnDestroy() {
-    this.identityTaskData = undefined;
+  ngOnInit() {
+    this.userData = this.tokenService.getUser()
+    this.route.params.subscribe(params => {
+      this.taskId = params['task-id']
+      // this.areaId = params['area-id']
+      console.log(params)
+    })
+    if (this.taskId) this.getTaskActivityByTaskId(this.taskId);
   }
 
   onImageSelected(event: any, activityId: any) {
@@ -70,78 +84,109 @@ export class IdentityTaskComponent {
     this.imageSelected.push(renamedFile);
   }
 
+  onTabChange(mAreaId: number) {
+    if (this.taskId && mAreaId) {
+      this.getTaskActivity(this.taskId, mAreaId);
+    }
+  }
+
   onSelectedMachineArea() {
     console.log(this.taskId)
     console.log(`Clicked: ${this.selectedMachineArea}`);
-    if (this.taskId !== null && this.areaId !== null) {
+    if (this.taskId && this.selectedMachineArea) {
       this.getTaskActivity(this.taskId, this.selectedMachineArea);
     }
   }
 
   getTaskActivityByTaskId(taskId: number) {
-    this.apiService.getTaskActivityById(taskId).subscribe({
-      next: (res: any) => {
-        let data: any[] = res.data
-        let machineId: any = {};
-
-        data.forEach(item => {
-          machineId[item.machine_area] = item.m_area_id
-        })
-        for (let mArea in machineId) {
-          this.machineAreaData.push({machine_area: mArea, m_area_id: machineId[mArea]})
-        }
-        console.log(this.machineAreaData)
-      },
-      error: (err) => this.common.showErrorAlert(Const.ERR_GET_MSG("Task Activity"), err)
-    })
-  }
-
-  getMachineAreaDataByAreaId(areaId: number) {
     this.isLoading = true
-    this.apiService.getMachineAreaDataByAreaId(areaId).subscribe({
+    this.apiService.getTaskActivityById(taskId).subscribe({
       next: (res: any) => {
         this.isLoading = false
         if (res.data.length > 0) {
-          this.machineAreaData = res.data
-          console.log(this.machineAreaData)
-          this.machineAreaData.forEach((element: any) => {
-            this.mAreaArray.push(element.m_area_id);
-          });
-          console.log(this.mAreaArray);
-          this.selectedMachineArea = this.mAreaArray[0]
+          this.taskActivityData = res.data
+          let areaId = this.taskActivityData[0].area_id
+          if (areaId == this.userData.area_id || this.userData.area_id === -1) {
+            let machineArea: any = {};
+
+            this.taskActivityData.forEach(item => {
+              machineArea[item.machine_area] = item.m_area_id
+            })
+            this.machineAreaData.splice(0)
+            for (let mArea in machineArea) {
+              this.machineAreaData.push({machine_area: mArea, m_area_id: machineArea[mArea]})
+            }
+            this.selectedMachineArea = this.machineAreaData[0].m_area_id
+            this.onTabChange(this.machineAreaData[0].m_area_id)
+          } else {
+            this.router.navigate(['../tasks'])
+            this.common.showErrorAlert("You have no access to this area")
+          }
+          
         } else {
           this.router.navigate(['../tasks'])
-          this.common.showErrorAlert("Cannot find Area with ID: " + this.areaId)
+          this.common.showErrorAlert("Cannot find Task with ID: " + this.taskId)
         }
+        
       },
       error: (err) => {
         this.isLoading = false
-        console.error(err)
-        this.common.showServerErrorAlert(Const.ERR_GET_MSG("Machine Area"), err)
+        this.common.showServerErrorAlert(Const.ERR_GET_MSG("Task Activity"), err)
       }
-    });
+    })
   }
 
+  // getMachineAreaDataByAreaId(areaId: number) {
+  //   this.isLoading = true
+  //   this.apiService.getMachineAreaDataByAreaId(areaId).subscribe({
+  //     next: (res: any) => {
+  //       this.isLoading = false
+  //       if (res.data.length > 0) {
+  //         this.machineAreaData = res.data
+  //         console.log(this.machineAreaData)
+  //         // this.machineAreaData.forEach((element: any) => {
+  //         //   this.mAreaArray.push(element.m_area_id);
+  //         // });
+  //         // console.log(this.mAreaArray);
+  //         this.selectedMachineArea = this.machineAreaData[0].m_area_id
+  //       } else {
+  //         this.router.navigate(['../tasks'])
+  //         this.common.showErrorAlert("Cannot find Area with ID: " + this.areaId)
+  //       }
+  //     },
+  //     error: (err) => {
+  //       this.isLoading = false
+  //       console.error(err)
+  //       this.common.showServerErrorAlert(Const.ERR_GET_MSG("Machine Area"), err)
+  //     }
+  //   });
+  // }
+
   getTaskActivity(taskId: any, mAreaId: any) {
-    this.isLoading = true
-    this.apiService.getTaskActivityById(taskId, mAreaId).subscribe({
-      next: (res: any) => {
-        this.isLoading = false
-        this.identityTaskDataBefore = res.data.map((a: any) => ({ ...a }));
-        this.identityTaskData = res.data;
-        this.getCountTaskActivity(taskId, mAreaId);
-        if (res.data.length < 1) {
-          this.common.showErrorAlert("Task activity on selected machine area is empty!")
-        }
-      },
-      error: (err) => {
-        console.error(err)
-        this.common.showErrorAlert(Const.ERR_GET_MSG("Task Activity", err), Const.ERR_SERVER_TITLE, 'Retry').then((result) => {
-          if (result.value) this.onSelectedMachineArea()
-        })
-        this.isLoading = false
-      }
-    });
+    let data = this.taskActivityData.filter(item => item.m_area_id == mAreaId)
+    this.identityTaskData = data
+    this.identityTaskDataBefore = data.map((a: any) => ({...a}))
+    console.log(data)
+    this.getCountTaskActivity(taskId, mAreaId)
+    // this.isLoading = true
+    // this.apiService.getTaskActivityById(taskId, mAreaId).subscribe({
+    //   next: (res: any) => {
+    //     this.isLoading = false
+    //     this.identityTaskDataBefore = res.data.map((a: any) => ({ ...a }));
+    //     this.identityTaskData = res.data;
+    //     this.getCountTaskActivity(taskId, mAreaId);
+    //     if (res.data.length < 1) {
+    //       this.common.showErrorAlert("Task activity on selected machine area is empty!")
+    //     }
+    //   },
+    //   error: (err) => {
+    //     console.error(err)
+    //     this.common.showErrorAlert(Const.ERR_GET_MSG("Task Activity", err), Const.ERR_SERVER_TITLE, 'Retry').then((result) => {
+    //       if (result.value) this.onSelectedMachineArea()
+    //     })
+    //     this.isLoading = false
+    //   }
+    // });
   }
 
   getCountTaskActivity(taskId: any, mAreaId: any) {

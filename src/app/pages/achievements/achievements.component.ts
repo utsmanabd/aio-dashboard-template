@@ -103,7 +103,6 @@ export class AchievementsComponent {
   }
 
   async ngOnInit() {
-    console.log(`Year: ${this.year}, month: ${this.month}`)
     await this.getTaskDataByDate(this.month, this.year).finally(() => this.isLoading = false)
     await this.getFindingUndoneByDate(this.month, this.year).finally(() => this.isLoading = false)
     await this.getFindingNotOkByDate(this.month, this.year).finally(() => this.isLoading = false)
@@ -117,12 +116,10 @@ export class AchievementsComponent {
   }
 
   async getTaskDataByDate(month: number, year: number) {
-    console.log('task data by date running...')
     return new Promise((resolve, reject) => {
       this.isLoading = true
       this.apiService.getTaskDataByDate(month, year).subscribe({
         next: (res: any) => {
-          console.log(res)
           if (!res.status) {
             if (this.monthBefore && this.yearBefore) {
               this.month = this.monthBefore
@@ -137,7 +134,6 @@ export class AchievementsComponent {
               this.taskActivityChartData.checklistData?.splice(0)
               this.taskActivityChartData.categories.splice(0)
             }
-            console.log(res)
             let data: any[] = res.data
             this.totalActivity = data.reduce((total, current) => total + current.total_activity, 0);
             data.forEach((task) => {
@@ -145,8 +141,6 @@ export class AchievementsComponent {
               this.taskActivityChartData.checklistData?.push(task.checklist)
               this.taskActivityChartData.categories.push(task.area)
             });
-            console.log(this.taskActivityChartData)
-            console.log(this.totalActivity)
             resolve(true)
           }
           
@@ -163,7 +157,6 @@ export class AchievementsComponent {
   async getFindingUndoneByDate(month: number, year: number) {
     return new Promise((resolve, reject) => {
       this.isLoading = true
-      console.log('finding undone running...')
       this.apiService.getFindingUndoneByDate(month, year).subscribe({
         next: (res: any) => {
 
@@ -177,12 +170,8 @@ export class AchievementsComponent {
           let dataUndone = [...data]
           this.findingUndoneActivity.rawData = data
           this.findingUndoneActivity.total = data.length
-          console.log("BEFORE RANDOM INDICES")
           this.findingUndoneActivity.limitData = this.common.getRandomIndices(dataUndone.length, 5).map(index => dataUndone[index]);
-          console.log("AFTER RANDOM INDICES")
-          console.log(this.findingUndoneActivity)
           resolve(true)
-          console.log("SUCCESS")
         },
         error: (err: any) => {
           console.error(err)
@@ -196,7 +185,6 @@ export class AchievementsComponent {
   async getFindingNotOkByDate(month: number, year: number) {
     return new Promise((resolve, reject) => {
       this.isLoading = true
-      console.log('finding not ok running...')
       this.apiService.getFindingNotOkByDate(month, year).subscribe({
         next: (res: any) => {
           if (this.findingNotOkActivity.rawData.length > 0) {
@@ -207,8 +195,6 @@ export class AchievementsComponent {
           this.findingNotOkActivity.total = data.length
           let findingData = [...data]
           this.findingNotOkActivity.limitData = findingData.slice(-4).sort((a, b) => findingData.indexOf(b) - findingData.indexOf(a))
-
-          console.log(this.findingNotOkActivity)
           resolve(true)
         },
         error: (err: any) => {
@@ -223,7 +209,6 @@ export class AchievementsComponent {
   async getChecklistCategoryByDate(month: number, year: number) {
     return new Promise((resolve, reject) => {
       this.isLoading = true
-      console.log('checklist running...')
       this.apiService.getChecklistCategoryByDate(month, year).subscribe({
         next: (res: any) => {
           if (this.checklistCategoryData) {
@@ -243,7 +228,6 @@ export class AchievementsComponent {
 
   async getTaskAreaActivityById(area: string, areaId: number) {
     return new Promise((resolve, reject) => {
-      console.log('task area running...')
       this.areaTitle = area
       if (this.taskAreaActivityChartData.rawData.length < 1) {
         this._taskAreaActivityChart('["--vz-info", "--vz-success"]')
@@ -263,7 +247,6 @@ export class AchievementsComponent {
             this.taskAreaActivityChartData.checklistData?.push(task.checklist)
             this.taskAreaActivityChartData.totalActivityData?.push(task.total_activity)
           })
-          console.log(this.taskAreaActivityChartData)
         },
         error: (err: any) => {
           console.error(err)
@@ -296,8 +279,6 @@ export class AchievementsComponent {
     this.areaTotalActivity = dataTotalActivity(this.taskAreaActivityChartData.totalActivityData!)
     this.areaUndoneActivity = this.findingUndoneActivity.rawData.filter(data => data.area_id === areaId).length
     this.areaTotalFinding = this.findingNotOkActivity.rawData.filter(data => data.area_id === areaId).length
-
-    console.log(`areaAchievements: ${this.areaAchievements}, areaTotalActivity: ${this.areaTotalActivity}, areaUndoneActivity: ${this.areaUndoneActivity}, areaTotalFinding: ${this.areaTotalFinding}`)
   }
 
   setTaskAreaComparisonChartValue() {
@@ -431,7 +412,6 @@ export class AchievementsComponent {
             const index = config.dataPointIndex
             if (index !== -1 && area) {
               const areaId = taskActivityChartData.rawData[config.dataPointIndex].area_id
-              console.log(areaId)
               getTaskAreaActivityById(area, areaId)
               window.scrollTo(0, 585);
             }

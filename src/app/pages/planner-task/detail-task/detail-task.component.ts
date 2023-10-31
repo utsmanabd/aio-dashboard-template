@@ -68,11 +68,18 @@ export class DetailTaskComponent {
   }
 
   async ngOnInit() {
+    await this.getAreaData().finally(() => this.loading = false)
+    await this.getActivityData().finally(() => this.loading = false)
     this.route.params.subscribe(params => {
       this.dateSelected = params['date']
     })
-    await this.getAreaData().finally(() => this.loading = false)
-    await this.getActivityData().finally(() => this.loading = false)
+    this.route.queryParams.subscribe((params: any) => {
+      if (params.id) {
+        this.onAreaClick(+params.id)
+      } else {
+        this.isAreaSelected = false
+      }
+    });
     
   }
 
@@ -112,20 +119,30 @@ export class DetailTaskComponent {
 
   backToArea() {
     this.isAreaSelected = false
+    this.router.navigate([`/planner/tasks/detail/${this.dateSelected}`])
   }
 
-  onAreaClick(id: number, area: string) {
+  onAreaClick(id: number) {
     this.filteredActivityData = this.activityData.filter(data => data.area_id == id)
     this.filteredActivityData.forEach((data) => {
       data.is_selected = this.isRecommended(this.common.getDayCount(data.last_updated, this.dateSelected), this.common.getPeriodDayCount(data.periode))
     })
     this.filteredActivityDataBefore = this.filteredActivityData.map(a => ({ ...a }));
     this.periodData = this.common.getUniqueData(this.filteredActivityData, 'periode').map(data => data.periode)
-    console.log(this.periodData)
-    console.log(this.filteredActivityData)
     this.isAreaSelected = true
-    const activeArea: ActiveArea = {area: area, area_id: id}
-    this.activeArea = activeArea
+    this.router.navigate([`/planner/tasks/detail/${this.dateSelected}`], {
+      queryParams: {
+        id: id,
+      }
+    })
+    if (this.filteredActivityData.length <= 0) {
+      this.common.showErrorAlert("Cannot find area with id: " + id)
+    }
+    let areaName = this.filteredActivityData.find(item => item.area_id === id)
+    if (areaName) {
+      const activeArea: ActiveArea = {area: areaName.area, area_id: id}
+      this.activeArea = activeArea
+    }
   }
 
   isRecommended(dayDifference: number | null, dayPeriod: number): boolean {

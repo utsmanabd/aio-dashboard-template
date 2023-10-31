@@ -43,7 +43,7 @@ export class ErrorInterceptor implements HttpInterceptor {
     // Call refreshToken() and retry the original request
     let refreshToken = this.tokenService.getRefreshToken();
     if (refreshToken !== null) {
-      return this.authService.refreshToken(refreshToken).pipe(
+      return this.authService.updateToken(refreshToken).pipe(
         switchMap((response: any) => {
           if (response.accessToken) {
             // Refresh token successful, update the token
