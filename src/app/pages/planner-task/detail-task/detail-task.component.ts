@@ -222,6 +222,9 @@ export class DetailTaskComponent {
         data.activity
           .toLowerCase()
           .includes(this.searchKeyword.trim().toLowerCase()) ||
+        data.standard
+          .toLowerCase()
+          .includes(this.searchKeyword.trim().toLowerCase()) ||
         data.periode
           .toLowerCase()
           .includes(this.searchKeyword.trim().toLowerCase()) ||

@@ -18,7 +18,6 @@ interface MachineData {
 })
 export class IdentityTaskComponent {
   taskId: number | null = null;
-  // areaId: number | null = null;
 
   taskActivityData: any[] = []
   identityTaskData: any[] = [];
@@ -36,13 +35,13 @@ export class IdentityTaskComponent {
   ];
   index: number = 0;
 
-  selectedMachineArea!: number;
   machineAreaData: MachineData[] = [{
     m_area_id: 0,
     machine_area: ""
   }];
 
   mAreaArray: any[] = [];
+  selectedMachineId!: number
 
   imageSelected: File[] = [];
   imageUrlArray: any[] = [];
@@ -54,6 +53,8 @@ export class IdentityTaskComponent {
   isLoading: boolean = false;
   userData: any
   breadCrumbItems!: Array<{}>;
+  
+  isUsernameChecked: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -68,14 +69,14 @@ export class IdentityTaskComponent {
     ];
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.userData = this.tokenService.getUser()
     this.route.params.subscribe(params => {
       this.taskId = params['task-id']
-      // this.areaId = params['area-id']
-      console.log(params)
     })
-    if (this.taskId) this.getTaskActivityByTaskId(this.taskId);
+    if (this.taskId) this.getTaskActivityByTaskId(this.taskId).then(() => {
+      this.onTabChange(this.machineAreaData[0].m_area_id)
+    })
   }
 
   onImageSelected(event: any, activityId: any) {
@@ -86,130 +87,90 @@ export class IdentityTaskComponent {
 
   onTabChange(mAreaId: number) {
     if (this.taskId && mAreaId) {
+      this.selectedMachineId = mAreaId
       this.getTaskActivity(this.taskId, mAreaId);
     }
   }
 
-  onSelectedMachineArea() {
-    console.log(this.taskId)
-    console.log(`Clicked: ${this.selectedMachineArea}`);
-    if (this.taskId && this.selectedMachineArea) {
-      this.getTaskActivity(this.taskId, this.selectedMachineArea);
-    }
+  onUsernameCheck(event: any) {
+    if (event.target.checked) this.isUsernameChecked = true
+    else this.isUsernameChecked = false
   }
 
-  getTaskActivityByTaskId(taskId: number) {
-    this.isLoading = true
-    this.apiService.getTaskActivityById(taskId).subscribe({
-      next: (res: any) => {
-        this.isLoading = false
-        if (res.data.length > 0) {
-          this.taskActivityData = res.data
-          let areaId = this.taskActivityData[0].area_id
-          if (areaId == this.userData.area_id || this.userData.area_id === -1) {
-            let machineArea: any = {};
-
-            this.taskActivityData.forEach(item => {
-              machineArea[item.machine_area] = item.m_area_id
-            })
-            this.machineAreaData.splice(0)
-            for (let mArea in machineArea) {
-              this.machineAreaData.push({machine_area: mArea, m_area_id: machineArea[mArea]})
+  async getTaskActivityByTaskId(taskId: number) {
+    return new Promise((resolve, reject) => {
+      this.isLoading = true
+      this.apiService.getTaskActivityById(taskId).subscribe({
+        next: (res: any) => {
+          this.isLoading = false
+          if (res.data.length > 0) {
+            this.taskActivityData = res.data
+            let areaId = this.taskActivityData[0].area_id
+            if (areaId == this.userData.area_id || this.userData.area_id === -1) {
+              let machineArea: any = {};
+  
+              this.taskActivityData.forEach(item => {
+                machineArea[item.machine_area] = item.m_area_id
+              })
+              this.machineAreaData.splice(0)
+              for (let mArea in machineArea) {
+                this.machineAreaData.push({machine_area: mArea, m_area_id: machineArea[mArea]})
+              }
+              resolve(true)
+            } else {
+              this.router.navigate(['../tasks'])
+              this.common.showErrorAlert("You have no access to this area")
             }
-            this.selectedMachineArea = this.machineAreaData[0].m_area_id
-            this.onTabChange(this.machineAreaData[0].m_area_id)
+            
           } else {
             this.router.navigate(['../tasks'])
-            this.common.showErrorAlert("You have no access to this area")
+            this.common.showErrorAlert("Cannot find Task with ID: " + this.taskId)
           }
-          
-        } else {
-          this.router.navigate(['../tasks'])
-          this.common.showErrorAlert("Cannot find Task with ID: " + this.taskId)
+        },
+        error: (err) => {
+          reject(err)
+          this.isLoading = false
+          this.common.showServerErrorAlert(Const.ERR_GET_MSG("Task Activity"), err)
         }
-        
-      },
-      error: (err) => {
-        this.isLoading = false
-        this.common.showServerErrorAlert(Const.ERR_GET_MSG("Task Activity"), err)
-      }
+      })
     })
   }
-
-  // getMachineAreaDataByAreaId(areaId: number) {
-  //   this.isLoading = true
-  //   this.apiService.getMachineAreaDataByAreaId(areaId).subscribe({
-  //     next: (res: any) => {
-  //       this.isLoading = false
-  //       if (res.data.length > 0) {
-  //         this.machineAreaData = res.data
-  //         console.log(this.machineAreaData)
-  //         // this.machineAreaData.forEach((element: any) => {
-  //         //   this.mAreaArray.push(element.m_area_id);
-  //         // });
-  //         // console.log(this.mAreaArray);
-  //         this.selectedMachineArea = this.machineAreaData[0].m_area_id
-  //       } else {
-  //         this.router.navigate(['../tasks'])
-  //         this.common.showErrorAlert("Cannot find Area with ID: " + this.areaId)
-  //       }
-  //     },
-  //     error: (err) => {
-  //       this.isLoading = false
-  //       console.error(err)
-  //       this.common.showServerErrorAlert(Const.ERR_GET_MSG("Machine Area"), err)
-  //     }
-  //   });
-  // }
 
   getTaskActivity(taskId: any, mAreaId: any) {
     let data = this.taskActivityData.filter(item => item.m_area_id == mAreaId)
     this.identityTaskData = data
     this.identityTaskDataBefore = data.map((a: any) => ({...a}))
-    console.log(data)
     this.getCountTaskActivity(taskId, mAreaId)
-    // this.isLoading = true
-    // this.apiService.getTaskActivityById(taskId, mAreaId).subscribe({
-    //   next: (res: any) => {
-    //     this.isLoading = false
-    //     this.identityTaskDataBefore = res.data.map((a: any) => ({ ...a }));
-    //     this.identityTaskData = res.data;
-    //     this.getCountTaskActivity(taskId, mAreaId);
-    //     if (res.data.length < 1) {
-    //       this.common.showErrorAlert("Task activity on selected machine area is empty!")
-    //     }
-    //   },
-    //   error: (err) => {
-    //     console.error(err)
-    //     this.common.showErrorAlert(Const.ERR_GET_MSG("Task Activity", err), Const.ERR_SERVER_TITLE, 'Retry').then((result) => {
-    //       if (result.value) this.onSelectedMachineArea()
-    //     })
-    //     this.isLoading = false
-    //   }
-    // });
   }
 
   getCountTaskActivity(taskId: any, mAreaId: any) {
     this.apiService.getCountTaskActivityById(taskId, mAreaId).subscribe({
       next: (res: any) => this.identityTaskCountData = res.data[0],
-      error: (err) => {
-        console.error(err)
-        this.common.showErrorAlert(Const.ERR_GET_MSG("Task Activity Count", err), Const.ERR_SERVER_TITLE, 'Retry').then((result) => {
-          if (result.value) this.onSelectedMachineArea()
-        })
-      },
+      error: (err) => this.common.showErrorAlert(Const.ERR_GET_MSG("Task Activity Count"), err),
     });
+  }
+
+  onSaveChanges() {
+    if (this.imageSelected.length > 0) {
+      const formData = new FormData();
+
+      this.imageSelected.forEach((file) => {
+        formData.append("files", file, file.name);
+      });
+
+      this.sendWithImages(formData);
+    } else {
+      this.sendIndentityTaskData()
+    }
   }
 
   sendWithImages(files: FormData) {
     this.isLoading = true
     this.apiService.uploadMultipleImage(files).subscribe({
       next: (res: any) => {
-        console.log(res);
         this.imageUrlArray = res.uploadedFiles;
       },
       error: (err) => {
-        console.error(err)
         this.isLoading = false
         this.common.showErrorAlert(Const.ERR_INSERT_MSG("Image"), err)
       },
@@ -233,67 +194,24 @@ export class IdentityTaskComponent {
     });
   }
 
-  changeCondition(event: any, id: number) {
-    console.log(`Value Selected: ${event.target.value}. ID: ${id}`);
-    const conditionValue = event.target.value;
-    const index = this.getIndexById(this.identityTaskData, id);
-    this.identityTaskData[index].condition = +conditionValue;
-  }
-
-  extractId(fileName: string): number | null {
-    const match = fileName.match(/id-(\d+)/);
-    if (match) {
-      return parseInt(match[1], 10);
-    }
-    return null;
-  }
-
-  getIndexById(arr: any[], id: number): number {
-    for (let i = 0; i < arr.length; i++) {
-      if (arr[i].task_activity_id === id) {
-        return i;
-      }
-    }
-    return -1;
-  }
-
-  isConditionOk(condition: any): boolean {
-    if (condition === 1) return true;
-    else return false;
-  }
-
-  isConditionNotOk(condition: any): boolean {
-    if (condition === 0) return true;
-    else return false;
-  }
-
-  onSaveChanges() {
-    if (this.imageSelected.length > 0) {
-      const formData = new FormData();
-
-      this.imageSelected.forEach((file) => {
-        formData.append("files", file, file.name);
-      });
-
-      this.sendWithImages(formData);
-    } else {
-      this.sendIndentityTaskData()
-    }
-  }
-
   sendIndentityTaskData() {
-    let form = this.identityTaskData.filter((item: any, index: number) => {
+    console.log(this.identityTaskData)
+    let form = this.identityTaskData.filter((item, index) => {
       let result: boolean = false;
       for (let element in item) {
         if (
           this.identityTaskDataBefore[index][element] !==
           this.identityTaskData[index][element]
         ) {
+          if (this.isUsernameChecked) {
+            item.pic = this.userData.name
+          } else item.pic = item.pic
           result = true;
         }
       }
       return result;
     });
+    console.log(form)
 
     if (form.length > 0) {
       const taskActivityData = (
@@ -321,14 +239,10 @@ export class IdentityTaskComponent {
       
       this.isLoading = true
       this.apiService.updateTaskActivity(formData).subscribe({
-        next: (res: any) => console.log(res),
-        error: (err: any) => {
-          console.error(err)
-          this.isLoading = false
-          this.common.showErrorAlert(Const.ERR_UPDATE_MSG("Task Activity"), err)
-        },
-        complete: () => {
-          this.onSelectedMachineArea()
+        next: (res: any) => {
+          this.getTaskActivityByTaskId(this.taskId!!).then(() => {
+            this.onTabChange(this.selectedMachineId)
+          })
           this.isLoading = false
           this.common.goToTop()
           this.common.showSuccessAlert('Task activity has been updated!', 'Return to tasks').then((result) => {
@@ -336,9 +250,44 @@ export class IdentityTaskComponent {
               this.router.navigate(['/tasks']);
             }
           })
+        },
+        error: (err: any) => {
+          this.isLoading = false
+          this.common.showErrorAlert(Const.ERR_UPDATE_MSG("Task Activity"), err)
         }
       })
     }
+  }
+
+  changeCondition(event: any, id: number) {
+    const conditionValue = event.target.value;
+    const index = this.getIndexById(this.identityTaskData, id);
+    this.identityTaskData[index].condition = +conditionValue;
+  }
+
+  extractId(fileName: string): number | null {
+    const match = fileName.match(/id-(\d+)/);
+    if (match) {
+      return parseInt(match[1], 10);
+    }
+    return null;
+  }
+
+  getIndexById(arr: any[], id: number): number {
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i].task_activity_id === id) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  isConditionOk(condition: any): boolean {
+    return condition === 1 ? true : false
+  }
+
+  isConditionNotOk(condition: any): boolean {
+    return condition === 0 ? true : false
   }
 
   getImageSource(imageUrl: string): string {

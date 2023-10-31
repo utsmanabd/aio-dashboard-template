@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommonService } from 'src/app/core/services/common.service';
 import { restApiService } from 'src/app/core/services/rest-api.service';
 import { Const } from 'src/app/core/static/const';
@@ -33,7 +32,7 @@ export class TasksComponent {
   paginatedTasksData: any[] = [];
 
   searchKeyword: string = "";
-  
+
   loading: boolean = false
   isTableView: boolean = false;
   userData: any
@@ -61,7 +60,6 @@ export class TasksComponent {
     private apiService: restApiService,
     private route: ActivatedRoute,
     private router: Router,
-    private modalService: NgbModal,
     public common: CommonService,
     private tokenService: TokenStorageService
   ) {

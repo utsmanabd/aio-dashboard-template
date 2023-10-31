@@ -178,6 +178,9 @@ export class PlannerTaskComponent {
   openModal(content: any, taskData: any, date: string) {
     this.taskData = taskData.allData
     this.taskData.date = date
+    if (this.modalService.hasOpenModals()) {
+      this.modalService.dismissAll()
+    }
 		this.modalService.open(content, { centered: true });
 	}
 

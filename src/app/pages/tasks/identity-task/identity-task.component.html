@@ -17,25 +17,43 @@
             <div [ngbNavOutlet]="Bordered"></div>
         </div>
         <div class="p-2">
-            <h5>Machine Area: <span class="text-danger">{{ identityTaskCountData.machine_area }}</span>
-            </h5>
-            <p><span class="text-primary">{{ common.getDate(identityTaskCountData.date) }}</span></p>
-            <p>Completed:
-                <span class="text-secondary">
-                    {{ common.getTaskPercentage(identityTaskCountData.total_activity,
-                    identityTaskCountData.checklist) }}%
-                </span>
-            </p>
-            <div class="progress animated-progress mb-2" style="background-color: white;">
-                <div class="progress-bar bg-secondary" role="progressbar"
-                    attr.style="width: {{common.getTaskPercentage(identityTaskCountData.total_activity, identityTaskCountData.checklist)}}%"
-                    [attr.aria-valuenow]="common.getTaskPercentage(identityTaskCountData.total_activity, identityTaskCountData.checklist)"
-                    aria-valuemin="0" aria-valuemax="100">{{
-                    common.getTaskPercentage(identityTaskCountData.total_activity,
-                    identityTaskCountData.checklist) }}%</div>
+            <div class="row g-3">
+                <div class="col">
+                    <div class="card bg-soft-secondary p-3">
+                        <h4><span>{{ identityTaskCountData.machine_area }}</span></h4>
+                        <p>Completed:
+                            <span class="text-secondary">
+                                {{ common.getTaskPercentage(identityTaskCountData.total_activity,
+                                identityTaskCountData.checklist) }}%
+                            </span>
+                        </p>
+                        <div class="progress progress-lg animated-progress mb-2" style="background-color: white;">
+                            <div class="progress-bar bg-secondary" role="progressbar"
+                                attr.style="width: {{common.getTaskPercentage(identityTaskCountData.total_activity, identityTaskCountData.checklist)}}%"
+                                [attr.aria-valuenow]="common.getTaskPercentage(identityTaskCountData.total_activity, identityTaskCountData.checklist)"
+                                aria-valuemin="0" aria-valuemax="100">{{
+                                common.getTaskPercentage(identityTaskCountData.total_activity,
+                                identityTaskCountData.checklist) }}%</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <input type="text" class="form-control mb-2" placeholder="Search for activity, standard, etc."
-                [(ngModel)]="searchKeyword">
+            <div class="d-flex justify-content-between flex-column flex-sm-row mb-2">
+                <div class="mb-2 mb-sm-0">
+                    <div class="search-box">
+                        <input type="text" name="searchTerm" class="form-control" [(ngModel)]="searchKeyword"
+                            placeholder="Search for activity etc...">
+                        <i class="ri-search-line search-icon"></i>
+                    </div>
+                </div>
+                <div>
+                    <div class="form-check form-switch form-switch-md" dir="ltr">
+                        <input type="checkbox" class="form-check-input" id="picSwitch" (change)="onUsernameCheck($event)">
+                        <label class="form-check-label" for="picSwitch">Use username as PIC</label>
+                    </div>
+                </div>
+            </div>
+            
             <div class="table-responsive">
                 <table class="table align-middle mb-0">
                     <thead class="table-light">
@@ -99,7 +117,7 @@
                             <td>
                                 <div>
                                     <input [(ngModel)]="data.pic" id="pic{{data.task_activity_id}}" class="form-control"
-                                        placeholder="Enter name" name="pic{{ data.task_activity_id}}" />
+                                        placeholder="Enter name" name="pic{{ data.task_activity_id}}" [disabled]="isUsernameChecked" />
                                 </div>
 
                             </td>
