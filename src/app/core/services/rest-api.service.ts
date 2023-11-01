@@ -30,11 +30,11 @@ export class restApiService {
 
   cachedFindingCountData: any
   cachedFindingNotOkData: any
-  cachedFindingUndoneData: any
+  cachedFindingUnfinishedData: any
   cachedFindingChecklistData: any
 
   cachedFindingByDate: any
-  cachedUndoneByDate: any
+  cachedUnfinishedByDate: any
   cachedChecklistCategoryByDate: any
 
   resetCachedData(cachedData?: any) {
@@ -49,10 +49,10 @@ export class restApiService {
       this.cachedTaskDataByDate = undefined
       this.cachedFindingCountData = undefined
       this.cachedFindingNotOkData = undefined
-      this.cachedFindingUndoneData = undefined
+      this.cachedFindingUnfinishedData = undefined
       this.cachedFindingChecklistData = undefined
       this.cachedFindingByDate = undefined
-      this.cachedUndoneByDate = undefined
+      this.cachedUnfinishedByDate = undefined
       this.cachedChecklistCategoryByDate = undefined
     }
   }
@@ -384,30 +384,30 @@ export class restApiService {
     return this.http.get(GlobalComponent.API_URL + GlobalComponent.findingNotOk + `${taskId}`, this.httpOptions())
   }
 
-  getFindingUndone() {
-    if (this.cachedFindingUndoneData) {
-      return of(this.cachedFindingUndoneData)
+  getFindingUnfinished() {
+    if (this.cachedFindingUnfinishedData) {
+      return of(this.cachedFindingUnfinishedData)
     } else {
-      return this.http.get(GlobalComponent.API_URL + GlobalComponent.findingUndone, this.httpOptions()).pipe(
+      return this.http.get(GlobalComponent.API_URL + GlobalComponent.findingUnfinished, this.httpOptions()).pipe(
         tap((data) => {
-          this.cachedFindingUndoneData = data
+          this.cachedFindingUnfinishedData = data
         })
       )
     }
   }
 
-  getFindingUndoneByDate(month: number, year: number) {
-    if (this.cachedUndoneByDate) {
-      return of(this.cachedUndoneByDate)
+  getFindingUnfinishedByDate(month: number, year: number) {
+    if (this.cachedUnfinishedByDate) {
+      return of(this.cachedUnfinishedByDate)
     } else {
-      return this.http.get(GlobalComponent.API_URL + GlobalComponent.findingUndoneDate + `${month}/${year}`, this.httpOptions()).pipe(
-        tap((data) => this.cachedUndoneByDate = data)
+      return this.http.get(GlobalComponent.API_URL + GlobalComponent.findingUnfinishedDate + `${month}/${year}`, this.httpOptions()).pipe(
+        tap((data) => this.cachedUnfinishedByDate = data)
       )
     }
   }
 
-  getFindingUndoneById(taskId: number) {
-    return this.http.get(GlobalComponent.API_URL + GlobalComponent.findingUndone + `${taskId}`, this.httpOptions())
+  getFindingUnfinishedById(taskId: number) {
+    return this.http.get(GlobalComponent.API_URL + GlobalComponent.findingUnfinished + `${taskId}`, this.httpOptions())
   }
 
   getFindingChecklist() {

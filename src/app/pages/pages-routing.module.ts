@@ -15,6 +15,7 @@ import { AchievementsComponent } from './achievements/achievements.component';
 import { FindingComponent } from './finding/finding.component';
 import { PlannerTaskComponent } from './planner-task/planner-task.component';
 import { DetailTaskComponent } from './planner-task/detail-task/detail-task.component';
+import { LevelGuard } from '../core/guards/level.guard';
 
 const routes: Routes = [
     {
@@ -64,30 +65,44 @@ const routes: Routes = [
       path: 'tasks/identity-task/:task-id',
       component: IdentityTaskComponent
     },
-    {
-      path: 'master/activity',
-      component: ActivityComponent
-    },
-    {
-      path: 'master/area',
-      component: AreaComponent
-    },
-    {
-      path: 'master/machine-area',
-      component: MachineAreaComponent
-    },
-    {
-      path: 'finding',
-      component: FindingComponent
-    },
+
+    // Admin Route:
     {
       path: 'planner/tasks',
-      component: PlannerTaskComponent
+      component: PlannerTaskComponent,
+      canActivate: [LevelGuard],
+      data: { expectedLevel: "Admin" }
     },
     {
       path: 'planner/tasks/detail/:date',
-      component: DetailTaskComponent
-    }
+      component: DetailTaskComponent,
+      canActivate: [LevelGuard],
+      data: { expectedLevel: "Admin" }
+    },
+    {
+      path: 'planner/finding',
+      component: FindingComponent,
+      canActivate: [LevelGuard],
+      data: { expectedLevel: "Admin" }
+    },
+    {
+      path: 'master/activity',
+      component: ActivityComponent,
+      canActivate: [LevelGuard],
+      data: { expectedLevel: "Admin" }
+    },
+    {
+      path: 'master/area',
+      component: AreaComponent,
+      canActivate: [LevelGuard],
+      data: { expectedLevel: "Admin" }
+    },
+    {
+      path: 'master/machine-area',
+      component: MachineAreaComponent,
+      canActivate: [LevelGuard],
+      data: { expectedLevel: "Admin" }
+    },
 ];
 
 @NgModule({

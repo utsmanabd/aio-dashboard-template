@@ -34,7 +34,7 @@ export class AchievementsComponent {
 
   areaAchievements: number = 0
   areaTotalActivity: number = 0
-  areaUndoneActivity: number = 0
+  areaUnfinishedActivity: number = 0
   areaTotalFinding: number = 0
 
   taskActivityChart!: ChartType;
@@ -55,7 +55,7 @@ export class AchievementsComponent {
     categories: []
   }
 
-  findingUndoneActivity: FindingData = {
+  findingUnfinishedActivity: FindingData = {
     rawData: [],
     total: 0,
     limitData: []
@@ -68,7 +68,7 @@ export class AchievementsComponent {
   }
 
   columnsFinding = ["Activity", "Comment", "Mahcine/Area", "PIC", "Picture"]
-  columnsUndone = ["Category", "Activity", "Machine/Area"]
+  columnsUnfinished = ["Category", "Activity", "Machine/Area"]
 
   imageUrl = GlobalComponent.API_URL + GlobalComponent.image
 
@@ -104,7 +104,7 @@ export class AchievementsComponent {
 
   async ngOnInit() {
     await this.getTaskDataByDate(this.month, this.year).finally(() => this.isLoading = false)
-    await this.getFindingUndoneByDate(this.month, this.year).finally(() => this.isLoading = false)
+    await this.getFindingUnfinishedByDate(this.month, this.year).finally(() => this.isLoading = false)
     await this.getFindingNotOkByDate(this.month, this.year).finally(() => this.isLoading = false)
     await this.getChecklistCategoryByDate(this.month, this.year).finally(() => this.isLoading = false)
     await this.getTaskAreaActivityById(this.taskActivityChartData.rawData[0].area, this.taskActivityChartData.rawData[0].area_id)
@@ -154,29 +154,29 @@ export class AchievementsComponent {
     })
   }
 
-  async getFindingUndoneByDate(month: number, year: number) {
+  async getFindingUnfinishedByDate(month: number, year: number) {
     return new Promise((resolve, reject) => {
       this.isLoading = true
-      this.apiService.getFindingUndoneByDate(month, year).subscribe({
+      this.apiService.getFindingUnfinishedByDate(month, year).subscribe({
         next: (res: any) => {
 
-          if (this.findingUndoneActivity.rawData.length > 0) {
-            this.apiService.resetCachedData(this.apiService.cachedUndoneByDate)
-            this.findingUndoneActivity.rawData.splice(0)
-            this.findingUndoneActivity.total = 0
-            this.findingUndoneActivity.limitData.splice(0)
+          if (this.findingUnfinishedActivity.rawData.length > 0) {
+            this.apiService.resetCachedData(this.apiService.cachedUnfinishedByDate)
+            this.findingUnfinishedActivity.rawData.splice(0)
+            this.findingUnfinishedActivity.total = 0
+            this.findingUnfinishedActivity.limitData.splice(0)
           }
           let data: any[] = res.data
-          let dataUndone = [...data]
-          this.findingUndoneActivity.rawData = data
-          this.findingUndoneActivity.total = data.length
-          this.findingUndoneActivity.limitData = this.common.getRandomIndices(dataUndone.length, 5).map(index => dataUndone[index]);
+          let dataUnfinished = [...data]
+          this.findingUnfinishedActivity.rawData = data
+          this.findingUnfinishedActivity.total = data.length
+          this.findingUnfinishedActivity.limitData = this.common.getRandomIndices(dataUnfinished.length, 5).map(index => dataUnfinished[index]);
           resolve(true)
         },
         error: (err: any) => {
           console.error(err)
           reject(err)
-          this.common.showServerErrorAlert(Const.ERR_GET_MSG('Undone'), err)
+          this.common.showServerErrorAlert(Const.ERR_GET_MSG('Unfinished'), err)
         }
       })
     })
@@ -277,7 +277,7 @@ export class AchievementsComponent {
     }
     this.areaAchievements = dataPercentage(this.taskAreaActivityChartData.rawData)
     this.areaTotalActivity = dataTotalActivity(this.taskAreaActivityChartData.totalActivityData!)
-    this.areaUndoneActivity = this.findingUndoneActivity.rawData.filter(data => data.area_id === areaId).length
+    this.areaUnfinishedActivity = this.findingUnfinishedActivity.rawData.filter(data => data.area_id === areaId).length
     this.areaTotalFinding = this.findingNotOkActivity.rawData.filter(data => data.area_id === areaId).length
   }
 
@@ -553,8 +553,8 @@ export class AchievementsComponent {
     };
   }
 
-  getTotalAchievements(totalActivity: number, undone: number): number {
-    let checklist = totalActivity - undone
+  getTotalAchievements(totalActivity: number, unfinished: number): number {
+    let checklist = totalActivity - unfinished
     let result = this.common.getTaskPercentage(totalActivity, checklist)
     return result
   }

@@ -209,10 +209,10 @@ export class CommonService {
       title: 'Success!',
       text: message ? message : 'Great job!',
       icon: 'success',
-      showCancelButton: cancelMessage ? true : false,
-      cancelButtonColor: 'rgb(240, 101, 72)',
+      showDenyButton: cancelMessage ? true : false,
+      denyButtonColor: 'rgb(240, 101, 72)',
       confirmButtonText: 'OK',
-      cancelButtonText: cancelMessage ? cancelMessage : 'Cancel'
+      denyButtonText: cancelMessage ? cancelMessage : 'Cancel'
     })
   }
 

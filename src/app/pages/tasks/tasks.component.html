@@ -50,7 +50,7 @@
                         <tbody>
                             <tr *ngFor="let data of paginatedTasksData; let i = index">
                                 <td>{{ common.getComputedRowNumber(index, i) }}</td>
-                                <td>{{ common.getDate(data.date) }}</td>
+                                <td>{{ common.getLocaleDate(data.date) }}</td>
                                 <td>{{ data.area }}</td>
                                 <td>
                                     {{common.getTaskPercentage(data.total_activity, data.checklist)}}%

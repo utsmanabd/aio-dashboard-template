@@ -51,8 +51,8 @@ export class IdentityTaskComponent {
   identityTaskDataBefore: any;
 
   isLoading: boolean = false;
-  userData: any
   breadCrumbItems!: Array<{}>;
+  userData: any
   
   isUsernameChecked: boolean = false;
 
@@ -246,7 +246,7 @@ export class IdentityTaskComponent {
           this.isLoading = false
           this.common.goToTop()
           this.common.showSuccessAlert('Task activity has been updated!', 'Return to tasks').then((result) => {
-            if (!result.value) {
+            if (result.isDenied) {
               this.router.navigate(['/tasks']);
             }
           })

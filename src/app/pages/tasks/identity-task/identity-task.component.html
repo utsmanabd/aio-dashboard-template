@@ -19,16 +19,16 @@
         <div class="p-2">
             <div class="row g-3">
                 <div class="col">
-                    <div class="card bg-soft-secondary p-3">
+                    <div class="card bg-soft-info p-3">
                         <h4><span>{{ identityTaskCountData.machine_area }}</span></h4>
-                        <p>Completed:
-                            <span class="text-secondary">
+                        <p>Complete:
+                            <span class="text-info">
                                 {{ common.getTaskPercentage(identityTaskCountData.total_activity,
                                 identityTaskCountData.checklist) }}%
                             </span>
                         </p>
                         <div class="progress progress-lg animated-progress mb-2" style="background-color: white;">
-                            <div class="progress-bar bg-secondary" role="progressbar"
+                            <div class="progress-bar bg-info" role="progressbar"
                                 attr.style="width: {{common.getTaskPercentage(identityTaskCountData.total_activity, identityTaskCountData.checklist)}}%"
                                 [attr.aria-valuenow]="common.getTaskPercentage(identityTaskCountData.total_activity, identityTaskCountData.checklist)"
                                 aria-valuemin="0" aria-valuemax="100">{{

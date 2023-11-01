@@ -56,8 +56,8 @@ export const GlobalComponent = {
     findingDate: 'master/finding/date/',
     findingNotOk: 'master/finding/not-ok/',
     findingNotOkDate: 'master/finding/not-ok/date/', // note
-    findingUndone: 'master/finding/undone/',
-    findingUndoneDate: 'master/finding/undone/date/', // aman
+    findingUnfinished: 'master/finding/undone/',
+    findingUnfinishedDate: 'master/finding/undone/date/', // aman
     checklistArea: 'master/checklist/area/', // note
     checklistAreaDate: 'master/checklist/area/date/',
     checklistCategory: 'master/checklist/category/date/', // note

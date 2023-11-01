@@ -1,5 +1,5 @@
 <ngx-loading [show]="loading"></ngx-loading>
-<app-breadcrumbs title="Create Task: {{ dateSelected }}" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+<app-breadcrumbs title="Create Task: {{ common.getLocaleDate(dateSelected) }}" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
 <div class="auth-one-bg-position auth-one-bg" id="auth-particles">
     <div class="bg-overlay"></div>
 </div>
@@ -29,7 +29,7 @@
                         class="ri-arrow-left-line"></i></button>
                 <div class="mb-0 flex-grow-1">
                     <h4 class="mb-0">Area: <span class="text-primary">{{ activeArea.area }}</span></h4>
-                    <span class="fs-7 text-muted">{{ dateSelected }}</span>
+                    <span class="fs-7 text-muted">{{ common.getLocaleDate(dateSelected) }}</span>
                 </div>
                 <div class="flex-shrink-0 ms-2">
                     <button (click)="onCreateTask(activeArea.area_id)" class="btn {{isSmallScreen ? 'btn-sm' : ''}} btn-success add-btn me-1" [disabled]="loading"><i
@@ -141,9 +141,9 @@
                             <td>{{ data.machine_area }}</td>
                             <td>
                                 <h5 class="fs-6">
-                                    <a class="text-reset">{{ common.getDate(data.last_updated) }}</a>
+                                    <a class="text-reset">{{ common.getLocaleDate(data.last_updated) }}</a>
                                 </h5>
-                                <span>{{ data.last_updated | dateAgo: dateSelected }}</span>
+                                <span class="text-muted"><i>({{ data.last_updated | dateAgo: dateSelected }})</i></span>
                             </td>
                             <td *ngIf="isRecommended(common.getDayCount(data.last_updated, dateSelected), common.getPeriodDayCount(data.periode));else notRecommended"
                                 class="text-success"><i class="ri-checkbox-circle-line fs-17 align-middle"></i>

@@ -4,6 +4,8 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { MENU } from './menu';
 import { MenuItem } from './menu.model';
+import { TokenStorageService } from 'src/app/core/services/token-storage.service';
+import { ADMIN_MENU } from './admin-menu';
 
 @Component({
   selector: 'app-sidebar',
@@ -15,16 +17,26 @@ export class SidebarComponent implements OnInit {
   menu: any;
   toggle: any = true;
   menuItems: MenuItem[] = [];
+
+  userData: any
+
   @ViewChild('sideMenu') sideMenu!: ElementRef;
   @Output() mobileMenuButtonClicked = new EventEmitter();
 
-  constructor(private router: Router, public translate: TranslateService) {
+  constructor(private router: Router, public translate: TranslateService, private tokenService: TokenStorageService) {
     translate.setDefaultLang('en');
   }
 
   ngOnInit(): void {
-    // Menu Items
-    this.menuItems = MENU;
+    this.userData = this.tokenService.getUser()
+    if (this.userData && this.userData.level === "Admin") {
+      let adminMenu: MenuItem[] = []
+      MENU.forEach(item => adminMenu.push(item))
+      ADMIN_MENU.forEach(item => adminMenu.push(item))
+      this.menuItems = adminMenu
+    } else {
+      this.menuItems = MENU;
+    }
   }
 
   /***

@@ -33,7 +33,7 @@
         </div>
     </div>
 </div>
-<ng-container *ngIf="taskAreaComparisonChart && taskActivityChart && findingUndoneActivity && taskAreaActivityChart">
+<ng-container *ngIf="taskAreaComparisonChart && taskActivityChart && findingUnfinishedActivity && taskAreaActivityChart">
     <div class="row">
         <div class="col-xl-6">
             <div class="card">
@@ -74,15 +74,15 @@
                     <div class="card-body">
                         <div class="d-flex align-items-center">
                             <div class="flex-grow-1">
-                                <p class="text-uppercase fw-semibold text-white mb-0">Undone Activity</p>
+                                <p class="text-uppercase fw-semibold text-white mb-0">Unfinished Activity</p>
                             </div>
                         </div>
                         <div class="d-flex align-items-end justify-content-between mt-4">
                             <div>
                                 <h4 class="fs-22 fw-semibold ff-secondary mb-4 text-white">
-                                    <span class="counter-value">{{ findingUndoneActivity.total }}</span>
+                                    <span class="counter-value">{{ findingUnfinishedActivity.total }}</span>
                                 </h4>
-                                <a href="javascript:void(0);" (click)="scrollToElement(undone)" class="text-decoration-underline text-white-50">See details</a>
+                                <a href="javascript:void(0);" (click)="scrollToElement(unfinished)" class="text-decoration-underline text-white-50">See details</a>
                             </div>
                         </div>
                     </div><!-- end card body -->
@@ -126,7 +126,7 @@
                     <div class="card-header">
                         <div class="d-flex justify-content-between">
                             <h4 class="card-title mb-0">Total Achievements</h4>
-                            <h4 class="card-title mb-0 text-primary"><b>{{ getTotalAchievements(totalActivity, findingUndoneActivity.total) }}</b>%</h4>
+                            <h4 class="card-title mb-0 text-primary"><b>{{ getTotalAchievements(totalActivity, findingUnfinishedActivity.total) }}</b>%</h4>
                         </div>
                     </div><!-- end card header -->
                     <div class="card-body">
@@ -167,7 +167,7 @@
                     </div>
                 </div>
                 <div class="card-body bg-soft-light">
-                    <div class="row g-0 text-center shadow-sm p-1" style="background-color: white; border-radius: 4px;">
+                    <div class="row g-0 text-center shadow-sm p-1" style="border-radius: 4px;">
                         <div class="col-6 col-sm-3">
                             <div class="p-3">
                                 <h5 class="mb-1 text-success"><span class="counter-value">{{areaAchievements}}</span>%</h5>
@@ -182,8 +182,8 @@
                         </div><!--end col-->
                         <div class="col-6 col-sm-3">
                             <div class="p-3">
-                                <h5 class="mb-1"><span class="counter-value">{{areaUndoneActivity}}</span></h5>
-                                <p class="text-muted mb-0">Undone</p>
+                                <h5 class="mb-1"><span class="counter-value">{{areaUnfinishedActivity}}</span></h5>
+                                <p class="text-muted mb-0">Unfinished</p>
                             </div>
                         </div><!--end col-->
                         <div class="col-6 col-sm-3">
@@ -284,22 +284,22 @@
                 </div> <!-- .card-body-->
             </div> <!-- .card-->
         </div>
-        <div class="col-xl-5" #undone>
+        <div class="col-xl-5" #unfinished>
             <div class="card">
                 <div class="card-header align-items-center d-flex">
-                    <h4 class="card-title mb-0 flex-grow-1">Undone Activity</h4>
+                    <h4 class="card-title mb-0 flex-grow-1">Unfinished Activity</h4>
                 </div><!-- end card header -->
 
                 <div class="card-body">
-                    <div class="table-responsive table-card" *ngIf="findingUndoneActivity.limitData.length > 0;else noUndone">
+                    <div class="table-responsive table-card" *ngIf="findingUnfinishedActivity.limitData.length > 0;else noUnfinished">
                         <table class="table table-hover table-centered align-middle table-nowrap mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th scope="col"*ngFor="let col of columnsUndone">{{col}}</th>
+                                    <th scope="col"*ngFor="let col of columnsUnfinished">{{col}}</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr *ngFor="let data of findingUndoneActivity.limitData">
+                                <tr *ngFor="let data of findingUnfinishedActivity.limitData">
                                     <td>
                                         <span class="badge bg-{{ common.getCategoryBadge(data.category) }}">{{ data.category }}</span>
                                     </td>
@@ -317,7 +317,7 @@
                             <a href="" class="text-muted text-decoration-underline">See more...</a>
                         </div>
                     </div>
-                    <ng-template #noUndone>
+                    <ng-template #noUnfinished>
                         <div class="text-center mt-3">
                             <h4 class="card-title">All activities are done!</h4>
                         </div>

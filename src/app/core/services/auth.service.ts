@@ -1,10 +1,7 @@
 import { Injectable } from "@angular/core";
-import { getFirebaseBackend } from "../../authUtils";
 import { User } from "../models/auth.models";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { BehaviorSubject, Observable } from "rxjs";
 import { GlobalComponent } from "../../global-component";
-import { UserData } from "../models/backend-auth.model";
 import { JwtHelperService } from "@auth0/angular-jwt";
 import { TokenStorageService } from "./token-storage.service";
 
@@ -16,110 +13,25 @@ const httpOptions = {
 
 @Injectable({ providedIn: "root" })
 
-/**
- * Auth-service Component
- */
 export class AuthenticationService {
   private jwtHelper: JwtHelperService = new JwtHelperService();
 
   user!: User;
-  // public currentUserAuth: Observable<UserData>;
-  // currentUserValues: any;
-  // private currentUserSubject: BehaviorSubject<UserData>;
 
-  constructor(private http: HttpClient, private tokenService: TokenStorageService) {
-    // this.currentUserSubject = new BehaviorSubject<UserData>(
-    //   JSON.parse(localStorage.getItem("currentUser")!)
-    // );
-    // this.currentUserAuth = this.currentUserSubject.asObservable();
-  }
+  constructor(private http: HttpClient, private tokenService: TokenStorageService) {}
 
-  // public get currentUserValue(): UserData {
-  //   return this.currentUserSubject.value;
-  // }
-
-  /**
-   * Performs the register
-   * @param email email
-   * @param password password
-   */
-  register(email: string, first_name: string, password: string) {
-    // return getFirebaseBackend()!.registerUser(email, password).then((response: any) => {
-    //     const user = response;
-    //     return user;
-    // });
-
-    // Register Api
-    return this.http.post(
-      AUTH_API + "signup",
-      {
-        email,
-        first_name,
-        password,
-      },
-      httpOptions
-    );
-  }
-
-  /**
-   * Performs the auth
-   * @param email email of user
-   * @param password password of user
-   */
   login(nik: string, password: string) {
-    // return getFirebaseBackend()!.loginUser(email, password).then((response: any) => {
-    //     const user = response;
-    //     return user;
-    // });
-
-    return this.http.post(
-      AUTH_API + "login",
-      {
-        nik,
-        password,
-      },
-      httpOptions
-    );
+    return this.http.post(AUTH_API + "login", {nik, password}, httpOptions);
   }
 
-  /**
-   * Returns the current user
-   */
-  public currentUser(): any {
-    return getFirebaseBackend()!.getAuthenticatedUser();
-  }
-
-  /**
-   * Logout the user
-   */
   logout() {
-    // logout the user
-    // return getFirebaseBackend()!.logout();
     localStorage.removeItem(GlobalComponent.USER_KEY);
     localStorage.removeItem(GlobalComponent.TOKEN_KEY);
     localStorage.removeItem(GlobalComponent.REFRESH_TOKEN_KEY);
-    // this.currentUserSubject.next(null!);
   }
 
   updateToken(refreshToken: string) {
-    return this.http.post(GlobalComponent.AUTH_API + GlobalComponent.refreshToken, { refresh_token: refreshToken }, httpOptions)
-  }
-
-  /**
-   * Reset password
-   * @param email email
-   */
-  resetPassword(email: string) {
-    return getFirebaseBackend()!
-      .forgetPassword(email)
-      .then((response: any) => {
-        const message = response.data;
-        return message;
-      });
-  }
-
-  isLoggedIn() {
-    return !!this.tokenService.getToken();
+    return this.http.post(AUTH_API + GlobalComponent.refreshToken, { refresh_token: refreshToken }, httpOptions)
   }
 
   isAuthenticated(): boolean {

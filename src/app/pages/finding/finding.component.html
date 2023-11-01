@@ -1,36 +1,35 @@
-<h2 class="mt-2 text-primary">Finding Data</h2>
+<ngx-loading [show]="isLoading"></ngx-loading>
+<app-breadcrumbs title="Finding" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
 <div class="card" *ngIf="findingData">
-    <div class="card-body">
-        <div class="table-responsive table-card">
-            <table class="table table-hover table-centered align-middle table-nowrap mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th scope="col"*ngFor="let col of columnsFinding">{{col}}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let data of findingData">
-                        <td>
-                            <h5 class="fs-14 my-1 fw-medium"><a routerLink="../tasks"
-                                class="text-reset">{{ data.activity }}</a></h5>
-                        </td>
-                        <td>{{ data.comment ? data.comment : '-' }}</td>
-                        <td>
-                            <div>
-                                <h6 class="my-1 fw-medium"><a class="text-reset">{{data.machine_area}}</a></h6>
-                                <span class="text-muted">{{data.area}}</span>
-                            </div>
-                        </td>
-                        <td>{{ data.pic }}</td>
-                        <td>
-                            <div class="flex-shrink-0 me-2">
-                                <img src="{{imageUrl}}{{ data.picture ? data.picture : 'no-image-found.jpg' }}" alt="" class="p-2" width="70" />
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-    </div> <!-- .card-body-->
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th scope="col" *ngFor="let col of columnsFinding">{{col}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let data of findingData">
+                    <td>
+                        <h5 class="fs-14 my-1 fw-medium"><a routerLink="../tasks" class="text-reset">{{ data.activity }}</a>
+                        </h5>
+                    </td>
+                    <td>{{ data.comment ? data.comment : '-' }}</td>
+                    <td>
+                        <div>
+                            <h6 class="my-1 fw-medium"><a class="text-reset">{{data.machine_area}}</a></h6>
+                            <span class="text-muted">{{data.area}}</span>
+                        </div>
+                    </td>
+                    <td>{{ data.pic }}</td>
+                    <td>
+                        <div class="flex-shrink-0 me-2">
+                            <img src="{{imageUrl}}{{ data.picture ? data.picture : 'no-image-found.jpg' }}" alt=""
+                                class="p-2" width="70" />
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div> <!-- .card-->

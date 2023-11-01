@@ -154,9 +154,7 @@ export class PlannerTaskComponent {
       const taskData = clickInfo.event._def.extendedProps
       const date = clickInfo.event.startStr
       this.openModal(this.detailModal, taskData, date)
-      // if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
-      //   clickInfo.event.remove();
-      // }
+    
     }
   }
 

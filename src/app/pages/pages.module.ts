@@ -43,6 +43,7 @@ import { PlannerTaskComponent } from './planner-task/planner-task.component';
 import { DetailTaskComponent } from './planner-task/detail-task/detail-task.component';
 import { DateAgoPipe } from '../core/pipe/date-ago.pipe';
 import { LayoutModule } from '@angular/cdk/layout';
+import { NotFoundComponent } from './not-found/not-found.component';
 
 @NgModule({
   declarations: [
@@ -61,7 +62,8 @@ import { LayoutModule } from '@angular/cdk/layout';
     FindingComponent,
     PlannerTaskComponent,
     DetailTaskComponent,
-    DateAgoPipe
+    DateAgoPipe,
+    NotFoundComponent
   ],
   imports: [
     LayoutModule,

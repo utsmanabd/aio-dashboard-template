@@ -13,20 +13,30 @@ export class FindingComponent {
   findingData: any[] = [];
 
   imageUrl = GlobalComponent.API_URL + GlobalComponent.image
+  isLoading: boolean = false;
+  breadCrumbItems!: Array<{}>;
 
-  constructor(private apiService: restApiService) {}
+  constructor(private apiService: restApiService) {
+    this.breadCrumbItems = [
+      { label: 'Planner' },
+      { label: 'Finding', active: true }
+    ];
+  }
 
   ngOnInit(): void {
     this.getFindingData()
   }
 
   getFindingData() {
+    this.isLoading = true
     this.apiService.getFindingNotOk().subscribe({
       next: (res: any) => {
         this.findingData = res.data;
+        this.isLoading = false
       },
       error: (err: any) => {
         console.error(err);
+        this.isLoading = false
       }
     })
   }
