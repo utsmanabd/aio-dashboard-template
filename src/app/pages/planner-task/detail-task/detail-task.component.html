@@ -141,9 +141,10 @@
                             <td>{{ data.machine_area }}</td>
                             <td>
                                 <h5 class="fs-6">
-                                    <a class="text-reset">{{ common.getLocaleDate(data.last_updated) }}</a>
+                                    <a class="text-reset">{{ data.last_updated ? common.getLocaleDate(data.last_updated) : '' }}</a>
                                 </h5>
-                                <span class="text-muted"><i>({{ data.last_updated | dateAgo: dateSelected }})</i></span>
+                                <span>{{ data.last_updated ? '' : '-' }}</span>
+                                <a *ngIf="data.last_updated" class="text-muted"><i>({{ data.last_updated | dateAgo: dateSelected }})</i></a>
                             </td>
                             <td *ngIf="isRecommended(common.getDayCount(data.last_updated, dateSelected), common.getPeriodDayCount(data.periode));else notRecommended"
                                 class="text-success"><i class="ri-checkbox-circle-line fs-17 align-middle"></i>
