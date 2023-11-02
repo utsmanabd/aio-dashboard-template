@@ -119,7 +119,7 @@ export class DetailTaskComponent {
 
   backToArea() {
     this.isAreaSelected = false
-    this.router.navigate([`/planner/tasks/detail/${this.dateSelected}`])
+    this.router.navigate([`/planner/tasks/create/${this.dateSelected}`])
   }
 
   onAreaClick(id: number) {
@@ -130,7 +130,7 @@ export class DetailTaskComponent {
     this.filteredActivityDataBefore = this.filteredActivityData.map(a => ({ ...a }));
     this.periodData = this.common.getUniqueData(this.filteredActivityData, 'periode').map(data => data.periode)
     this.isAreaSelected = true
-    this.router.navigate([`/planner/tasks/detail/${this.dateSelected}`], {
+    this.router.navigate([`/planner/tasks/create/${this.dateSelected}`], {
       queryParams: {
         id: id,
       }

@@ -37,6 +37,8 @@ export class restApiService {
   cachedUnfinishedByDate: any
   cachedChecklistCategoryByDate: any
 
+  cachedUserData: any
+
   resetCachedData(cachedData?: any) {
     if (cachedData) {
       cachedData = undefined
@@ -54,6 +56,7 @@ export class restApiService {
       this.cachedFindingByDate = undefined
       this.cachedUnfinishedByDate = undefined
       this.cachedChecklistCategoryByDate = undefined
+      this.cachedUserData = undefined
     }
   }
 
@@ -438,5 +441,27 @@ export class restApiService {
         tap((data) => this.cachedChecklistCategoryByDate = data)
       )
     }
+  }
+
+  getUsers() {
+    if (this.cachedUserData) {
+      return of(this.cachedUserData)
+    } else {
+      return this.http.get(GlobalComponent.API_URL + GlobalComponent.users, this.httpOptions()).pipe(
+        tap((data) => this.cachedUserData = data)
+      )
+    }
+  }
+
+  insertUser(userData: any) {
+    return this.http.post(GlobalComponent.API_URL + GlobalComponent.users, {form_data: userData}, this.httpOptions()).pipe(
+      tap(() => this.resetCachedData())
+    )
+  }
+
+  updateUser(userId: number, userData: any) {
+    return this.http.put(GlobalComponent.API_URL + GlobalComponent.users + `${userId}`, {form_data: userData}, this.httpOptions()).pipe(
+      tap(() => this.resetCachedData())
+    )
   }
 }

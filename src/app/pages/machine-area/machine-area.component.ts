@@ -18,7 +18,6 @@ export class MachineAreaComponent {
   areaIdArray: any[] = []
   index: number = 0;
   activePages: number[] = [];
-  filteredMachineAreaData: any[] = [];
   breadCrumbItems!: Array<{}>;
 
   selectedArea!: string
@@ -33,8 +32,6 @@ export class MachineAreaComponent {
   currentPage = 1;
   totalPages!: number;
   paginatedMachineAreaData: any[] = [];
-  pages: number[] = [];
-
   searchKeyword: string = "";
 
   constructor(

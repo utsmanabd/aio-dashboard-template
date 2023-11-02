@@ -12,15 +12,12 @@ import { FindingComponent } from './finding/finding.component';
 import { PlannerTaskComponent } from './planner-task/planner-task.component';
 import { DetailTaskComponent } from './planner-task/detail-task/detail-task.component';
 import { LevelGuard } from '../core/guards/level.guard';
+import { UserManagementComponent } from './user-management/user-management.component';
 
 const routes: Routes = [
     {
         path: '',
         component: AchievementsComponent
-    },
-    {
-      path: 'user/edit',
-      redirectTo: 'user'
     },
     {
       path: 'tasks',
@@ -43,7 +40,7 @@ const routes: Routes = [
       data: { expectedLevel: "Admin" }
     },
     {
-      path: 'planner/tasks/detail/:date',
+      path: 'planner/tasks/create/:date',
       component: DetailTaskComponent,
       canActivate: [LevelGuard],
       data: { expectedLevel: "Admin" }
@@ -69,6 +66,12 @@ const routes: Routes = [
     {
       path: 'master/machine-area',
       component: MachineAreaComponent,
+      canActivate: [LevelGuard],
+      data: { expectedLevel: "Admin" }
+    },
+    {
+      path: 'master/users',
+      component: UserManagementComponent,
       canActivate: [LevelGuard],
       data: { expectedLevel: "Admin" }
     },

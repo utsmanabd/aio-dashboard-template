@@ -62,6 +62,8 @@ export const GlobalComponent = {
     checklistAreaDate: 'master/checklist/area/date/',
     checklistCategory: 'master/checklist/category/date/', // note
 
+    users: 'master/users/',
+
     REFRESH_TOKEN_KEY: 'refreshToken',
     TOKEN_KEY: 'token',
     USER_KEY: 'currentUser',

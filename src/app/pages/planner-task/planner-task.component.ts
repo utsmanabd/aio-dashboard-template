@@ -144,7 +144,7 @@ export class PlannerTaskComponent {
   handleDateSelect(selectInfo: DateSelectArg) {
     console.log(selectInfo)
     const date = selectInfo.startStr;
-    this.router.navigate([`/planner/tasks/detail/${date}`]);
+    this.router.navigate([`/planner/tasks/create/${date}`]);
   }
 
   handleEventClick(clickInfo: EventClickArg) {

@@ -8,7 +8,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { MENU } from './menu';
 import { MenuItem } from './menu.model';
 import { TokenStorageService } from 'src/app/core/services/token-storage.service';
-import { ADMIN_MENU } from './admin-menu';
+import { ADMIN_MENU } from './menu';
 
 @Component({
   selector: 'app-horizontal-topbar',
