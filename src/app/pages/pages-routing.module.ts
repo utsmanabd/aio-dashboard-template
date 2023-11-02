@@ -2,10 +2,6 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 // Component pages
-import { DashboardComponent } from "./dashboards/dashboard/dashboard.component";
-import { ActorComponent } from './actor/actor.component';
-import { FilmComponent } from './film/film.component';
-import { AddUserComponent } from './actor/add-user/add-user.component';
 import { TasksComponent } from './tasks/tasks.component';
 import { ActivityComponent } from './activity/activity.component';
 import { AreaComponent } from './area/area.component';
@@ -23,36 +19,9 @@ const routes: Routes = [
         component: AchievementsComponent
     },
     {
-      path: 'dashboard',
-      component: DashboardComponent
-    },
-    {
-      path: 'dashboard', loadChildren: () => import('./dashboards/dashboards.module').then(m => m.DashboardsModule)
-    },
-    {
-      path: 'user',
-      component: ActorComponent,
-    },
-    {
-      path: 'user/add',
-      component: AddUserComponent
-    },
-    {
       path: 'user/edit',
       redirectTo: 'user'
     },
-    {
-      path: 'user/edit/:id',
-      component: AddUserComponent
-    },
-    {
-      path: 'testing',
-      component: FilmComponent
-    },
-    // {
-    //   path: 'achievements',
-    //   component: AchievementsComponent
-    // },
     {
       path: 'tasks',
       component: TasksComponent
