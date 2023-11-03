@@ -38,6 +38,7 @@ export class restApiService {
   cachedChecklistCategoryByDate: any
 
   cachedUserData: any
+  cachedRolesData: any
 
   resetCachedData(cachedData?: any) {
     if (cachedData) {
@@ -57,6 +58,7 @@ export class restApiService {
       this.cachedUnfinishedByDate = undefined
       this.cachedChecklistCategoryByDate = undefined
       this.cachedUserData = undefined
+      this.cachedRolesData = undefined
     }
   }
 
@@ -463,5 +465,19 @@ export class restApiService {
     return this.http.put(GlobalComponent.API_URL + GlobalComponent.users + `${userId}`, {form_data: userData}, this.httpOptions()).pipe(
       tap(() => this.resetCachedData())
     )
+  }
+
+  uploadUserImage(file: FormData) {
+    return this.http.post(GlobalComponent.API_URL + GlobalComponent.image + `user`, file)
+  }
+
+  getRolesData() {
+    if (this.cachedRolesData) {
+      return of(this.cachedRolesData)
+    } else {
+      return this.http.get(GlobalComponent.API_URL + GlobalComponent.users + `roles`, this.httpOptions()).pipe(
+        tap((data) => this.cachedRolesData = data)
+      )
+    }
   }
 }
