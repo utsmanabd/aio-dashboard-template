@@ -67,7 +67,7 @@ export class AchievementsComponent {
     limitData: []
   }
 
-  columnsFinding = ["Activity", "Comment", "Mahcine/Area", "PIC", "Picture"]
+  columnsFinding = ["Activity / Standard", "Comment", "Mahcine / Area", "PIC", "Picture"]
   columnsUnfinished = ["Category", "Activity", "Machine/Area"]
 
   imageUrl = GlobalComponent.API_URL + GlobalComponent.image
@@ -195,6 +195,7 @@ export class AchievementsComponent {
           this.findingNotOkActivity.total = data.length
           let findingData = [...data]
           this.findingNotOkActivity.limitData = findingData.slice(-4).sort((a, b) => findingData.indexOf(b) - findingData.indexOf(a))
+          console.log(this.findingNotOkActivity.limitData)
           resolve(true)
         },
         error: (err: any) => {

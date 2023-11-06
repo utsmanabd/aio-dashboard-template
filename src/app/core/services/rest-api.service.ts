@@ -468,7 +468,7 @@ export class restApiService {
   }
 
   uploadUserImage(file: FormData) {
-    return this.http.post(GlobalComponent.API_URL + GlobalComponent.image + `user`, file)
+    return this.http.post(GlobalComponent.API_URL + GlobalComponent.upload + `user`, file)
   }
 
   getRolesData() {
@@ -479,5 +479,9 @@ export class restApiService {
         tap((data) => this.cachedRolesData = data)
       )
     }
+  }
+
+  isUserExists(nik: any) {
+    return this.http.get(GlobalComponent.API_URL + GlobalComponent.users + `is-exists/${nik}`, this.httpOptions())
   }
 }

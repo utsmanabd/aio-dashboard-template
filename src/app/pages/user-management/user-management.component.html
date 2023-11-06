@@ -25,18 +25,20 @@
                         <td>{{ common.getComputedRowNumber(index, i) }}</td>
                         <td>
                             <div class="avatar-sm rounded"><img
-                                    [src]="data.photo ? imageUrl + data.photo : 'assets/images/users/user-dummy-img.jpg'"
-                                    alt="" class="member-img img-fluid d-block rounded"></div>
+                                [src]="data.photo ? imageUrl + data.photo : 'assets/images/users/user-dummy-img.jpg'"
+                                alt="" class="member-img img-fluid d-block rounded">
+                            </div>
                         </td>
                         <td>{{ data.nik }}</td>
                         <td>{{ data.name }}</td>
+                        <td><small class="text-muted">{{ data.email }}</small></td>
                         <td>{{ data.role_name }}</td>
                         <td>{{ data.level }}</td>
                         <td>{{ data.area }}</td>
                         <td>
                             <div class="hstack gap-3 flex-wrap">
                                 <a href="javascript:void(0)" class="link-success fs-15" (click)="openModal(content, data)"><i class="ri-edit-2-line"></i></a>
-                                <a class="link-danger fs-15"><i class="ri-delete-bin-line"></i></a>
+                                <a href="javascript:void(0)" class="link-danger fs-15" (click)="deleteUserData(data)"><i class="ri-delete-bin-line"></i></a>
                             </div>
                         </td>
                     </tr>
@@ -115,24 +117,24 @@
                                 <div *ngIf="f['role_id'].errors['required']">Role is required</div>
                             </div>
                         </div>
-                        <div class="col-6" *ngIf="userId">
-                            <label>Password</label>
+                        <div class="col-12" *ngIf="userId">
+                            <label>Change Password</label>
                             <div class="d-flex justify-content-start">
-                                <button type="button" class="btn btn-sm btn-primary" (click)="editPasswordMode()">{{ isEditPassword ? 'Cancel' : 'Change Password'}}</button>
+                                <button type="button" class="btn btn-{{ isEditPassword ? 'danger' : 'primary'}}" (click)="editPasswordMode()">{{ isEditPassword ? 'Cancel' : 'Change'}}</button>
                             </div>
                             
                         </div>
                         <div class="col-6" *ngIf="!userId || isEditPassword">
-                            <label class="form-label" for="password-input">{{ userId ? 'New Password' : 'Password' }}</label>
+                            <label class="form-label" for="password-input">{{ userId ? 'New password' : 'Password' }}</label>
                             <div class="position-relative auth-pass-inputgroup ">
-                                <input [type]="fieldTextType ? 'text' : 'password'" class="form-control pe-5"
+                                <input [type]="showPassword ? 'text' : 'password'" class="form-control pe-5"
                                     placeholder="Enter password" id="password-input" formControlName="password"
                                     [ngClass]="{ 'is-invalid': submitted && f['password'].errors }">
                                 <button
                                     class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted shadow-none"
                                     type="button" id="password-addon"><i class="mdi align-middle"
-                                        [ngClass]="{'mdi-eye-off-outline': !fieldTextType, 'mdi-eye-outline': fieldTextType}"
-                                        (click)="toggleFieldTextType()"></i>
+                                        [ngClass]="{'mdi-eye-off-outline': !showPassword, 'mdi-eye-outline': showPassword}"
+                                        (click)="togglePassword()"></i>
                                 </button>
                                 <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
                                     <span *ngIf="f['password'].errors['required']">Password is required</span>
@@ -140,16 +142,16 @@
                             </div>
                         </div>
                         <div class="col-6" *ngIf="!userId || isEditPassword">
-                            <label class="form-label" for="retype-password-input">{{ userId ? 'Confirm new Password' : 'Confirm password' }}</label>
+                            <label class="form-label" for="retype-password-input">{{ userId ? 'Confirm new password' : 'Confirm password' }}</label>
                             <div class="position-relative auth-pass-inputgroup">
-                                <input [type]="fieldTextType ? 'text' : 'password'" class="form-control pe-5"
+                                <input [type]="showConfirmPassword ? 'text' : 'password'" class="form-control pe-5"
                                     placeholder="Confirm the password" id="retype-password-input" formControlName="retype_password"
                                     [ngClass]="{ 'is-invalid': submitted && f['retype_password'].errors }">
                                 <button
                                     class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted shadow-none"
                                     type="button" id="retype-password-addon"><i class="mdi align-middle"
-                                        [ngClass]="{'mdi-eye-off-outline': !fieldTextType, 'mdi-eye-outline': fieldTextType}"
-                                        (click)="toggleFieldTextType()"></i>
+                                        [ngClass]="{'mdi-eye-off-outline': !showConfirmPassword, 'mdi-eye-outline': showConfirmPassword}"
+                                        (click)="toggleConfirmPassword()"></i>
                                 </button>
                                 <div *ngIf="submitted && f['retype_password'].errors" class="invalid-feedback">
                                     <div *ngIf="f['retype_password'].errors['required']">Confirm password is required</div>
@@ -157,8 +159,12 @@
                             </div>
                             <div class="text-danger" *ngIf="submitted && isPasswordNotMatched">Passwords aren't match</div>
                         </div>
-                        <div class="col-{{ userId ? '6' : '12'}}">
+                        <div class="col-12">
                             <label class="form-label" for="userPhoto">Photo</label>
+                            <div *ngIf="f['photo'].value !== null && !selectedImage" class="avatar-md rounded"><img
+                                [src]="imageUrl + f['photo'].value"
+                                alt="" class="member-img img-fluid d-block rounded">
+                            </div>
                             <input class="form-control form-control" id="userPhoto" type="file"
                                 (change)="onImageSelected($event)">
                         </div>

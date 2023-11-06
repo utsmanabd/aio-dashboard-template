@@ -16,7 +16,7 @@ export class UserManagementComponent {
   userId: any
   usersData: any[] = []
   rolesData: any[] = []
-  tableColumns = ["#", "Photo", "NIK", "Name", "Role", "Level", "Area", "Action"]
+  tableColumns = ["#", "Photo", "NIK", "Name", "Email", "Role", "Level", "Area", "Action"]
 
   breadCrumbItems: Array<{}>;
 
@@ -33,12 +33,15 @@ export class UserManagementComponent {
 
   userDataForm!: UntypedFormGroup;
   submitted: boolean = false;
-  fieldTextType!: boolean;
+  showPassword!: boolean;
+  showConfirmPassword!: boolean;
   error: string = ""
 
   isPasswordNotMatched: boolean = false;
   selectedImage: File | undefined;
   isEditPassword: boolean = false;
+
+  nikBefore: any
 
   imageUrl = GlobalComponent.API_URL + GlobalComponent.image
 
@@ -57,10 +60,6 @@ export class UserManagementComponent {
 
   get f() {
     return this.userDataForm.controls
-  }
-
-  editPasswordMode() {
-    this.isEditPassword === true ? this.isEditPassword = false : this.isEditPassword = true
   }
 
   createForm() {
@@ -82,6 +81,7 @@ export class UserManagementComponent {
         next: (res: any) => {
           this.loading = false
           this.usersData = res.data
+          console.log(res.data)
           this.totalPages = Math.ceil(this.usersData.length / this.pageSize);
           this.updatePagination(this.usersData);
           resolve(true)
@@ -95,49 +95,69 @@ export class UserManagementComponent {
     })
   }
 
-  insertUser(userData: any) {
-    this.loading = true
-    this.apiService.insertUser(userData).subscribe({
-      next: (res: any) => {
-        this.loading = false
-      },
-      error: (err) => {
-        this.loading = false
-        this.common.showErrorAlert(Const.ERR_INSERT_MSG("User"), err)
-      }
+  async insertUser(userData: any) {
+    return new Promise((resolve, reject) => {
+      this.loading = true
+      this.apiService.insertUser(userData).subscribe({
+        next: (res: any) => {
+          const userId = res.data
+          this.loading = false
+          resolve(userId)
+        },
+        error: (err) => {
+          this.loading = false
+          this.common.showErrorAlert(Const.ERR_INSERT_MSG("User"), err)
+          reject(err)
+        }
+      })
     })
   }
 
-  updateUser(userId: number, userData: any) {
-    this.loading = true
-    this.apiService.updateUser(userId, userData).subscribe({
-      next: (res: any) => {
-        this.loading = false
-      },
-      error: (err) => {
-        this.loading = false
-        this.common.showErrorAlert(Const.ERR_UPDATE_MSG("User"), err)
-      }
+  async updateUser(userId: number, userData: any) {
+    return new Promise((resolve, reject) => {
+      this.loading = true
+      this.apiService.updateUser(userId, userData).subscribe({
+        next: (res: any) => {
+          this.loading = false
+          resolve(true)
+        },
+        error: (err) => {
+          this.loading = false
+          this.common.showErrorAlert(Const.ERR_UPDATE_MSG("User"), err)
+          reject(err)
+        }
+      })
     })
   }
 
-  deleteUserData(userId: any) {
+  deleteUserData(userData: any) {
     const deleteData = {is_removed: 1}
-    this.updateUser(userId, deleteData)
+    this.common.showDeleteWarningAlert(Const.ALERT_DEL_MSG(userData.name)).then((result) => {
+      if (result.value) {
+        this.updateUser(userData.user_id, deleteData).then(() => {
+          this.getUsersData()
+          this.common.showSuccessAlert(Const.SUCCESS_DEL_MSG())
+        })
+      }
+    })
   }
 
-  uploadUserImage(image: File) {
+  async uploadUserImage(image: File) {
     const formData = new FormData()
     formData.append("file", image)
-    this.loading = true
-    this.apiService.uploadUserImage(formData).subscribe({
-      next: (res: any) => {
-        this.loading = false
-      },
-      error: (err) => {
-        this.loading = false
-        this.common.showErrorAlert(Const.ERR_INSERT_MSG("User Image"), err)
-      }
+    return new Promise((resolve, reject) => {
+      this.loading = true
+      this.apiService.uploadUserImage(formData).subscribe({
+        next: (res: any) => {
+          this.loading = false
+          resolve(res.filename)
+        },
+        error: (err) => {
+          this.loading = false
+          this.common.showErrorAlert(Const.ERR_INSERT_MSG("User Image"), err)
+          reject(err)
+        }
+      })
     })
   }
   
@@ -158,8 +178,38 @@ export class UserManagementComponent {
       })
     })
   }
+
+  async isNIKExists(nik: string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      this.loading = true
+      this.apiService.isUserExists(nik).subscribe({
+        next: (res: any) => {
+          this.loading = false
+          let isExists: boolean
+          if (res.status) {
+            isExists = false
+          } else isExists = true
+          resolve(isExists)
+        },
+        error: (err: any) => {
+          this.loading = false
+          this.common.showErrorAlert(Const.ERR_GET_MSG("Exists NIK"), err)
+          reject(err)
+        }
+      })
+    })
+  }
+
+  editPasswordMode() {
+    if (this.isEditPassword === true){
+      this.isEditPassword = false
+      this.f["password"].setValue("")
+      this.f["retype_password"].setValue("")
+    } else this.isEditPassword = true
+  }
   
   openModal(content: any, userData?: any) {
+    console.log(userData)
     if (userData) {
       this.userId = userData.user_id
       this.f['nik'].setValue(userData.nik)
@@ -167,7 +217,12 @@ export class UserManagementComponent {
       this.f['name'].setValue(userData.name)
       this.f['role_id'].setValue(userData.role_id)
       this.f['photo'].setValue(userData.photo)
+      this.f['password'].clearValidators()
+      this.f['retype_password'].clearValidators()
+
+      this.nikBefore = userData.nik
     }
+
     this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title', size: 'lg'  }).result.then(
       (result) => this.resetModalValue(),
 			(reason) => this.resetModalValue()
@@ -179,6 +234,10 @@ export class UserManagementComponent {
     this.submitted = false
     this.selectedImage = undefined
     this.userDataForm.reset()
+    this.nikBefore = undefined
+    this.isEditPassword = false
+    this.f['password'].addValidators(Validators.required); 
+    this.f['retype_password'].addValidators(Validators.required);
   }
 
   onImageSelected(event$: any) {
@@ -186,27 +245,55 @@ export class UserManagementComponent {
     this.selectedImage = image
   }
 
-  onSubmit() {
-    console.log(this.userDataForm.errors)
+  async onSubmit() {
     this.submitted = true
-    if (this.userDataForm.valid && this.f['password'].value === this.f['retype_password'].value) {
-      console.log("TRUE");
+    if (this.f['password'].value === this.f['retype_password'].value) {
       this.isPasswordNotMatched = false
-      let data: Record<string, any> = {}
-      for (let key in this.f) {
-        if (Object.prototype.hasOwnProperty.call(this.f, key)) {
-          data[key] = this.f[key].value
-        }
+      if (this.userDataForm.valid) {
+        await this.isNIKExists(this.f['nik'].value).then(async(isExists) => {
+          if (!isExists || this.f['nik'].value == this.nikBefore) {
+            let data: Record<string, any> = {}
+            for (let key in this.f) {
+              if (Object.prototype.hasOwnProperty.call(this.f, key)) {
+                data[key] = this.f[key].value
+              }
+            }
+            delete data['retype_password']
+            if (this.userId) {
+              if (!data['password']) delete data['password']
+              if (this.selectedImage) {
+                const renamedFile = this.common.renameFile(this.selectedImage, this.userId)
+                await this.uploadUserImage(renamedFile).then((fileName) => {
+                  data['photo'] = fileName
+                })
+              }
+              await this.updateUser(this.userId, data).then(() => {
+                this.getUsersData()
+                this.modalService.dismissAll()
+              })
+            } else {
+              await this.insertUser(data).then(async(userId: any) => {
+                if (this.selectedImage) {
+                  const renamedFile = this.common.renameFile(this.selectedImage, userId)
+                  await this.uploadUserImage(renamedFile).then(async(fileName) => {
+                    await this.updateUser(userId, {photo: fileName})
+                  })
+                }
+              }).finally(() => {
+                this.getUsersData()
+                this.modalService.dismissAll()
+              })
+            }
+          } else {
+            this.common.showErrorAlert("The NIK is already exists!", "Error")
+          }
+        })
       }
-      // delete data['retype_password']
-      console.log(data)
     } else {
       this.isPasswordNotMatched = true
-      console.log("FALSE")
-
     }
   }
-  
+
 
   goToPage(pageNumber: number): void {
     if (pageNumber >= 1 && pageNumber <= this.totalPages) {
@@ -246,8 +333,12 @@ export class UserManagementComponent {
     this.updatePagination(filteredUsersData);
   }
 
-  toggleFieldTextType() {
-    this.fieldTextType = !this.fieldTextType;
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+  
+  }
+  toggleConfirmPassword() {
+    this.showConfirmPassword = !this.showConfirmPassword;
   }
 
 }
