@@ -5,7 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 // Menu Pachage
 // import MetisMenu from 'metismenujs';
 
-import { MENU } from './menu';
+import { MENU, PLANNER_MENU } from './menu';
 import { MenuItem } from './menu.model';
 import { TokenStorageService } from 'src/app/core/services/token-storage.service';
 import { ADMIN_MENU } from './menu';
@@ -32,13 +32,26 @@ export class HorizontalTopbarComponent implements OnInit {
   ngOnInit(): void {
     this.userData = this.tokenService.getUser()
     // Menu Items
-    if (this.userData && this.userData.level === "Admin") {
-      let adminMenu: MenuItem[] = []
-      MENU.forEach(item => adminMenu.push(item))
-      ADMIN_MENU.forEach(item => adminMenu.push(item))
-      this.menuItems = adminMenu
-    } else {
-      this.menuItems = MENU;
+    if (this.userData) {
+      if (this.userData.level === "Admin") {
+        let adminMenu: MenuItem[] = []
+
+        MENU.forEach(item => adminMenu.push(item))
+        PLANNER_MENU.forEach(item => adminMenu.push(item))
+        ADMIN_MENU.forEach(item => adminMenu.push(item))
+        
+        this.menuItems = adminMenu
+
+      } else if (this.userData.level === 'User' && this.userData.role_name === 'Planner') {
+
+        let plannerMenu: MenuItem[] = []
+
+        MENU.forEach(item => plannerMenu.push(item))
+        PLANNER_MENU.forEach(item => plannerMenu.push(item))
+
+        this.menuItems = plannerMenu;
+
+      } else this.menuItems = MENU
     }
   }
 

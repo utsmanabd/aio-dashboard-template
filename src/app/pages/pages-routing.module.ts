@@ -37,19 +37,19 @@ const routes: Routes = [
       path: 'planner/tasks',
       component: PlannerTaskComponent,
       canActivate: [LevelGuard],
-      data: { expectedLevel: "Admin" }
+      data: { expectedLevel: 'Admin', expectedRole: "Planner" }
     },
     {
       path: 'planner/tasks/create/:date',
       component: DetailTaskComponent,
       canActivate: [LevelGuard],
-      data: { expectedLevel: "Admin" }
+      data: { expectedLevel: 'Admin', expectedRole: "Planner" }
     },
     {
       path: 'planner/finding',
       component: FindingComponent,
       canActivate: [LevelGuard],
-      data: { expectedLevel: "Admin" }
+      data: { expectedLevel: 'Admin', expectedRole: "Planner" }
     },
     {
       path: 'master/activity',

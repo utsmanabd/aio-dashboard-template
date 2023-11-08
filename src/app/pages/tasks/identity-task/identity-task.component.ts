@@ -106,7 +106,7 @@ export class IdentityTaskComponent {
           if (res.data.length > 0) {
             this.taskActivityData = res.data
             let areaId = this.taskActivityData[0].area_id
-            if (areaId == this.userData.area_id || this.userData.area_id === -1) {
+            if (areaId == this.userData.area_id || this.userData.area_id <= -1) {
               let machineArea: any = {};
   
               this.taskActivityData.forEach(item => {

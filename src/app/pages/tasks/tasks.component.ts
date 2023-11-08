@@ -111,7 +111,7 @@ export class TasksComponent {
       this.apiService.getTaskData().subscribe({
         next: (res: any) => {
           let data: any[] = res.data
-          if (this.userData.area_id === -1) {
+          if (this.userData.area_id <= -1) {
             this.tasksData = data;
           } else {
             this.tasksData = data.filter(task => task.area_id == this.userData.area_id);

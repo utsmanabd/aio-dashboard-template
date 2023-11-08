@@ -16,14 +16,21 @@ export class LevelGuard implements CanActivate {
   ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree
   {
     const expectedLevel = route.data['expectedLevel']
+    const expectedRole = route.data['expectedRole']
     const user: any = this.tokenService.getUser()
 
-    if (user && user.level === expectedLevel) {
-      return true
-    } else {
-      this.router.navigate(['/not-found'])
-      return false;
+    if (user) {
+      if (expectedLevel && user.level === expectedLevel) {
+        return true
+      }
+      
+      if (expectedRole && user.role_name === expectedRole) {
+        return true
+      }
     }
+    
+    this.router.navigate(['/not-found'])
+    return false;
   }
   
 }
