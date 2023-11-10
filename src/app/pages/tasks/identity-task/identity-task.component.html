@@ -79,7 +79,7 @@
                             <td>
                                 <!-- {{ data.condition }} -->
                                 <div class="form-check form-radio-info mb-2">
-                                    <input class="form-check-input" type="radio"
+                                    <input class="form-check-input" type="radio" [disabled]="data.last_updated !== null"
                                         name="flexRadioCondition{{data.task_activity_id}}"
                                         [checked]="isConditionOk(data.condition)" value="1"
                                         (change)="changeCondition($event, data.task_activity_id)"
@@ -89,7 +89,7 @@
                                 </div>
 
                                 <div class="form-check form-radio-info">
-                                    <input class="form-check-input" type="radio"
+                                    <input class="form-check-input" type="radio" [disabled]="data.last_updated !== null"
                                         [checked]="isConditionNotOk(data.condition)" value="0"
                                         (change)="changeCondition($event, data.task_activity_id)"
                                         name="flexRadioCondition{{data.task_activity_id}}"
@@ -100,7 +100,7 @@
                             </td>
                             <td>
                                 <div>
-                                    <input [(ngModel)]="data.comment" id="comment{{data.task_activity_id}}"
+                                    <input [(ngModel)]="data.comment" id="comment{{data.task_activity_id}}" [disabled]="data.last_updated !== null"
                                         class="form-control" placeholder="Enter comment"
                                         name="comment{{ data.task_activity_id}}" />
                                 </div>
@@ -110,14 +110,14 @@
                                 <img *ngIf="data.picture" [src]="getImageSource(data.picture)" alt="activity_picture"
                                     width="130">
                                 <div *ngIf="!data.picture">
-                                    <input class="form-control form-control-sm" id="picture{{data.task_activity_id}}"
+                                    <input class="form-control form-control-sm" id="picture{{data.task_activity_id}}" [disabled]="data.last_updated !== null"
                                         type="file" (change)="onImageSelected($event, data.task_activity_id)">
                                 </div>
                             </td>
                             <td>
                                 <div>
                                     <input [(ngModel)]="data.pic" id="pic{{data.task_activity_id}}" class="form-control"
-                                        placeholder="Enter name" name="pic{{ data.task_activity_id}}" [disabled]="isUsernameChecked" />
+                                        placeholder="Enter name" name="pic{{ data.task_activity_id}}" [disabled]="isUsernameChecked || data.last_updated !== null" />
                                 </div>
 
                             </td>

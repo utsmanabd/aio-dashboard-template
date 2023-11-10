@@ -81,7 +81,7 @@
             <div class="row">
                 <div class="col-lg-12 p-2">
                     <div class="row g-3">
-                        <div class="col-6">
+                        <div class="col-md-6 col-sm-12">
                             <label class="form-label" for="nik">NIK</label>
                             <input type="text" class="form-control" id="nik" formControlName="nik"
                                 [ngClass]="{ 'is-invalid': submitted && f['nik'].errors }" placeholder="Enter NIK">
@@ -89,7 +89,7 @@
                                 <div *ngIf="f['nik'].errors['required']">NIK is required</div>
                             </div>
                         </div>
-                        <div class="col-6">
+                        <div class="col-md-6 col-sm-12">
                             <label class="form-label" for="email">Email</label>
                             <input type="email" class="form-control" id="email" formControlName="email"
                                 [ngClass]="{ 'is-invalid': submitted && f['email'].errors }" placeholder="Enter email">
@@ -99,7 +99,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-6">
+                        <div class="col-md-6 col-sm-12">
                             <label class="form-label" for="name">Name</label>
                             <input type="text" class="form-control" id="name" formControlName="name"
                                 [ngClass]="{ 'is-invalid': submitted && f['name'].errors }" placeholder="Enter user name">
@@ -107,7 +107,7 @@
                                 <div *ngIf="f['name'].errors['required']">Name is required</div>
                             </div>
                         </div>
-                        <div class="col-6" *ngIf="rolesData">
+                        <div class="col-md-6 col-sm-12" *ngIf="rolesData">
                             <label for="roleSelect">Role</label>
                             <select formControlName="role_id" id="roleSelect" class="form-select" [ngClass]="{ 'is-invalid': submitted && f['role_id'].errors }">
                                 <option class="text-muted" [value]="null">Select role</option>
@@ -124,7 +124,7 @@
                             </div>
                             
                         </div>
-                        <div class="col-6" *ngIf="!userId || isEditPassword">
+                        <div class="col-md-6 col-sm-12" *ngIf="!userId || isEditPassword">
                             <label class="form-label" for="password-input">{{ userId ? 'New password' : 'Password' }}</label>
                             <div class="position-relative auth-pass-inputgroup ">
                                 <input [type]="showPassword ? 'text' : 'password'" class="form-control pe-5"
@@ -141,7 +141,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-6" *ngIf="!userId || isEditPassword">
+                        <div class="col-md-6 col-sm-12" *ngIf="!userId || isEditPassword">
                             <label class="form-label" for="retype-password-input">{{ userId ? 'Confirm new password' : 'Confirm password' }}</label>
                             <div class="position-relative auth-pass-inputgroup">
                                 <input [type]="showConfirmPassword ? 'text' : 'password'" class="form-control pe-5"
@@ -159,7 +159,7 @@
                             </div>
                             <div class="text-danger" *ngIf="submitted && isPasswordNotMatched">Passwords aren't match</div>
                         </div>
-                        <div class="col-12">
+                        <div class="col-md-6 col-sm-12">
                             <label class="form-label" for="userPhoto">Photo</label>
                             <div *ngIf="f['photo'].value !== null && !selectedImage" class="avatar-md rounded"><img
                                 [src]="imageUrl + f['photo'].value"
