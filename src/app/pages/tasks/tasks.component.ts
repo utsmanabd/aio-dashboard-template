@@ -36,6 +36,8 @@ export class TasksComponent {
   loading: boolean = false
   isTableView: boolean = false;
   userData: any
+
+  today: string
   
   calendarOptions: CalendarOptions = {
     plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],
@@ -66,6 +68,9 @@ export class TasksComponent {
     this.breadCrumbItems = [
       { label: 'Tasks', active: true }
     ];
+
+    const date = new Date()
+    this.today = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
   }
 
   async ngOnInit() {
@@ -82,8 +87,11 @@ export class TasksComponent {
   }
 
   handleEventClick(clickInfo: EventClickArg) {
-    const taskId = clickInfo.event.id
-    this.router.navigate([`/tasks/identity-task/${taskId}`])
+    const selectedDay = clickInfo.event.startStr
+    if (selectedDay == this.today) {
+      const taskId = clickInfo.event.id
+      this.router.navigate([`/tasks/identity-task/${taskId}`])
+    }
   }
 
   onIdentityTaskClick(tasks: any): void {
@@ -132,13 +140,17 @@ export class TasksComponent {
             }
           }
           if (areaData.length > 0) {
+            console.log(this.tasksData)
             this.tasksData.forEach((task) => {
+              // let date = new Date(task.date)
+              // let taskDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
+              // let isTodayTask = this.today == taskDate ? true : false
               this.eventData.push({
                 id: task.task_id,
                 date: task.date,
                 title: `${task.area}: ${this.common.getTaskPercentage(task.total_activity, task.checklist)}%`,
                 allDay: true,
-                backgroundColor: this.common.getTaskAreaColor(task.area_id, areaData),
+                backgroundColor: this.common.getTaskAreaColor(task.area_id, areaData, this.isTodayTask(task.date)),
                 allData: task,
                 donePercentage: this.common.getTaskPercentage(task.total_activity, task.checklist)
               })
@@ -179,5 +191,12 @@ export class TasksComponent {
     );
     this.totalPages = Math.ceil(filteredTasksData.length / this.pageSize);
     this.updatePagination(filteredTasksData);
+  }
+
+  isTodayTask(taskDate: string): boolean {
+    const date = new Date(taskDate)
+    taskDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
+
+    return this.today == taskDate ? true : false
   }
 }

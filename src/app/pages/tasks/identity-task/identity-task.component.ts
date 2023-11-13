@@ -1,5 +1,6 @@
 import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
+import { IAlbum, Lightbox } from "ngx-lightbox";
 import { CommonService } from "src/app/core/services/common.service";
 import { restApiService } from "src/app/core/services/rest-api.service";
 import { TokenStorageService } from "src/app/core/services/token-storage.service";
@@ -55,13 +56,17 @@ export class IdentityTaskComponent {
   userData: any
   
   isUsernameChecked: boolean = false;
+  isEditPicture: boolean = false;
+
+  imageAlbum: IAlbum[] = []
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private apiService: restApiService,
     public common: CommonService,
-    private tokenService: TokenStorageService
+    private tokenService: TokenStorageService,
+    private lightbox: Lightbox
   ) {
     this.breadCrumbItems = [
       { label: 'Tasks' },
@@ -90,6 +95,10 @@ export class IdentityTaskComponent {
       this.selectedMachineId = mAreaId
       this.getTaskActivity(this.taskId, mAreaId);
     }
+  }
+
+  onEditPicture() {
+    this.isEditPicture ? this.isEditPicture = false : this.isEditPicture = true
   }
 
   onUsernameCheck(event: any) {
@@ -139,6 +148,15 @@ export class IdentityTaskComponent {
   getTaskActivity(taskId: any, mAreaId: any) {
     let data = this.taskActivityData.filter(item => item.m_area_id == mAreaId)
     this.identityTaskData = data
+    const imageData = this.identityTaskData.map(item => item.picture).filter(picture => picture !== null)
+    imageData.forEach(image => {
+      this.imageAlbum.push({
+        caption: this.identityTaskData.find(item => item.picture == image).comment,
+        src: this.getImageSource(image),
+        thumb: this.getImageSource(`${image}`)
+      })
+    })
+    console.log(this.imageAlbum)
     this.identityTaskDataBefore = data.map((a: any) => ({...a}))
     this.getCountTaskActivity(taskId, mAreaId)
   }
@@ -148,6 +166,10 @@ export class IdentityTaskComponent {
       next: (res: any) => this.identityTaskCountData = res.data[0],
       error: (err) => this.common.showErrorAlert(Const.ERR_GET_MSG("Task Activity Count"), err),
     });
+  }
+
+  previewImage(index: number) {
+    this.lightbox.open(this.imageAlbum, index, {showDownloadButton: true})
   }
 
   onSaveChanges() {
@@ -244,6 +266,7 @@ export class IdentityTaskComponent {
             this.onTabChange(this.selectedMachineId)
           })
           this.isLoading = false
+          this.isEditPicture = false
           this.common.goToTop()
           this.common.showSuccessAlert('Task activity has been updated!', 'Return to tasks').then((result) => {
             if (result.isDenied) {

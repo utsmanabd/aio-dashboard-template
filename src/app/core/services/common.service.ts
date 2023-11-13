@@ -128,8 +128,13 @@ export class CommonService {
     }
   }
 
-  getTaskAreaColor(areaId: number, areaData: number[]): string {
-    let color = ['#4B38B3', '#3577F1', '#45CB85', '#299CDB', '#FFBE0B', '#F06548', '#343A40', '#F3F6F9'];
+  getTaskAreaColor(areaId: number, areaData: number[], isTodayTask: boolean = false): string {
+    let transparency = isTodayTask ? '1' : '0.75'
+    let color = [
+      `rgba(75, 56, 179, ${transparency})`, `rgba(53, 119, 241, ${transparency})`, 
+      `rgba(69, 203, 133, ${transparency})`, `rgba(41, 156, 219, ${transparency})`, `rgba(255, 190, 11, ${transparency})`, 
+      `rgba(240, 101, 72, ${transparency})`, `rgba(52, 58, 64, ${transparency})`, `rgba(243, 246, 249, ${transparency})`
+    ];
     let index = areaData.indexOf(areaId);
     
     if (index !== -1) {

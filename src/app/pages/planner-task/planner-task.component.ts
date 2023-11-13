@@ -107,7 +107,7 @@ export class PlannerTaskComponent {
                 date: task.date,
                 title: `${task.area}: ${this.common.getTaskPercentage(task.total_activity, task.checklist)}%`,
                 allDay: true,
-                backgroundColor: this.common.getTaskAreaColor(task.area_id, areaData),
+                backgroundColor: this.common.getTaskAreaColor(task.area_id, areaData, true),
                 allData: task,
                 donePercentage: this.common.getTaskPercentage(task.total_activity, task.checklist)
               })

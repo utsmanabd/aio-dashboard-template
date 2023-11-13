@@ -41,14 +41,14 @@
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-striped table-hover">
+                    <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th *ngFor="let col of tableColumn" scope="col">{{ col }}</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let data of paginatedTasksData; let i = index">
+                            <tr *ngFor="let data of paginatedTasksData; let i = index" class="{{ !isTodayTask(data.date) ? '' : 'bg-light'}}">
                                 <td>{{ common.getComputedRowNumber(index, i) }}</td>
                                 <td>{{ common.getLocaleDate(data.date) }}</td>
                                 <td>{{ data.area }}</td>
@@ -63,8 +63,8 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <button (click)="onIdentityTaskClick(data)" type="button"
-                                        class="btn btn-soft-primary btn-sm">Identity Task</button>
+                                    <button (click)="onIdentityTaskClick(data)" type="button" [disabled]="!isTodayTask(data.date)"
+                                        class="btn btn-{{ !isTodayTask(data.date) ? 'light' : 'primary' }} btn-sm">Identity Task</button>
                                 </td>
                             </tr>
                         </tbody>
