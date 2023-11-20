@@ -150,7 +150,7 @@ export class TasksComponent {
                 date: task.date,
                 title: `${task.area}: ${this.common.getTaskPercentage(task.total_activity, task.checklist)}%`,
                 allDay: true,
-                backgroundColor: this.common.getTaskAreaColor(task.area_id, areaData, this.isTodayTask(task.date)),
+                backgroundColor: this.common.getTaskAreaColor(task.area_id, areaData, this.common.isTodayTask(this.today, task.date)),
                 allData: task,
                 donePercentage: this.common.getTaskPercentage(task.total_activity, task.checklist)
               })
@@ -191,12 +191,5 @@ export class TasksComponent {
     );
     this.totalPages = Math.ceil(filteredTasksData.length / this.pageSize);
     this.updatePagination(filteredTasksData);
-  }
-
-  isTodayTask(taskDate: string): boolean {
-    const date = new Date(taskDate)
-    taskDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
-
-    return this.today == taskDate ? true : false
   }
 }

@@ -97,6 +97,13 @@ export class CommonService {
     return this.datePipe.transform(date, 'dd-MM-yyyy'); // Sesuaikan format sesuai kebutuhan Anda
   }
 
+  isTodayTask(today: string, taskDate: string): boolean {
+    const date = new Date(taskDate)
+    taskDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
+
+    return today == taskDate ? true : false
+  }
+
   // -- HTML class manipulations
   getPercentageBadge(percentage: number): string {
     switch (true) {

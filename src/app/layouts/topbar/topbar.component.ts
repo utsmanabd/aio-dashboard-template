@@ -49,6 +49,12 @@ export class TopbarComponent implements OnInit {
     console.log(this.userData);
     this.element = document.documentElement;
 
+    const theme = localStorage.getItem('theme')
+    if (theme) {
+      document.body.setAttribute('data-layout-mode', theme);
+      document.body.setAttribute('data-sidebar', theme);
+    }
+
     // Cookies wise Language set
     this.cookieValue = this._cookiesService.get('lang');
     const val = this.listLang.filter(x => x.lang === this.cookieValue);
@@ -119,6 +125,7 @@ export class TopbarComponent implements OnInit {
   changeMode(mode: string) {
     this.mode = mode;
     this.eventService.broadcast('changeMode', mode);
+    localStorage.setItem('theme', mode)
 
     switch (mode) {
       case 'light':

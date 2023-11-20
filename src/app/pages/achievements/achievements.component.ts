@@ -5,10 +5,11 @@ import { CommonService } from "src/app/core/services/common.service";
 import { tap } from "rxjs";
 import { Const } from "src/app/core/static/const";
 import { GlobalComponent } from "src/app/global-component";
+import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
 
 interface ChartData {
   rawData: any[],
-  percentageData: number[],
+  percentageData?: number[],
   checklistData?: any[],
   totalActivityData?: any[],
   categories: string[],
@@ -55,6 +56,14 @@ export class AchievementsComponent {
     categories: []
   }
 
+  periodComparisonChart!: ChartType;
+  periodComparisonChartData: ChartData = {
+    rawData: [],
+    checklistData: [],
+    totalActivityData: [],
+    categories: []
+  }
+
   findingUnfinishedActivity: FindingData = {
     rawData: [],
     total: 0,
@@ -80,11 +89,16 @@ export class AchievementsComponent {
   yearBefore!: number
 
   isLoading: boolean = false
+  isSmallScreen: boolean = false
 
-  constructor(private apiService: restApiService, public common: CommonService) {
+  constructor(private apiService: restApiService, public common: CommonService, private breakpointObserver: BreakpointObserver) {
     const today = new Date()
     this.month = today.getMonth() + 1
     this.year = today.getFullYear()
+
+    this.breakpointObserver.observe([Breakpoints.XSmall]).subscribe(result => {
+      this.isSmallScreen = result.breakpoints[Breakpoints.XSmall]
+    })
   }
 
   onChangeDate() {
@@ -108,9 +122,11 @@ export class AchievementsComponent {
     await this.getFindingNotOkByDate(this.month, this.year).finally(() => this.isLoading = false)
     await this.getChecklistCategoryByDate(this.month, this.year).finally(() => this.isLoading = false)
     await this.getTaskAreaActivityById(this.taskActivityChartData.rawData[0].area, this.taskActivityChartData.rawData[0].area_id)
+    await this.getPeriodCountByDate(this.month, this.year).finally(() => this.isLoading = false)
     this._taskActivityChart(
       '["--vz-success", "--vz-info", "--vz-warning", "--vz-danger", "--vz-secondary", "--vz-primary", "--vz-dark"]'
     );
+    this._periodComparisonChart('["--vz-danger", "--vz-secondary"]');
     this.monthBefore = this.month
     this.yearBefore = this.year
   }
@@ -161,7 +177,7 @@ export class AchievementsComponent {
         next: (res: any) => {
 
           if (this.findingUnfinishedActivity.rawData.length > 0) {
-            this.apiService.resetCachedData(this.apiService.cachedUnfinishedByDate)
+            this.apiService.resetCachedData("unfinishedDateData")
             this.findingUnfinishedActivity.rawData.splice(0)
             this.findingUnfinishedActivity.total = 0
             this.findingUnfinishedActivity.limitData.splice(0)
@@ -188,7 +204,7 @@ export class AchievementsComponent {
       this.apiService.getFindingNotOkByDate(month, year).subscribe({
         next: (res: any) => {
           if (this.findingNotOkActivity.rawData.length > 0) {
-            this.apiService.resetCachedData(this.apiService.cachedFindingByDate)
+            this.apiService.resetCachedData("findingDateData")
           }
           let data: any[] = res.data
           this.findingNotOkActivity.rawData = data
@@ -213,7 +229,7 @@ export class AchievementsComponent {
       this.apiService.getChecklistCategoryByDate(month, year).subscribe({
         next: (res: any) => {
           if (this.checklistCategoryData) {
-            this.apiService.resetCachedData(this.apiService.cachedChecklistCategoryByDate)
+            this.apiService.resetCachedData("categoryDateData")
           }
           this.checklistCategoryData = res.data
           resolve(true)
@@ -238,13 +254,13 @@ export class AchievementsComponent {
         next: (res: any) => {
           let data: any[] = res.data
           this.taskAreaActivityChartData.rawData = data
-          this.taskAreaActivityChartData.percentageData.splice(0)
+          this.taskAreaActivityChartData.percentageData?.splice(0)
           this.taskAreaActivityChartData.checklistData?.splice(0)
           this.taskAreaActivityChartData.totalActivityData?.splice(0)
           this.taskAreaActivityChartData.categories.splice(0)
           data.forEach((task) => {
             this.taskAreaActivityChartData.categories.push(task.machine_area)
-            this.taskAreaActivityChartData.percentageData.push(this.common.getTaskPercentage(task.total_activity, task.checklist))
+            this.taskAreaActivityChartData.percentageData?.push(this.common.getTaskPercentage(task.total_activity, task.checklist))
             this.taskAreaActivityChartData.checklistData?.push(task.checklist)
             this.taskAreaActivityChartData.totalActivityData?.push(task.total_activity)
           })
@@ -263,6 +279,27 @@ export class AchievementsComponent {
       })
     })
     
+  }
+
+  async getPeriodCountByDate(month: number, year: number) {
+    return new Promise((resolve, reject) => {
+      this.isLoading = true
+      this.apiService.getPeriodChecklistByDate(month, year).subscribe({
+        next: (res: any) => {
+          let data: any[] = res.data
+          this.periodComparisonChartData.rawData = data
+          this.periodComparisonChartData.categories = data.map(item => item.periode)
+          this.periodComparisonChartData.checklistData = data.map(item => item.checklist)
+          this.periodComparisonChartData.totalActivityData = data.map(item => item.total_activity)
+          console.log(this.periodComparisonChartData)
+          resolve(true)
+        },
+        error: (err: any) => {
+          this.common.showServerErrorAlert(Const.ERR_GET_MSG("Period Count"), err)
+          reject(err)
+        }
+      })
+    })
   }
 
   setTaskAreaSummary(areaId: number) {
@@ -414,7 +451,7 @@ export class AchievementsComponent {
             if (index !== -1 && area) {
               const areaId = taskActivityChartData.rawData[config.dataPointIndex].area_id
               getTaskAreaActivityById(area, areaId)
-              window.scrollTo(0, 585);
+              window.scrollTo(0, 1150);
             }
           }
         }
@@ -551,6 +588,57 @@ export class AchievementsComponent {
           },
         },
       },
+    };
+  }
+
+  private _periodComparisonChart(colors: any) {
+    colors = this.getChartColorsArray(colors);
+    this.periodComparisonChart = {
+      series: [
+        {
+          name: "Total Activity",
+          data: this.periodComparisonChartData.totalActivityData,
+        },
+        {
+          name: "Total Done",
+          data: this.periodComparisonChartData.checklistData,
+        },
+      ],
+      chart: {
+        type: "bar",
+        height: 362,
+        toolbar: {
+          show: false,
+        },
+      },
+      plotOptions: {
+        bar: {
+          dataLabels: {
+            position: "top",
+          },
+        },
+      },
+      dataLabels: {
+        style: {
+          fontSize: "12px",
+          colors: ["#304758"]
+        },
+        offsetY: -20,
+        offsetX: 0,
+      },
+      stroke: {
+        show: true,
+        width: 1,
+        colors: ["#fff"],
+      },
+      tooltip: {
+        shared: true,
+        intersect: false,
+      },
+      xaxis: {
+        categories: this.periodComparisonChartData.categories,
+      },
+      colors: colors,
     };
   }
 

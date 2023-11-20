@@ -48,7 +48,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let data of paginatedTasksData; let i = index" class="{{ !isTodayTask(data.date) ? '' : 'bg-light'}}">
+                            <tr *ngFor="let data of paginatedTasksData; let i = index" class="{{ !common.isTodayTask(today, data.date) ? '' : 'bg-light'}}">
                                 <td>{{ common.getComputedRowNumber(index, i) }}</td>
                                 <td>{{ common.getLocaleDate(data.date) }}</td>
                                 <td>{{ data.area }}</td>
@@ -63,8 +63,8 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <button (click)="onIdentityTaskClick(data)" type="button" [disabled]="!isTodayTask(data.date)"
-                                        class="btn btn-{{ !isTodayTask(data.date) ? 'light' : 'primary' }} btn-sm">Identity Task</button>
+                                    <button (click)="onIdentityTaskClick(data)" type="button" [disabled]="!common.isTodayTask(today, data.date)"
+                                        class="btn btn-{{ !common.isTodayTask(today, data.date) ? 'light' : 'primary' }} btn-sm">Identity Task</button>
                                 </td>
                             </tr>
                         </tbody>

@@ -60,6 +60,8 @@ export class IdentityTaskComponent {
 
   imageAlbum: IAlbum[] = []
 
+  today: string
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -72,6 +74,9 @@ export class IdentityTaskComponent {
       { label: 'Tasks' },
       { label: 'Identity Task', active: true }
     ];
+
+    const date = new Date()
+    this.today = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
   }
 
   async ngOnInit() {
@@ -165,6 +170,15 @@ export class IdentityTaskComponent {
     this.apiService.getCountTaskActivityById(taskId, mAreaId).subscribe({
       next: (res: any) => this.identityTaskCountData = res.data[0],
       error: (err) => this.common.showErrorAlert(Const.ERR_GET_MSG("Task Activity Count"), err),
+      complete: () => {
+        console.log(this.identityTaskCountData)
+        const taskDate = this.identityTaskCountData.date
+        if (!this.common.isTodayTask(this.today, taskDate)) {
+          this.router.navigate(['/tasks'])
+          this.common.showErrorAlert("This task cannot be filled yet!")
+        }
+      }
+      
     });
   }
 

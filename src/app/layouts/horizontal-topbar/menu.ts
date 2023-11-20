@@ -8,6 +8,11 @@ export function createMenuId() {
 export const MENU: MenuItem[] = [
   {
     id: createMenuId(),
+    label: 'MAIN',
+    isTitle: true
+  },
+  {
+    id: createMenuId(),
     label: 'Dashboard',
     link: '',
     icon: 'ri ri-dashboard-fill',
