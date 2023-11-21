@@ -76,6 +76,7 @@
         </div>
     </div>
     <div class="modal-footer">
+        <a type="button" class="btn btn-info" routerLink="/planner/tasks/detail/{{taskData.task_id}}">Detail</a>
         <button type="button" class="btn btn-danger" (click)="onDeleteTask(taskData.task_id)">Delete Task</button>
         <button type="button" class="btn btn-light" (click)="modal.close()">Close</button>
     </div>

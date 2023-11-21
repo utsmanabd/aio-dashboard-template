@@ -194,6 +194,7 @@ export class ActivityComponent {
     );
 
     this.activePages = this.common.calculateActivePages(this.currentPage, this.totalPages);
+    console.log(this.activePages)
   }
 
   applyFilter(): void {

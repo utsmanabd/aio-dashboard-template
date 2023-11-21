@@ -13,6 +13,7 @@ import { PlannerTaskComponent } from './planner-task/planner-task.component';
 import { DetailTaskComponent } from './planner-task/detail-task/detail-task.component';
 import { LevelGuard } from '../core/guards/level.guard';
 import { UserManagementComponent } from './user-management/user-management.component';
+import { DetailActivityComponent } from './planner-task/detail-activity/detail-activity.component';
 
 const routes: Routes = [
     {
@@ -42,6 +43,12 @@ const routes: Routes = [
     {
       path: 'planner/tasks/create/:date',
       component: DetailTaskComponent,
+      canActivate: [LevelGuard],
+      data: { expectedLevel: 'Admin', expectedRole: "Planner" }
+    },
+    {
+      path: 'planner/tasks/detail/:task-id',
+      component: DetailActivityComponent,
       canActivate: [LevelGuard],
       data: { expectedLevel: 'Admin', expectedRole: "Planner" }
     },

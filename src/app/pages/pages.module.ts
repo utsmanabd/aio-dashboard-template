@@ -30,6 +30,7 @@ import { DateAgoPipe } from '../core/pipe/date-ago.pipe';
 import { LayoutModule } from '@angular/cdk/layout';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { UserManagementComponent } from './user-management/user-management.component';
+import { DetailActivityComponent } from './planner-task/detail-activity/detail-activity.component';
 
 @NgModule({
   declarations: [
@@ -45,7 +46,8 @@ import { UserManagementComponent } from './user-management/user-management.compo
     DetailTaskComponent,
     DateAgoPipe,
     NotFoundComponent,
-    UserManagementComponent
+    UserManagementComponent,
+    DetailActivityComponent
   ],
   imports: [
     LayoutModule,

@@ -154,14 +154,14 @@ export class IdentityTaskComponent {
     let data = this.taskActivityData.filter(item => item.m_area_id == mAreaId)
     this.identityTaskData = data
     const imageData = this.identityTaskData.map(item => item.picture).filter(picture => picture !== null)
-    imageData.forEach(image => {
-      this.imageAlbum.push({
-        caption: this.identityTaskData.find(item => item.picture == image).comment,
-        src: this.getImageSource(image),
-        thumb: this.getImageSource(`${image}`)
-      })
-    })
-    console.log(this.imageAlbum)
+    // imageData.forEach(image => {
+    //   this.imageAlbum.push({
+    //     caption: this.identityTaskData.find(item => item.picture == image).comment,
+    //     src: this.getImageSource(image),
+    //     thumb: this.getImageSource(`${image}`)
+    //   })
+    // })
+    // console.log(this.imageAlbum)
     this.identityTaskDataBefore = data.map((a: any) => ({...a}))
     this.getCountTaskActivity(taskId, mAreaId)
   }
@@ -182,9 +182,9 @@ export class IdentityTaskComponent {
     });
   }
 
-  previewImage(index: number) {
-    this.lightbox.open(this.imageAlbum, index, {showDownloadButton: true})
-  }
+  // previewImage(index: number) {
+  //   this.lightbox.open(this.imageAlbum, index, {showDownloadButton: true})
+  // }
 
   onSaveChanges() {
     if (this.imageSelected.length > 0) {
