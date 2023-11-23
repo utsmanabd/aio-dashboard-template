@@ -32,6 +32,10 @@
                     <span class="fs-7 text-muted">{{ common.getLocaleDate(dateSelected) }}</span>
                 </div>
                 <div class="flex-shrink-0 ms-2">
+                    <div class="form-check form-switch form-switch-md mb-2" dir="ltr">
+                        <input type="checkbox" class="form-check-input" id="picSwitch" (change)="onThreeDaysSet($event)">
+                        <label class="form-check-label" for="picSwitch">Set 3 days</label>
+                    </div>
                     <button (click)="onCreateTask(activeArea.area_id)" class="btn {{isSmallScreen ? 'btn-sm' : ''}} btn-success add-btn me-1" [disabled]="loading"><i
                             class="ri-add-line align-bottom me-1"></i> Create Task</button>
                 </div>

@@ -50,7 +50,7 @@
                         <tbody>
                             <tr *ngFor="let data of paginatedTasksData; let i = index" class="{{ !common.isTodayTask(today, data.date) ? '' : 'bg-light'}}">
                                 <td>{{ common.getComputedRowNumber(index, i) }}</td>
-                                <td>{{ common.getLocaleDate(data.date) }}</td>
+                                <td>{{ data.is_three_days ? common.getLocaleDate(data.date) + ' - ' + common.getLocaleDate(common.getThreeDays(data.date)) : common.getLocaleDate(data.date) }}</td>
                                 <td>{{ data.area }}</td>
                                 <td>
                                     {{common.getTaskPercentage(data.total_activity, data.checklist)}}%
@@ -63,8 +63,8 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <button (click)="onIdentityTaskClick(data)" type="button" [disabled]="!common.isTodayTask(today, data.date)"
-                                        class="btn btn-{{ !common.isTodayTask(today, data.date) ? 'light' : 'primary' }} btn-sm">Identity Task</button>
+                                    <button (click)="onIdentityTaskClick(data)" type="button" [disabled]="!common.isTodayTask(today, data.date, data.is_three_days ? common.getThreeDays(data.date) : undefined)"
+                                        class="btn btn-{{ !common.isTodayTask(today, data.date, data.is_three_days ? common.getThreeDays(data.date) : undefined) ? 'light' : 'primary' }} btn-sm">Identity Task</button>
                                 </td>
                             </tr>
                         </tbody>

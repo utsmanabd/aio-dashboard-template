@@ -88,10 +88,12 @@ export class TasksComponent {
 
   handleEventClick(clickInfo: EventClickArg) {
     const selectedDay = clickInfo.event.startStr
-    if (selectedDay == this.today) {
+    const taskEndDate = clickInfo.event.end
+    if (this.common.isTodayTask(this.today, selectedDay, taskEndDate)) {
       const taskId = clickInfo.event.id
-      this.router.navigate([`/tasks/identity-task/${taskId}`])
+        this.router.navigate([`/tasks/identity-task/${taskId}`])
     }
+    
   }
 
   onIdentityTaskClick(tasks: any): void {
@@ -145,12 +147,14 @@ export class TasksComponent {
               // let date = new Date(task.date)
               // let taskDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
               // let isTodayTask = this.today == taskDate ? true : false
+              let isTaskAvailable = this.common.isTodayTask(this.today, task.date, task.is_three_days ? this.common.getThreeDays(task.date) : undefined)
               this.eventData.push({
                 id: task.task_id,
-                date: task.date,
+                start: task.date,
+                end: task.is_three_days ? this.common.getThreeDays(task.date) : undefined,
                 title: `${task.area}: ${this.common.getTaskPercentage(task.total_activity, task.checklist)}%`,
                 allDay: true,
-                backgroundColor: this.common.getTaskAreaColor(task.area_id, areaData, this.common.isTodayTask(this.today, task.date)),
+                backgroundColor: this.common.getTaskAreaColor(task.area_id, areaData, isTaskAvailable),
                 allData: task,
                 donePercentage: this.common.getTaskPercentage(task.total_activity, task.checklist)
               })

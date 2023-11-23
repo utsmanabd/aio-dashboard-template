@@ -172,8 +172,9 @@ export class IdentityTaskComponent {
       error: (err) => this.common.showErrorAlert(Const.ERR_GET_MSG("Task Activity Count"), err),
       complete: () => {
         console.log(this.identityTaskCountData)
-        const taskDate = this.identityTaskCountData.date
-        if (!this.common.isTodayTask(this.today, taskDate)) {
+        const startDate = this.identityTaskCountData.date
+        const endDateOrUndefined = this.identityTaskCountData.is_three_days ? this.common.getThreeDays(startDate) : undefined
+        if (!this.common.isTodayTask(this.today, startDate, endDateOrUndefined)) {
           this.router.navigate(['/tasks'])
           this.common.showErrorAlert("This task cannot be filled yet!")
         }

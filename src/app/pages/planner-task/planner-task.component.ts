@@ -104,7 +104,8 @@ export class PlannerTaskComponent {
             data.forEach((task) => {
               this.eventData.push({
                 id: task.task_id,
-                date: task.date,
+                start: task.date,
+                end: task.is_three_days ? this.common.getThreeDays(task.date) : undefined,
                 title: `${task.area}: ${this.common.getTaskPercentage(task.total_activity, task.checklist)}%`,
                 allDay: true,
                 backgroundColor: this.common.getTaskAreaColor(task.area_id, areaData, true),

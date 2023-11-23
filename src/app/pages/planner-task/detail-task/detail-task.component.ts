@@ -47,6 +47,7 @@ export class DetailTaskComponent {
 
   activityIdData: number[] = []
   isSmallScreen: boolean = false
+  isThreeDaysChecked: number = 0
 
   constructor(
     private route: ActivatedRoute, 
@@ -164,10 +165,14 @@ export class DetailTaskComponent {
     })
   }
 
+  onThreeDaysSet(event: any) {
+    event.target.checked ? this.isThreeDaysChecked = 1 : this.isThreeDaysChecked = 0
+  }
+
   onCreateTask(areaId: number) {
     const isAllDataNotSelected = this.filteredActivityData.every(activity => activity.is_selected === false)
     if (!isAllDataNotSelected) {
-      let taskData = { area_id: areaId, date: this.dateSelected}
+      let taskData = { area_id: areaId, date: this.dateSelected, is_three_days: this.isThreeDaysChecked}
       this.insertTaskData(taskData).then((taskId) => {
         let activityData: any[] = []
         this.filteredActivityData.forEach((activity) => {

@@ -70,7 +70,7 @@ export class CommonService {
     return null
   }
 
-  getLocaleDate(date: string): string {
+  getLocaleDate(date: string | Date): string {
     const dateObj = new Date(date);
     const month = dateObj.toLocaleString('default', { month: 'short' });
     const day = dateObj.getDate();
@@ -97,11 +97,28 @@ export class CommonService {
     return this.datePipe.transform(date, 'dd-MM-yyyy'); // Sesuaikan format sesuai kebutuhan Anda
   }
 
-  isTodayTask(today: string, taskDate: string): boolean {
-    const date = new Date(taskDate)
-    taskDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
+  isTodayTask(today: string, startDate: Date | string | number, endDate?: Date | string | number | null): boolean {
+    if (endDate) {
+      const end = new Date(endDate)
+      return this.isDateInRange(today, startDate, end)
+    } else {
+      const date = new Date(startDate)
+      startDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
+  
+      return today == startDate ? true : false
+    }
+  }
 
-    return today == taskDate ? true : false
+  isDateInRange(date: string | number | Date, start: string | number | Date, end: string | number | Date): boolean {
+    const targetDate = new Date(date)
+    const startDate = new Date(start)
+    const endDate = new Date(end)
+    return targetDate >= startDate && targetDate <= endDate;
+  }
+
+  getThreeDays(date: string): Date {
+    const currentDate = new Date(date)
+    return new Date(currentDate.setDate(currentDate.getDate() + 3))
   }
 
   // -- HTML class manipulations
