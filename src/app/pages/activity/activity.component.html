@@ -82,7 +82,9 @@
       <div class="mb-3">
         <label for="machineArea">Machine Area</label>
         <select name="machineArea" id="machineArea" class="form-select mb-3" aria-label="Machine area select" [(ngModel)]="activityFormData.m_area_id">
-          <option *ngFor="let data of machineAreaData" value="{{ data.m_area_id }}">{{ data.machine_area }}</option>
+          <optgroup *ngFor="let data of machineCategory" label="{{ data.area }}">
+            <option *ngFor="let item of data.machine" value="{{ item.m_area_id }}">{{ item.machine_area }}</option>
+          </optgroup>
         </select>
         <p *ngIf="isMachineAreaEmpty" class="text-danger">Machine area is required!</p>
       </div>

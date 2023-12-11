@@ -108,7 +108,7 @@
                             </td>
                             <td>
                                 <div class="d-flex flex-column align-items-center mt-2">
-                                    <a href="javascript:void(0);">
+                                    <a href="javascript:void(0);" (click)="previewImage(data.task_activity_id)">
                                         <img *ngIf="data.picture" [src]="getImageSource(data.picture)" alt="activity_picture"
                                         width="75" class="mb-2">
                                     </a>

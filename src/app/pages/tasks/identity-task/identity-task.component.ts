@@ -153,15 +153,17 @@ export class IdentityTaskComponent {
   getTaskActivity(taskId: any, mAreaId: any) {
     let data = this.taskActivityData.filter(item => item.m_area_id == mAreaId)
     this.identityTaskData = data
-    const imageData = this.identityTaskData.map(item => item.picture).filter(picture => picture !== null)
-    // imageData.forEach(image => {
-    //   this.imageAlbum.push({
-    //     caption: this.identityTaskData.find(item => item.picture == image).comment,
-    //     src: this.getImageSource(image),
-    //     thumb: this.getImageSource(`${image}`)
-    //   })
-    // })
-    // console.log(this.imageAlbum)
+    const imageData = this.identityTaskData.map(item => item.picture)
+    console.log(imageData);
+    this.imageAlbum.splice(0)
+    imageData.forEach(image => {
+      this.imageAlbum.push({
+        caption: this.identityTaskData.find(item => item.picture == image).comment,
+        src: this.getImageSource(image),
+        thumb: this.getImageSource(`${image}`)
+      })
+    })
+    console.log(this.imageAlbum)
     this.identityTaskDataBefore = data.map((a: any) => ({...a}))
     this.getCountTaskActivity(taskId, mAreaId)
   }
@@ -183,9 +185,21 @@ export class IdentityTaskComponent {
     });
   }
 
-  // previewImage(index: number) {
-  //   this.lightbox.open(this.imageAlbum, index, {showDownloadButton: true})
-  // }
+  previewImage(id: number) {
+    let album: any[] = this.imageAlbum.map(album => ({...album}))
+    album.forEach((album) => {
+      album.id = this.extractId(album.src)
+    })
+    const albumFilter = album.filter((album) => album.id !== null)
+    let index = this.getIndexById(albumFilter, id, "id")
+    console.log("index ke: " + index)
+    if (this.imageAlbum.length > 0) {
+      this.lightbox.open(albumFilter, index, {
+        showDownloadButton: true,
+        showZoom: true,
+      })
+    }
+  }
 
   onSaveChanges() {
     if (this.imageSelected.length > 0) {
@@ -311,9 +325,9 @@ export class IdentityTaskComponent {
     return null;
   }
 
-  getIndexById(arr: any[], id: number): number {
+  getIndexById(arr: any[], id: number, idProperty: string = "task_activity_id"): number {
     for (let i = 0; i < arr.length; i++) {
-      if (arr[i].task_activity_id === id) {
+      if (arr[i][idProperty] === id) {
         return i;
       }
     }

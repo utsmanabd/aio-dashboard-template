@@ -7,6 +7,17 @@ import Swal from 'sweetalert2';
 import { CommonService } from 'src/app/core/services/common.service';
 import { Const } from 'src/app/core/static/const';
 
+interface MachineCategory {
+  area_id: number,
+  area: string,
+  machine: Machine[]
+}
+
+interface Machine {
+  m_area_id: number,
+  machine_area: string
+}
+
 @Component({
   selector: 'app-activity',
   templateUrl: './activity.component.html',
@@ -31,7 +42,8 @@ export class ActivityComponent {
 
   activityId: any
   activityData: any;
-  machineAreaData: any;
+  machineAreaData: any[] = [];
+  machineCategory: MachineCategory[] = []
   index: number = 0;
   activePages: number[] = [];
   filteredActivityData: any[] = [];
@@ -165,7 +177,27 @@ export class ActivityComponent {
   getMachineAreaData() {
     this.loading = true
       this.apiService.getMachineAreaData().subscribe({
-        next: (res: any) => this.machineAreaData = res.data,
+        next: (res: any) => {
+          this.machineAreaData = res.data
+          let machineDataCopy = this.machineAreaData.map(a => ({...a}))
+          let machineCategory = this.common.getUniqueData(machineDataCopy, "area")
+
+          machineCategory.forEach((item) => {
+            delete item.m_area_id
+            delete item.machine_area
+            let machineArray: any[] = []
+            this.machineAreaData.forEach((data) => {
+              if (data.area_id === item.area_id) {
+                machineArray.push({m_area_id: data.m_area_id, machine_area: data.machine_area})
+              }
+            })
+            item.machine = machineArray
+          })
+
+          this.machineCategory = machineCategory
+          
+          console.log(this.machineCategory)
+        },
         error: (err: any) => {
           this.loading = false
           console.error(err)
