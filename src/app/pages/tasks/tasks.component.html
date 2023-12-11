@@ -50,7 +50,11 @@
                         <tbody>
                             <tr *ngFor="let data of paginatedTasksData; let i = index" class="{{ !common.isTodayTask(today, data.date) ? '' : 'bg-light'}}">
                                 <td>{{ common.getComputedRowNumber(index, i) }}</td>
-                                <td>{{ data.is_three_days ? common.getLocaleDate(data.date) + ' - ' + common.getLocaleDate(common.getThreeDays(data.date)) : common.getLocaleDate(data.date) }}</td>
+                                <td>
+                                    {{ data.is_three_days ? common.getLocaleDate(data.date) + ' - ' + 
+                                    common.getLocaleDate(common.getThreeDays(data.date).setDate(common.getThreeDays(data.date).getDate() - 1)) : 
+                                    common.getLocaleDate(data.date) }}
+                                </td>
                                 <td>{{ data.area }}</td>
                                 <td>
                                     {{common.getTaskPercentage(data.total_activity, data.checklist)}}%

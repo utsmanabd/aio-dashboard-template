@@ -70,7 +70,7 @@ export class CommonService {
     return null
   }
 
-  getLocaleDate(date: string | Date): string {
+  getLocaleDate(date: string | number | Date): string {
     const dateObj = new Date(date);
     const month = dateObj.toLocaleString('default', { month: 'short' });
     const day = dateObj.getDate();
@@ -94,7 +94,7 @@ export class CommonService {
   }
 
   formatDate(date: Date): string | null {
-    return this.datePipe.transform(date, 'dd-MM-yyyy'); // Sesuaikan format sesuai kebutuhan Anda
+    return this.datePipe.transform(date, 'dd-MM-yyyy');
   }
 
   isTodayTask(today: string, startDate: Date | string | number, endDate?: Date | string | number | null): boolean {
@@ -109,7 +109,7 @@ export class CommonService {
     }
   }
 
-  isDateInRange(date: string | number | Date, start: string | number | Date, end: string | number | Date): boolean {
+  private isDateInRange(date: string | number | Date, start: string | number | Date, end: string | number | Date): boolean {
     const targetDate = new Date(date)
     const startDate = new Date(start)
     const endDate = new Date(end)
