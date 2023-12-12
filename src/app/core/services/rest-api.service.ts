@@ -407,4 +407,8 @@ export class restApiService {
   isUserExists(nik: any) {
     return this.http.get(GlobalComponent.API_URL + GlobalComponent.users + `is-exists/${nik}`, this.httpOptions())
   }
+
+  getAIOUser(searchQuery: string) {
+    return this.http.post(GlobalComponent.AIO_API + "employee", {search: searchQuery}, this.httpOptions())
+  }
 }

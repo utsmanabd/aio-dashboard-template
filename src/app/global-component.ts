@@ -7,6 +7,9 @@ export const GlobalComponent = {
     AUTH_API:"http://localhost:3279/api/auth/",
     refreshToken: 'update-token',
 
+    // AIO Api
+    AIO_API: "https://myapps.aio.co.id/otsuka-api/api/",
+
     // Actor Api
     product:'apps/product',
     productDelete:'apps/product/',

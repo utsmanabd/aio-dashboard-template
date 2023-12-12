@@ -56,6 +56,7 @@ export class UserManagementComponent {
     await this.getUsersData()
     await this.getRoleData()
     this.userDataForm = this.createForm() 
+    // this.getAIOUsers("heryansyah")
   }
 
   get f() {
@@ -72,6 +73,21 @@ export class UserManagementComponent {
       role_id: [null, [Validators.required]],
       photo: [null]
     }) 
+  }
+
+  getAIOUsers(query: string) {
+    this.apiService.getAIOUser(query).subscribe({
+      next: (res: any) => {
+        console.log("SUCCESS");
+        let data = res.data
+        console.log(data)
+        
+      },
+      error: (err: any) => {
+        console.error(err);
+        
+      }
+    })
   }
 
   async getUsersData() {
