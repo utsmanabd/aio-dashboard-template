@@ -78,12 +78,14 @@
                 id="typeahead-http"
                 type="text"
                 class="form-control"
-                [class.is-invalid]="searchFailed"
                 [(ngModel)]="employee"
                 [ngbTypeahead]="search"
+                [editable]="false"
+                [inputFormatter]="formatter"
+                [resultFormatter]="formatter"
                 placeholder="Wikipedia search" />
             <small *ngIf="searching" class="form-text text-muted">searching...</small>
-            <div *ngIf="searchFailed" class="invalid-feedback">Sorry, suggestions could not be loaded.</div>
+            <h4>{{employee | json}}</h4>
         </div>
     </div>
     <form [formGroup]="userDataForm" (ngSubmit)="onSubmit()">
@@ -98,7 +100,7 @@
                     <div class="row g-3">
                         <div class="col-md-6 col-sm-12">
                             <label class="form-label" for="nik">NIK</label>
-                            <input (input)="onEmployeeSearch()" type="text" class="form-control" id="nik" formControlName="nik"
+                            <input type="text" class="form-control" id="nik" formControlName="nik"
                                 [ngClass]="{ 'is-invalid': submitted && f['nik'].errors }" placeholder="Enter NIK">
                             <div *ngIf="submitted && f['nik'].errors" class="invalid-feedback">
                                 <div *ngIf="f['nik'].errors['required']">NIK is required</div>

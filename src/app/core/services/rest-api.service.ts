@@ -418,7 +418,7 @@ export class restApiService {
     }
 
     return this.http.post(GlobalComponent.AIO_API + "employee", {search: searchQuery}, this.httpOptions()).pipe(
-      map((response: any, index: number) => response[index])
+      map((response: any) => Array.isArray(response.data) ? response.data.filter((data: any) => new RegExp(searchQuery, 'mi').test(`${data.nik} - ${data.employee_name}`)).slice(0, 10) : [])
     )
   }
 

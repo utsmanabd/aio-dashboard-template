@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Observable, OperatorFunction, catchError, debounceTime, distinctUntilChanged, of, switchMap, tap } from 'rxjs';
+import { firstValueFrom, lastValueFrom, Observable, OperatorFunction, catchError, debounceTime, distinctUntilChanged, of, switchMap, tap, throwError } from 'rxjs';
 import { CommonService } from 'src/app/core/services/common.service';
 import { restApiService } from 'src/app/core/services/rest-api.service';
 import { Const } from 'src/app/core/static/const';
 import { GlobalComponent } from 'src/app/global-component';
+
+type Employee = { nik: string; employee_name: string; email: string }
 
 @Component({
   selector: 'app-user-management',
@@ -51,23 +53,33 @@ export class UserManagementComponent {
 
   searching = false;
   searchFailed = false;
-  employee = ""
+  employee: any
 
-  search: OperatorFunction<string, readonly { nik: string; employee_name: string; email: string }[]> = (text$: Observable<string>) =>
+  formatter = (employee: Employee) => employee.nik ? `${employee.nik} - ${employee.employee_name}` : ""
+
+  search: OperatorFunction<string, any[]> = (text$: Observable<any>) =>
     text$.pipe(
       debounceTime(300),
       distinctUntilChanged(),
       tap(() => (this.searching = true)),
-      switchMap((query) => 
-        this.apiService.getEmployeeData(query).pipe(
-          tap(() => (this.searchFailed = false)),
-          catchError(() => {
-						this.searchFailed = true;
-						return of([]);
-					}),
-        ),
+      switchMap((query: string) => {
+        if (query.length >= 3) {
+          return this.apiService.getEmployeeData(query).pipe(
+            tap((data) => {
+              console.log(data);
+              this.searchFailed = false
+            })
+          )
+        } else {
+          return of([])
+        }
+        
+      }
+        
       ),
-      tap(() => (this.searching = false))
+      tap((data) => {
+        this.searching = false
+      })
     )
 
   constructor(private formBuilder: UntypedFormBuilder, private apiService: restApiService, public common: CommonService, private modalService: NgbModal) {
@@ -80,9 +92,40 @@ export class UserManagementComponent {
   async ngOnInit() {
     await this.getUsersData()
     await this.getRoleData()
-    this.userDataForm = this.createForm() 
-    this.getAIOUsers("rud")
+    this.userDataForm = this.createForm()
   }
+
+  // async findEmployee(text$: Observable<any>) {
+  //   return text$.pipe(
+  //     debounceTime(300),
+  //     distinctUntilChanged(),
+  //     tap(() => (this.searching = true)),
+  //     switchMap(async(query: string) => {
+  //       if (query.length >= 3) {
+  //         let future: any
+  //         await firstValueFrom(this.apiService.getEmployeeData(query)).then(
+  //           (data) => {
+  //             if (!Array.isArray(data)) { 
+  //               this.searchFailed = true
+  //               future = [] 
+  //             } else { 
+  //               future = data 
+  //               this.searchFailed = false
+  //             }
+  //           }
+  //         )
+          
+  //         return future
+          
+  //       } else {
+  //         return of([])
+  //       }
+  //     }
+        
+  //     ),
+  //     tap(() => (this.searching = false))
+  //   )
+  // }
 
   get f() {
     return this.userDataForm.controls
@@ -99,29 +142,6 @@ export class UserManagementComponent {
       photo: [null]
     }) 
   }
-
-  onEmployeeSearch() {
-    console.log(this.f["nik"].value)
-    // this.f["nik"].valueChanges.pipe(
-    //   switchMap(value => {
-    //     console.log(value);
-    //     if (value.length >= 3) {
-    //       // Call the API service method to get autocomplete results
-    //       return this.getAIOUsers(value)
-    //     } else {
-    //       // Return an empty array if input length is less than 3
-    //       return [];
-    //     }
-    //   })
-    // )
-  }
-
-  selectEvent(item: any) {  }
-  onChangeSearch(search: string) {
-    console.log(search);
-    
-  }
-  onFocused(e: any) { }
 
   async getAIOUsers(query: string) {
     return new Promise((resolve, reject) => {
