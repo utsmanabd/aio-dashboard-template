@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Observable, OperatorFunction, catchError, debounceTime, distinctUntilChanged, of, switchMap, tap } from 'rxjs';
 import { CommonService } from 'src/app/core/services/common.service';
 import { restApiService } from 'src/app/core/services/rest-api.service';
 import { Const } from 'src/app/core/static/const';
@@ -17,6 +18,9 @@ export class UserManagementComponent {
   usersData: any[] = []
   rolesData: any[] = []
   tableColumns = ["#", "Photo", "NIK", "Name", "Email", "Role", "Level", "Area", "Action"]
+
+  aioUsers: any[] = []
+  aioKeywords = "name"
 
   breadCrumbItems: Array<{}>;
 
@@ -45,6 +49,27 @@ export class UserManagementComponent {
 
   imageUrl = GlobalComponent.API_URL + GlobalComponent.image
 
+  searching = false;
+  searchFailed = false;
+  employee = ""
+
+  search: OperatorFunction<string, readonly { nik: string; employee_name: string; email: string }[]> = (text$: Observable<string>) =>
+    text$.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      tap(() => (this.searching = true)),
+      switchMap((query) => 
+        this.apiService.getEmployeeData(query).pipe(
+          tap(() => (this.searchFailed = false)),
+          catchError(() => {
+						this.searchFailed = true;
+						return of([]);
+					}),
+        ),
+      ),
+      tap(() => (this.searching = false))
+    )
+
   constructor(private formBuilder: UntypedFormBuilder, private apiService: restApiService, public common: CommonService, private modalService: NgbModal) {
     this.breadCrumbItems = [
       { label: 'Master Data' },
@@ -56,7 +81,7 @@ export class UserManagementComponent {
     await this.getUsersData()
     await this.getRoleData()
     this.userDataForm = this.createForm() 
-    // this.getAIOUsers("heryansyah")
+    this.getAIOUsers("rud")
   }
 
   get f() {
@@ -75,18 +100,47 @@ export class UserManagementComponent {
     }) 
   }
 
-  getAIOUsers(query: string) {
-    this.apiService.getAIOUser(query).subscribe({
-      next: (res: any) => {
-        console.log("SUCCESS");
-        let data = res.data
-        console.log(data)
-        
-      },
-      error: (err: any) => {
-        console.error(err);
-        
-      }
+  onEmployeeSearch() {
+    console.log(this.f["nik"].value)
+    // this.f["nik"].valueChanges.pipe(
+    //   switchMap(value => {
+    //     console.log(value);
+    //     if (value.length >= 3) {
+    //       // Call the API service method to get autocomplete results
+    //       return this.getAIOUsers(value)
+    //     } else {
+    //       // Return an empty array if input length is less than 3
+    //       return [];
+    //     }
+    //   })
+    // )
+  }
+
+  selectEvent(item: any) {  }
+  onChangeSearch(search: string) {
+    console.log(search);
+    
+  }
+  onFocused(e: any) { }
+
+  async getAIOUsers(query: string) {
+    return new Promise((resolve, reject) => {
+      this.apiService.getAIOUser(query).subscribe({
+        next: (res: any) => {
+          console.log("SUCCESS");
+          let data: any[] = res.data
+          const filterData = data.map(
+            ({ nik, employee_name, email}) => ({nik, employee_name, email})
+          )
+          this.aioUsers = filterData
+          resolve(filterData)
+          console.log(filterData)
+        },
+        error: (err: any) => {
+          console.error(err);
+          reject(err)
+        }
+      })
     })
   }
 

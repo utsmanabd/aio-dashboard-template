@@ -1,7 +1,7 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgbAlertModule, NgbDatepickerModule, NgbTooltipModule, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbAlertModule, NgbDatepickerModule, NgbTooltipModule, NgbNavModule, NgbTypeahead } from '@ng-bootstrap/ng-bootstrap';
 import { FlatpickrModule } from 'angularx-flatpickr';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
@@ -69,7 +69,8 @@ import { DetailActivityComponent } from './planner-task/detail-activity/detail-a
     NgbTooltipModule,
     ReactiveFormsModule,
     FullCalendarModule,
-    NgbNavModule
+    NgbNavModule,
+    NgbTypeahead
   ],
   providers: [DatePipe],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { Observable, of, tap, throwError } from "rxjs";
+import { Observable, map, of, tap, throwError } from "rxjs";
 import { GlobalComponent } from "../../global-component";
 
 @Injectable({
@@ -411,4 +411,15 @@ export class restApiService {
   getAIOUser(searchQuery: string) {
     return this.http.post(GlobalComponent.AIO_API + "employee", {search: searchQuery}, this.httpOptions())
   }
+  
+  getEmployeeData(searchQuery: string) {
+    if (searchQuery === '') {
+      return of([])
+    }
+
+    return this.http.post(GlobalComponent.AIO_API + "employee", {search: searchQuery}, this.httpOptions()).pipe(
+      map((response: any, index: number) => response[index])
+    )
+  }
+
 }
