@@ -1,11 +1,13 @@
 import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { IAlbum, Lightbox } from "ngx-lightbox";
+import { Observable, OperatorFunction, debounceTime, distinctUntilChanged, of, switchMap, tap } from "rxjs";
 import { CommonService } from "src/app/core/services/common.service";
 import { restApiService } from "src/app/core/services/rest-api.service";
 import { TokenStorageService } from "src/app/core/services/token-storage.service";
 import { Const } from "src/app/core/static/const";
 import { GlobalComponent } from "src/app/global-component";
+import { Employee } from "src/app/shared/employee.model";
 
 interface MachineData {
   m_area_id: number,
@@ -62,6 +64,39 @@ export class IdentityTaskComponent {
 
   today: string
 
+  searching = false;
+  searchFailed = false;
+  employee: any
+  searchLength: number | null = null
+  formatter = (employee: Employee) => employee.employee_name
+
+  search: OperatorFunction<string, any[]> = (text$: Observable<any>) =>
+    text$.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      tap(() => (this.searching = true)),
+      switchMap((query: string) => {
+        if (query.length >= 3) {
+          this.searchLength = null
+          return this.apiService.getEmployeeData(query).pipe(
+            tap((data) => {
+              console.log(data);
+              if (data.length > 0) {
+                this.searchFailed = false
+              } else this.searchFailed = true
+              
+            })
+          )
+        } else {
+          this.searchLength = query.length
+          return of([])
+        }
+      }),
+      tap(() => {
+        this.searching = false
+      })
+    )
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -87,6 +122,33 @@ export class IdentityTaskComponent {
     if (this.taskId) this.getTaskActivityByTaskId(this.taskId).then(() => {
       this.onTabChange(this.machineAreaData[0].m_area_id)
     })
+  }
+
+  isSearchFailed(id: number, model: any): boolean {
+    const index = this.getIndexById(this.identityTaskData, id)
+    let result: boolean = false
+    
+    if (model != this.identityTaskDataBefore[index].pic) {
+      const pic = this.identityTaskData[index].pic
+      if (!pic) result = true
+    }
+
+    return result
+  }
+
+  onPicSearch(id: number, pic: any) {
+    const index = this.getIndexById(this.identityTaskData, id)
+    setTimeout(() => {
+      if (pic != undefined && pic != this.identityTaskDataBefore[index].pic) {
+        const name = pic.employee_name
+        const nik = pic.nik
+        this.identityTaskData[index].pic = name as string
+        this.identityTaskData[index].pic_nik = nik as string
+        console.log(this.identityTaskData[index].pic);
+        console.log(this.identityTaskData[index].pic_nik);
+        
+      }
+    }, 50)
   }
 
   onImageSelected(event: any, activityId: any) {
@@ -254,12 +316,20 @@ export class IdentityTaskComponent {
           this.identityTaskDataBefore[index][element] !==
           this.identityTaskData[index][element]
         ) {
-          if (this.isUsernameChecked) {
-            item.pic = this.userData.name
-          } else item.pic = item.pic
           result = true;
         }
       }
+      // if (this.isUsernameChecked) {
+      //   item.pic = this.userData.name
+      // } else item.pic = item.pic
+
+      if (this.isSearchFailed(this.identityTaskData[index].task_activity_id, this.identityTaskData[index].pic)) result = false
+
+      if (this.identityTaskDataBefore[index].pic_nik && this.identityTaskData[index].pic == null) {
+        this.identityTaskData[index].pic_nik = this.identityTaskDataBefore[index].pic_nik
+        result = false
+      }
+
       return result;
     });
     console.log(form)
@@ -270,7 +340,8 @@ export class IdentityTaskComponent {
         condition?: any,
         comment?: any,
         picture?: any,
-        pic?: any
+        pic?: any,
+        picNik?: any
       ) => {
         let data = {
           id: taskActivityId,
@@ -279,13 +350,14 @@ export class IdentityTaskComponent {
             comment: comment,
             picture: picture,
             pic: pic,
+            pic_nik: picNik
           },
         }
         return data
       };
       let formData: any[] = []
       form.forEach((element: any) => {
-        formData.push(taskActivityData(element.task_activity_id, element.condition, element.comment, element.picture, element.pic))
+        formData.push(taskActivityData(element.task_activity_id, element.condition, element.comment, element.picture, element.pic, element.pic_nik))
       });
       
       this.isLoading = true

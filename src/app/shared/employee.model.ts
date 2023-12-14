@@ -1,0 +1,1 @@
+export type Employee = { nik: string; employee_name: string; email: string }

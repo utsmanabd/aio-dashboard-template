@@ -123,8 +123,19 @@
                             </td>
                             <td>
                                 <div>
-                                    <input [(ngModel)]="data.pic" id="pic{{data.task_activity_id}}" class="form-control" [disabled]="isUsernameChecked"
-                                        placeholder="Enter name" name="pic{{ data.task_activity_id}}" />
+                                    <input 
+                                        type="text"
+                                        [(ngModel)]="data.pic" 
+                                        (ngModelChange)="onPicSearch(data.task_activity_id, data.pic)" 
+                                        id="pic{{data.task_activity_id}}" 
+                                        class="form-control" 
+                                        [class.is-invalid]="isSearchFailed(data.task_activity_id, data.pic)"
+                                        [disabled]="isUsernameChecked"
+                                        [ngbTypeahead]="search"
+                                        [editable]="false"
+                                        [resultFormatter]="formatter"
+                                        placeholder="Enter name" 
+                                        name="pic{{ data.task_activity_id}}" />
                                 </div>
 
                             </td>

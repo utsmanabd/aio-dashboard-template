@@ -6,8 +6,7 @@ import { CommonService } from 'src/app/core/services/common.service';
 import { restApiService } from 'src/app/core/services/rest-api.service';
 import { Const } from 'src/app/core/static/const';
 import { GlobalComponent } from 'src/app/global-component';
-
-type Employee = { nik: string; employee_name: string; email: string }
+import { Employee } from 'src/app/shared/employee.model';
 
 @Component({
   selector: 'app-user-management',
@@ -39,13 +38,13 @@ export class UserManagementComponent {
 
   userDataForm!: UntypedFormGroup;
   submitted: boolean = false;
-  showPassword!: boolean;
-  showConfirmPassword!: boolean;
+  // showPassword!: boolean;
+  // showConfirmPassword!: boolean;
   error: string = ""
 
-  isPasswordNotMatched: boolean = false;
+  // isPasswordNotMatched: boolean = false;
   selectedImage: File | undefined;
-  isEditPassword: boolean = false;
+  // isEditPassword: boolean = false;
 
   nikBefore: any
 
@@ -54,6 +53,7 @@ export class UserManagementComponent {
   searching = false;
   searchFailed = false;
   employee: any
+  searchLength: number | null = null
 
   formatter = (employee: Employee) => employee.nik ? `${employee.nik} - ${employee.employee_name}` : ""
 
@@ -64,6 +64,7 @@ export class UserManagementComponent {
       tap(() => (this.searching = true)),
       switchMap((query: string) => {
         if (query.length >= 3) {
+          this.searchLength = null
           return this.apiService.getEmployeeData(query).pipe(
             tap((data) => {
               console.log(data);
@@ -71,13 +72,11 @@ export class UserManagementComponent {
             })
           )
         } else {
+          this.searchLength = query.length
           return of([])
         }
-        
-      }
-        
-      ),
-      tap((data) => {
+      }),
+      tap(() => {
         this.searching = false
       })
     )
@@ -95,38 +94,6 @@ export class UserManagementComponent {
     this.userDataForm = this.createForm()
   }
 
-  // async findEmployee(text$: Observable<any>) {
-  //   return text$.pipe(
-  //     debounceTime(300),
-  //     distinctUntilChanged(),
-  //     tap(() => (this.searching = true)),
-  //     switchMap(async(query: string) => {
-  //       if (query.length >= 3) {
-  //         let future: any
-  //         await firstValueFrom(this.apiService.getEmployeeData(query)).then(
-  //           (data) => {
-  //             if (!Array.isArray(data)) { 
-  //               this.searchFailed = true
-  //               future = [] 
-  //             } else { 
-  //               future = data 
-  //               this.searchFailed = false
-  //             }
-  //           }
-  //         )
-          
-  //         return future
-          
-  //       } else {
-  //         return of([])
-  //       }
-  //     }
-        
-  //     ),
-  //     tap(() => (this.searching = false))
-  //   )
-  // }
-
   get f() {
     return this.userDataForm.controls
   }
@@ -136,32 +103,25 @@ export class UserManagementComponent {
       nik: ["", [Validators.required]],
       name: ["", [Validators.required]],
       email: ["", [Validators.required, Validators.email]],
-      password: ["", [Validators.required]],
-      retype_password: ["", [Validators.required]],
+      // password: ["", [Validators.required]],
+      // retype_password: ["", [Validators.required]],
       role_id: [null, [Validators.required]],
       photo: [null]
     }) 
   }
 
-  async getAIOUsers(query: string) {
-    return new Promise((resolve, reject) => {
-      this.apiService.getAIOUser(query).subscribe({
-        next: (res: any) => {
-          console.log("SUCCESS");
-          let data: any[] = res.data
-          const filterData = data.map(
-            ({ nik, employee_name, email}) => ({nik, employee_name, email})
-          )
-          this.aioUsers = filterData
-          resolve(filterData)
-          console.log(filterData)
-        },
-        error: (err: any) => {
-          console.error(err);
-          reject(err)
-        }
-      })
-    })
+  onEmployeeFormSearch(event: any) {
+    setTimeout(() => {
+      if (this.employee) {
+        console.log(this.employee);
+        this.f["nik"].setValue(this.employee.nik)
+        this.f["email"].setValue(this.employee.email)
+        this.f["name"].setValue(this.employee.employee_name)
+      }
+    }, 50)
+    
+    
+    
   }
 
   async getUsersData() {
@@ -290,13 +250,13 @@ export class UserManagementComponent {
     })
   }
 
-  editPasswordMode() {
-    if (this.isEditPassword === true){
-      this.isEditPassword = false
-      this.f["password"].setValue("")
-      this.f["retype_password"].setValue("")
-    } else this.isEditPassword = true
-  }
+  // editPasswordMode() {
+  //   if (this.isEditPassword === true){
+  //     this.isEditPassword = false
+  //     this.f["password"].setValue("")
+  //     this.f["retype_password"].setValue("")
+  //   } else this.isEditPassword = true
+  // }
   
   openModal(content: any, userData?: any) {
     console.log(userData)
@@ -307,8 +267,8 @@ export class UserManagementComponent {
       this.f['name'].setValue(userData.name)
       this.f['role_id'].setValue(userData.role_id)
       this.f['photo'].setValue(userData.photo)
-      this.f['password'].clearValidators()
-      this.f['retype_password'].clearValidators()
+      // this.f['password'].clearValidators()
+      // this.f['retype_password'].clearValidators()
 
       this.nikBefore = userData.nik
     }
@@ -325,9 +285,9 @@ export class UserManagementComponent {
     this.selectedImage = undefined
     this.userDataForm.reset()
     this.nikBefore = undefined
-    this.isEditPassword = false
-    this.f['password'].addValidators(Validators.required); 
-    this.f['retype_password'].addValidators(Validators.required);
+    // this.isEditPassword = false
+    // this.f['password'].addValidators(Validators.required); 
+    // this.f['retype_password'].addValidators(Validators.required);
   }
 
   onImageSelected(event$: any) {
@@ -337,51 +297,54 @@ export class UserManagementComponent {
 
   async onSubmit() {
     this.submitted = true
-    if (this.f['password'].value === this.f['retype_password'].value) {
-      this.isPasswordNotMatched = false
-      if (this.userDataForm.valid) {
-        await this.isNIKExists(this.f['nik'].value).then(async(isExists) => {
-          if (!isExists || this.f['nik'].value == this.nikBefore) {
-            let data: Record<string, any> = {}
-            for (let key in this.f) {
-              if (Object.prototype.hasOwnProperty.call(this.f, key)) {
-                data[key] = this.f[key].value
-              }
+    if (this.userDataForm.valid) {
+      await this.isNIKExists(this.f['nik'].value).then(async(isExists) => {
+        if (!isExists || this.f['nik'].value == this.nikBefore) {
+          let data: Record<string, any> = {}
+          for (let key in this.f) {
+            if (Object.prototype.hasOwnProperty.call(this.f, key)) {
+              data[key] = this.f[key].value
             }
-            delete data['retype_password']
-            if (this.userId) {
-              if (!data['password']) delete data['password']
+          }
+          delete data['employee']
+          // delete data['retype_password']
+          if (this.userId) {
+            // if (!data['password']) delete data['password']
+            if (this.selectedImage) {
+              const renamedFile = this.common.renameFile(this.selectedImage, this.userId)
+              await this.uploadUserImage(renamedFile).then((fileName) => {
+                data['photo'] = fileName
+              })
+            }
+            await this.updateUser(this.userId, data).then(() => {
+              this.getUsersData()
+              this.modalService.dismissAll()
+            })
+          } else {
+            await this.insertUser(data).then(async(userId: any) => {
               if (this.selectedImage) {
-                const renamedFile = this.common.renameFile(this.selectedImage, this.userId)
-                await this.uploadUserImage(renamedFile).then((fileName) => {
-                  data['photo'] = fileName
+                const renamedFile = this.common.renameFile(this.selectedImage, userId)
+                await this.uploadUserImage(renamedFile).then(async(fileName) => {
+                  await this.updateUser(userId, {photo: fileName})
                 })
               }
-              await this.updateUser(this.userId, data).then(() => {
-                this.getUsersData()
-                this.modalService.dismissAll()
-              })
-            } else {
-              await this.insertUser(data).then(async(userId: any) => {
-                if (this.selectedImage) {
-                  const renamedFile = this.common.renameFile(this.selectedImage, userId)
-                  await this.uploadUserImage(renamedFile).then(async(fileName) => {
-                    await this.updateUser(userId, {photo: fileName})
-                  })
-                }
-              }).finally(() => {
-                this.getUsersData()
-                this.modalService.dismissAll()
-              })
-            }
-          } else {
-            this.common.showErrorAlert("The NIK is already exists!", "Error")
+            }).finally(() => {
+              this.getUsersData()
+              this.modalService.dismissAll()
+            })
           }
-        })
-      }
-    } else {
-      this.isPasswordNotMatched = true
+        } else {
+          this.common.showErrorAlert("The NIK is already exists!", "Error")
+        }
+      })
     }
+
+    // if (this.f['password'].value === this.f['retype_password'].value) {
+    //   this.isPasswordNotMatched = false
+      
+    // } else {
+    //   this.isPasswordNotMatched = true
+    // }
   }
 
 
@@ -423,12 +386,12 @@ export class UserManagementComponent {
     this.updatePagination(filteredUsersData);
   }
 
-  togglePassword() {
-    this.showPassword = !this.showPassword;
+  // togglePassword() {
+  //   this.showPassword = !this.showPassword;
   
-  }
-  toggleConfirmPassword() {
-    this.showConfirmPassword = !this.showConfirmPassword;
-  }
+  // }
+  // toggleConfirmPassword() {
+  //   this.showConfirmPassword = !this.showConfirmPassword;
+  // }
 
 }

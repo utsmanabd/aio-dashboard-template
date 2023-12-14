@@ -21,7 +21,7 @@ export class AuthenticationService {
   constructor(private http: HttpClient, private tokenService: TokenStorageService) {}
 
   login(nik: string, password: string) {
-    return this.http.post(AUTH_API + "login", {nik, password}, httpOptions);
+    return this.http.post(AUTH_API + "apilogin", {username: nik, password: password}, httpOptions);
   }
 
   logout() {

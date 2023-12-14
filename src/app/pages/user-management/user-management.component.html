@@ -71,24 +71,6 @@
 </div>
 
 <ng-template #content let-modal>
-    <div class="col-md-12">
-        <div *ngIf="aioUsers">
-            <label for="typeahead-http" class="text-muted">Search Result of Employee Names</label>
-            <input
-                id="typeahead-http"
-                type="text"
-                class="form-control"
-                [(ngModel)]="employee"
-                [ngbTypeahead]="search"
-                [editable]="false"
-                [inputFormatter]="formatter"
-                [resultFormatter]="formatter"
-                placeholder="Wikipedia search" />
-            <small *ngIf="searching" class="form-text text-muted">searching...</small>
-            <h4>{{employee | json}}</h4>
-        </div>
-    </div>
-    <form [formGroup]="userDataForm" (ngSubmit)="onSubmit()">
         <div class="modal-header">
             <h4 class="modal-title" id="modal-basic-title">{{ userId ? 'Update User Data' :
                 'Add User Data' }}</h4>
@@ -98,100 +80,147 @@
             <div class="row">
                 <div class="col-lg-12 p-2">
                     <div class="row g-3">
-                        <div class="col-md-6 col-sm-12">
-                            <label class="form-label" for="nik">NIK</label>
-                            <input type="text" class="form-control" id="nik" formControlName="nik"
-                                [ngClass]="{ 'is-invalid': submitted && f['nik'].errors }" placeholder="Enter NIK">
-                            <div *ngIf="submitted && f['nik'].errors" class="invalid-feedback">
-                                <div *ngIf="f['nik'].errors['required']">NIK is required</div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-sm-12">
-                            <label class="form-label" for="email">Email</label>
-                            <input type="email" class="form-control" id="email" formControlName="email"
-                                [ngClass]="{ 'is-invalid': submitted && f['email'].errors }" placeholder="Enter email">
-                            <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
-                                <div *ngIf="f['email'].errors['required']">Email is required</div>
-                                <div *ngIf="f['email'].errors['email']">Email must be a valid email address
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-sm-12">
-                            <label class="form-label" for="name">Name</label>
-                            <input type="text" class="form-control" id="name" formControlName="name"
-                                [ngClass]="{ 'is-invalid': submitted && f['name'].errors }" placeholder="Enter user name">
-                            <div *ngIf="submitted && f['name'].errors" class="invalid-feedback">
-                                <div *ngIf="f['name'].errors['required']">Name is required</div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-sm-12" *ngIf="rolesData">
-                            <label for="roleSelect">Role</label>
-                            <select formControlName="role_id" id="roleSelect" class="form-select" [ngClass]="{ 'is-invalid': submitted && f['role_id'].errors }">
-                                <option class="text-muted" [value]="null">Select role</option>
-                                <option *ngFor="let role of rolesData" value="{{ role.role_id }}">{{ role.role_name }}</option>
-                            </select>
-                            <div *ngIf="submitted && f['role_id'].errors" class="invalid-feedback">
-                                <div *ngIf="f['role_id'].errors['required']">Role is required</div>
-                            </div>
-                        </div>
-                        <div class="col-12" *ngIf="userId">
-                            <label>Change Password</label>
-                            <div class="d-flex justify-content-start">
-                                <button type="button" class="btn btn-{{ isEditPassword ? 'danger' : 'primary'}}" (click)="editPasswordMode()">{{ isEditPassword ? 'Cancel' : 'Change'}}</button>
-                            </div>
-                            
-                        </div>
-                        <div class="col-md-6 col-sm-12" *ngIf="!userId || isEditPassword">
-                            <label class="form-label" for="password-input">{{ userId ? 'New password' : 'Password' }}</label>
-                            <div class="position-relative auth-pass-inputgroup ">
-                                <input [type]="showPassword ? 'text' : 'password'" class="form-control pe-5"
-                                    placeholder="Enter password" id="password-input" formControlName="password"
-                                    [ngClass]="{ 'is-invalid': submitted && f['password'].errors }">
-                                <button
-                                    class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted shadow-none"
-                                    type="button" id="password-addon"><i class="mdi align-middle"
-                                        [ngClass]="{'mdi-eye-off-outline': !showPassword, 'mdi-eye-outline': showPassword}"
-                                        (click)="togglePassword()"></i>
-                                </button>
-                                <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
-                                    <span *ngIf="f['password'].errors['required']">Password is required</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-sm-12" *ngIf="!userId || isEditPassword">
-                            <label class="form-label" for="retype-password-input">{{ userId ? 'Confirm new password' : 'Confirm password' }}</label>
-                            <div class="position-relative auth-pass-inputgroup">
-                                <input [type]="showConfirmPassword ? 'text' : 'password'" class="form-control pe-5"
-                                    placeholder="Confirm the password" id="retype-password-input" formControlName="retype_password"
-                                    [ngClass]="{ 'is-invalid': submitted && f['retype_password'].errors }">
-                                <button
-                                    class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted shadow-none"
-                                    type="button" id="retype-password-addon"><i class="mdi align-middle"
-                                        [ngClass]="{'mdi-eye-off-outline': !showConfirmPassword, 'mdi-eye-outline': showConfirmPassword}"
-                                        (click)="toggleConfirmPassword()"></i>
-                                </button>
-                                <div *ngIf="submitted && f['retype_password'].errors" class="invalid-feedback">
-                                    <div *ngIf="f['retype_password'].errors['required']">Confirm password is required</div>
-                                </div>
-                            </div>
-                            <div class="text-danger" *ngIf="submitted && isPasswordNotMatched">Passwords aren't match</div>
-                        </div>
-                        <div class="col-md-6 col-sm-12">
-                            <label class="form-label" for="userPhoto">Photo</label>
-                            <div *ngIf="f['photo'].value !== null && !selectedImage" class="avatar-md rounded"><img
-                                [src]="imageUrl + f['photo'].value"
-                                alt="" class="member-img img-fluid d-block rounded">
-                            </div>
-                            <input class="form-control form-control" id="userPhoto" type="file"
-                                (change)="onImageSelected($event)">
+                        <div class="col-md-12">
+                            <label for="typeahead-http" class="text-muted">Search Result of Employee Names</label>
+                                <input
+                                    id="typeahead-http"
+                                    type="text"
+                                    class="form-control"
+                                    (ngModelChange)="onEmployeeFormSearch($event)"
+                                    [(ngModel)]="employee"
+                                    [ngbTypeahead]="search"
+                                    [editable]="false"
+                                    [inputFormatter]="formatter"
+                                    [resultFormatter]="formatter"
+                                    placeholder="Search for employee" />
+                                <small *ngIf="searching" class="form-text text-muted">Searching...</small>
+                                <small *ngIf="searchLength" class="form-text text-muted">Type at least {{ 3 - searchLength }} more character</small>
+                                <!-- <h4>{{employee | json}}</h4> -->
                         </div>
                     </div>
                 </div>
             </div>
+            <form [formGroup]="userDataForm">
+                <div class="row">
+                    <div class="col-lg-12 p-2">
+                        <div class="row g-3">
+                            <!-- <div class="col-md-12">
+                                <label for="typeahead-http" class="text-muted">Search Result of Employee Names</label>
+                                    <input
+                                        id="typeahead-http"
+                                        type="text"
+                                        class="form-control"
+                                        (selectItem)="onEmployeeFormSearch($event)"
+                                        formControlName="employee"
+                                        [ngbTypeahead]="search"
+                                        [editable]="false"
+                                        [inputFormatter]="formatter"
+                                        [resultFormatter]="formatter"
+                                        [ngClass]="{ 'is-invalid': submitted && f['employee'].errors }" 
+                                        placeholder="Search for employee" />
+                                    <small *ngIf="searching" class="form-text text-muted">Searching...</small>
+                                    <h4>{{employee | json}}</h4>
+                                    <div *ngIf="submitted && f['employee'].errors" class="invalid-feedback">
+                                        <div *ngIf="f['employee'].errors['required']">Employee is required</div>
+                                    </div>
+                            </div> -->
+                            
+                                <div class="col-md-6 col-sm-12">
+                                    <label class="form-label" for="nik">NIK</label>
+                                    <input type="text" class="form-control" id="nik" formControlName="nik"
+                                        [ngClass]="{ 'is-invalid': submitted && f['nik'].errors }" placeholder="Enter NIK">
+                                    <div *ngIf="submitted && f['nik'].errors" class="invalid-feedback">
+                                        <div *ngIf="f['nik'].errors['required']">NIK is required</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-sm-12">
+                                    <label class="form-label" for="email">Email</label>
+                                    <input type="email" class="form-control" id="email" formControlName="email"
+                                        [ngClass]="{ 'is-invalid': submitted && f['email'].errors }" placeholder="Enter email">
+                                    <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
+                                        <div *ngIf="f['email'].errors['required']">Email is required</div>
+                                        <div *ngIf="f['email'].errors['email']">Email must be a valid email address
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-sm-12">
+                                    <label class="form-label" for="name">Name</label>
+                                    <input type="text" class="form-control" id="name" formControlName="name"
+                                        [ngClass]="{ 'is-invalid': submitted && f['name'].errors }" placeholder="Enter user name">
+                                    <div *ngIf="submitted && f['name'].errors" class="invalid-feedback">
+                                        <div *ngIf="f['name'].errors['required']">Name is required</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-sm-12" *ngIf="rolesData">
+                                    <label for="roleSelect">Role</label>
+                                    <select formControlName="role_id" id="roleSelect" class="form-select" [ngClass]="{ 'is-invalid': submitted && f['role_id'].errors }">
+                                        <option class="text-muted" [value]="null">Select role</option>
+                                        <option *ngFor="let role of rolesData" value="{{ role.role_id }}">{{ role.role_name }}</option>
+                                    </select>
+                                    <div *ngIf="submitted && f['role_id'].errors" class="invalid-feedback">
+                                        <div *ngIf="f['role_id'].errors['required']">Role is required</div>
+                                    </div>
+                                </div>
+                                <!-- <div class="col-12" *ngIf="userId">
+                                    <label>Change Password</label>
+                                    <div class="d-flex justify-content-start">
+                                        <button type="button" class="btn btn-{{ isEditPassword ? 'danger' : 'primary'}}" (click)="editPasswordMode()">{{ isEditPassword ? 'Cancel' : 'Change'}}</button>
+                                    </div>
+                                    
+                                </div> -->
+                                <!-- <div class="col-md-6 col-sm-12" *ngIf="!userId || isEditPassword">
+                                    <label class="form-label" for="password-input">{{ userId ? 'New password' : 'Password' }}</label>
+                                    <div class="position-relative auth-pass-inputgroup ">
+                                        <input [type]="showPassword ? 'text' : 'password'" class="form-control pe-5"
+                                            placeholder="Enter password" id="password-input" formControlName="password"
+                                            [ngClass]="{ 'is-invalid': submitted && f['password'].errors }">
+                                        <button
+                                            class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted shadow-none"
+                                            type="button" id="password-addon"><i class="mdi align-middle"
+                                                [ngClass]="{'mdi-eye-off-outline': !showPassword, 'mdi-eye-outline': showPassword}"
+                                                (click)="togglePassword()"></i>
+                                        </button>
+                                        <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
+                                            <span *ngIf="f['password'].errors['required']">Password is required</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-sm-12" *ngIf="!userId || isEditPassword">
+                                    <label class="form-label" for="retype-password-input">{{ userId ? 'Confirm new password' : 'Confirm password' }}</label>
+                                    <div class="position-relative auth-pass-inputgroup">
+                                        <input [type]="showConfirmPassword ? 'text' : 'password'" class="form-control pe-5"
+                                            placeholder="Confirm the password" id="retype-password-input" formControlName="retype_password"
+                                            [ngClass]="{ 'is-invalid': submitted && f['retype_password'].errors }">
+                                        <button
+                                            class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted shadow-none"
+                                            type="button" id="retype-password-addon"><i class="mdi align-middle"
+                                                [ngClass]="{'mdi-eye-off-outline': !showConfirmPassword, 'mdi-eye-outline': showConfirmPassword}"
+                                                (click)="toggleConfirmPassword()"></i>
+                                        </button>
+                                        <div *ngIf="submitted && f['retype_password'].errors" class="invalid-feedback">
+                                            <div *ngIf="f['retype_password'].errors['required']">Confirm password is required</div>
+                                        </div>
+                                    </div>
+                                    <div class="text-danger" *ngIf="submitted && isPasswordNotMatched">Passwords aren't match</div>
+                                </div> -->
+                                <div class="col-md-6 col-sm-12">
+                                    <label class="form-label" for="userPhoto">Photo</label>
+                                    <div *ngIf="f['photo'].value !== null && !selectedImage" class="avatar-md rounded"><img
+                                        [src]="imageUrl + f['photo'].value"
+                                        alt="" class="member-img img-fluid d-block rounded">
+                                    </div>
+                                    <input class="form-control form-control" id="userPhoto" type="file"
+                                        (change)="onImageSelected($event)">
+                                </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-light" (click)="modal.dismiss()">Cancel</button>
-            <button *ngIf="!loading" type="submit" class="btn btn-success">{{ userId ? 'Update Data' : 'Add Data'
+            <button *ngIf="!loading" type="submit" class="btn btn-success" (click)="onSubmit()">{{ userId ? 'Update Data' : 'Add Data'
                 }}</button>
             <button *ngIf="loading" class="btn btn-success btn-load" disabled>
                 <span class="d-flex align-items-center">
@@ -204,5 +233,4 @@
                 </span>
             </button>
         </div>
-    </form>
 </ng-template>

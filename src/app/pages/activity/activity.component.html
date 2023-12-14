@@ -114,7 +114,7 @@
         <label for="period">Period</label>
         <ng-autocomplete name="period" id="period" [data]="periodData" [searchKeyword]="keyword"
           placeholder="Enter the Period" (selected)='selectEvent($event)' (inputChanged)='onChangeSearch($event)'
-          (inputFocused)='onFocused($event)' [(ngModel)]="activityFormData.periode" historyIdentifier="periodData" [itemTemplate]="itemTemplate">
+          (inputFocused)='onFocused($event)' [(ngModel)]="activityFormData.periode" [itemTemplate]="itemTemplate">
         </ng-autocomplete>
         <ng-template #itemTemplate let-item>
           <a [innerHTML]="item"></a>
