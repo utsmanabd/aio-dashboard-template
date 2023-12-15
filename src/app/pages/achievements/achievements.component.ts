@@ -6,6 +6,7 @@ import { tap } from "rxjs";
 import { Const } from "src/app/core/static/const";
 import { GlobalComponent } from "src/app/global-component";
 import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
+import { TokenStorageService } from "src/app/core/services/token-storage.service";
 
 interface ChartData {
   rawData: any[],
@@ -76,6 +77,8 @@ export class AchievementsComponent {
     limitData: []
   }
 
+  todayActivity: any
+
   columnsFinding = ["Activity / Standard", "Comment", "Mahcine / Area", "PIC", "Picture"]
   columnsUnfinished = ["Category", "Activity", "Machine/Area"]
 
@@ -90,8 +93,15 @@ export class AchievementsComponent {
 
   isLoading: boolean = false
   isSmallScreen: boolean = false
+  
+  userData: any
 
-  constructor(private apiService: restApiService, public common: CommonService, private breakpointObserver: BreakpointObserver) {
+  constructor(
+    private apiService: restApiService, 
+    public common: CommonService, 
+    private breakpointObserver: BreakpointObserver,
+    private tokenService: TokenStorageService
+  ) {
     const today = new Date()
     this.month = today.getMonth() + 1
     this.year = today.getFullYear()
@@ -117,11 +127,16 @@ export class AchievementsComponent {
   }
 
   async ngOnInit() {
+    this.userData = this.tokenService.getUser()
+    console.log(this.userData.area_id);
+    await this.getTaskActivityCountToday()
     await this.getTaskDataByDate(this.month, this.year).finally(() => this.isLoading = false)
     await this.getFindingUnfinishedByDate(this.month, this.year).finally(() => this.isLoading = false)
     await this.getFindingNotOkByDate(this.month, this.year).finally(() => this.isLoading = false)
     await this.getChecklistCategoryByDate(this.month, this.year).finally(() => this.isLoading = false)
-    await this.getTaskAreaActivityById(this.taskActivityChartData.rawData[0].area, this.taskActivityChartData.rawData[0].area_id)
+    if (this.userData.area_id == -1) {
+      await this.getTaskAreaActivityById(this.taskActivityChartData.rawData[0].area, this.taskActivityChartData.rawData[0].area_id)
+    } else await this.getTaskAreaActivityById(this.userData.area, this.userData.area_id)
     await this.getPeriodCountByDate(this.month, this.year).finally(() => this.isLoading = false)
     this._taskActivityChart(
       '["--vz-success", "--vz-info", "--vz-warning", "--vz-danger", "--vz-secondary", "--vz-primary", "--vz-dark"]'
@@ -129,6 +144,66 @@ export class AchievementsComponent {
     this._periodComparisonChart('["--vz-danger", "--vz-secondary"]');
     this.monthBefore = this.month
     this.yearBefore = this.year
+  }
+
+  async getTaskActivityCountToday() {
+    return new Promise((resolve, reject) => {
+      this.apiService.getCountTaskActivity().subscribe({
+        next: (res: any) => {
+          let data: any[] = []
+          const todayFormatted = this.common.formatDate(new Date())
+          const dataFilter: any[] = res.data.filter((item: any) => this.common.formatDate(new Date(item.date)) == todayFormatted)
+          
+          if (this.userData.area_id != -1) {
+            const data3days: any[] = res.data.filter((item: any) => item.is_three_days === 1 && item.area_id == this.userData.area_id)
+            if (data3days.length > 0) {
+              const today = new Date()
+              console.log(data3days)
+              console.log("today: ", this.common.formatDate(today))
+
+              let startDay2 = this.common.formatDate(new Date(today.setDate(today.getDate() - 2)))
+              let startDay1 = this.common.formatDate(new Date(today.setDate(today.getDate() + 1)))
+              let startDay0 = this.common.formatDate(new Date(today.setDate(today.getDate() + 1)))
+        
+              if (data3days.filter((item) => this.common.formatDate(new Date(item.date)) == startDay2).length == 1) {
+                console.log("3 days set in: " + startDay2)
+              } else if (data3days.filter((item) => this.common.formatDate(new Date(item.date)) == startDay1).length == 1) {
+                console.log("3 days set in: " + startDay1)
+              } else if (data3days.filter((item) => this.common.formatDate(new Date(item.date)) == startDay0).length == 1) {
+                console.log("3 days set in today: " + startDay0)
+              } else {
+                console.log("no 3 days set")
+              }
+            }
+
+            data = dataFilter.filter(item => item.area_id == this.userData.area_id)
+          } else data = dataFilter
+          console.log(data);
+
+          const totalTask = data.length
+          const totalActivity: number = data.reduce((total, item) => total + item.total_activity, 0)
+          const totalChecklist: number = data.reduce((total, item) => total + item.checklist, 0)
+          const unfinishedChecklist = totalActivity - totalChecklist
+
+          console.log("totalTask: " + totalTask);
+          console.log("totalActivity: " + totalActivity, " totalChecklist: " + totalChecklist);
+          console.log("unfinishedChecklist: " + unfinishedChecklist);
+
+          this.todayActivity = {
+            totalTask: totalTask,
+            unfinishedChecklist: unfinishedChecklist,
+          }
+
+          console.log(this.todayActivity);
+
+          resolve(true)
+        },
+        error: (err) => {
+          reject(err);
+          this.common.showServerErrorAlert(Const.ERR_GET_MSG("Task Count"), err)
+        }
+      })
+    })
   }
 
   async getTaskDataByDate(month: number, year: number) {
@@ -182,8 +257,13 @@ export class AchievementsComponent {
             this.findingUnfinishedActivity.total = 0
             this.findingUnfinishedActivity.limitData.splice(0)
           }
-          let data: any[] = res.data
+          let data: any[] = []
+          if (this.userData.area_id != -1) {
+            data = res.data.filter((item: any) => item.area_id == this.userData.area_id)
+          } else data = res.data
+
           let dataUnfinished = [...data]
+          
           this.findingUnfinishedActivity.rawData = data
           this.findingUnfinishedActivity.total = data.length
           this.findingUnfinishedActivity.limitData = this.common.getRandomIndices(dataUnfinished.length, 5).map(index => dataUnfinished[index]);
@@ -207,9 +287,14 @@ export class AchievementsComponent {
             this.apiService.resetCachedData("findingDateData")
           }
           let data: any[] = res.data
-          this.findingNotOkActivity.rawData = data
-          this.findingNotOkActivity.total = data.length
-          let findingData = [...data]
+          if (this.userData.area_id != -1) {
+            this.findingNotOkActivity.rawData = data.filter(data => data.area_id == this.userData.area_id)
+          } else {
+            this.findingNotOkActivity.rawData = data
+          }
+          
+          this.findingNotOkActivity.total = this.findingNotOkActivity.rawData.length
+          let findingData = [...this.findingNotOkActivity.rawData]
           this.findingNotOkActivity.limitData = findingData.slice(-4).sort((a, b) => findingData.indexOf(b) - findingData.indexOf(a))
           console.log(this.findingNotOkActivity.limitData)
           resolve(true)

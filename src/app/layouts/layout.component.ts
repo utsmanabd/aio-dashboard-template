@@ -5,6 +5,7 @@ import {
   LAYOUT_VERTICAL, LAYOUT_HORIZONTAL, LAYOUT_TWOCOLUMN, LAYOUT_MODE, LAYOUT_WIDTH,
   LAYOUT_POSITION, SIDEBAR_SIZE, SIDEBAR_COLOR, TOPBAR
 } from './layout.model';
+import { TokenStorageService } from '../core/services/token-storage.service';
 
 @Component({
   selector: 'app-layout',
@@ -18,11 +19,14 @@ import {
 export class LayoutComponent implements OnInit {
 
   layoutType!: string;
+  userData: any;
 
-  constructor(private eventService: EventService) { }
+  constructor(private eventService: EventService, private tokenService: TokenStorageService) { }
 
   ngOnInit(): void {
-    this.layoutType = LAYOUT_VERTICAL;
+    this.userData = this.tokenService.getUser();
+
+    this.layoutType = this.userData.level_id == 1 ? LAYOUT_VERTICAL : LAYOUT_HORIZONTAL;
     document.body.setAttribute('layout',this.layoutType)
 
      // listen to event and change the layout, theme, etc

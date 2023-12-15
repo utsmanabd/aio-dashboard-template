@@ -128,7 +128,7 @@ export class IdentityTaskComponent {
     const index = this.getIndexById(this.identityTaskData, id)
     let result: boolean = false
     
-    if (model != this.identityTaskDataBefore[index].pic) {
+    if (model !== this.identityTaskDataBefore[index].pic) {
       const pic = this.identityTaskData[index].pic
       if (!pic) result = true
     }

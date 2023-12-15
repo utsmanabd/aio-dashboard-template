@@ -42,12 +42,12 @@ export const PLANNER_MENU: MenuItem[] = [
     link: "/planner/tasks",
     icon: "ri ri-calendar-event-line",
   },
-  {
-    id: createMenuId(),
-    label: "Finding",
-    link: "/planner/finding",
-    icon: "ri ri-alert-line",
-  },
+  // {
+  //   id: createMenuId(),
+  //   label: "Finding",
+  //   link: "/planner/finding",
+  //   icon: "ri ri-alert-line",
+  // },
 ]
 
 export const ADMIN_MENU: MenuItem[] = [

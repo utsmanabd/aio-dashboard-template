@@ -217,6 +217,10 @@ export class restApiService {
     return this.http.get(GlobalComponent.API_URL + GlobalComponent.taskActivityId + `${mAreaId ? 'id/' + taskId.toString() + '/' + mAreaId.toString() : 'task-id/' + taskId.toString()}`, this.httpOptions())
   }
 
+  getCountTaskActivity() {
+    return this.http.get(GlobalComponent.API_URL + GlobalComponent.taskId + `count`, this.httpOptions())
+  }
+
   getCountTaskActivityById(taskId: number, mAreaId: number) {
     return this.http.get(GlobalComponent.API_URL + GlobalComponent.taskActivityId + `count/${taskId}/${mAreaId}`, this.httpOptions())
   }

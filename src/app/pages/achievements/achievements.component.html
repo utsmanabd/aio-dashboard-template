@@ -1,5 +1,32 @@
 <ngx-loading [show]="isLoading"></ngx-loading>
-<div class="row">
+<div *ngIf="userData.area_id !== -1 && todayActivity">
+    <div class="row">
+        <div class="col">
+            <div class="card card-animate p-4 bg-primary">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <p class="text-uppercase fw-semibold text-white-50 mb-0">To-do</p>
+                    </div>
+                </div>
+                <div class="d-flex align-items-end justify-content-between mt-4">
+                    <div>
+                        <h4 class="text-white">You have {{ todayActivity.totalTask > 1 ? todayActivity.totalTask + "task with a total of " : "a total of " }}
+                            <span><u><b>{{ todayActivity.unfinishedChecklist }}</b></u></span> 
+                            task activities to complete today
+                        </h4>
+                        <a [routerLink]="['tasks']" [queryParams]="{tableView: true}" class="text-decoration-underline text-white-50">See details</a>
+                    </div>
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-soft-light rounded fs-3 shadow">
+                            <i class="ri ri-todo-fill text-light"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row" *ngIf="userData.area_id == -1">
     <div class="col">
         <div class="card p-3">
             <div class="d-flex justify-content-between">
@@ -33,8 +60,8 @@
         </div>
     </div>
 </div>
-<ng-container *ngIf="taskAreaComparisonChart && taskActivityChart && findingUnfinishedActivity && taskAreaActivityChart && periodComparisonChart">
-    <div class="row">
+<ng-container *ngIf="taskAreaComparisonChart && taskActivityChart && findingUnfinishedActivity && taskAreaActivityChart && periodComparisonChart && userData">
+    <div *ngIf="userData.area_id == -1" class="row">
         <!-- card -->
         <div class="{{ isSmallScreen ? 'col-6' : 'col-3' }}">
             <div class="card card-animate bg-primary">
@@ -97,7 +124,7 @@
                             <h4 class="fs-22 fw-semibold ff-secondary mb-4 text-white">
                                 <span class="counter-value">{{ findingUnfinishedActivity.total }}</span>
                             </h4>
-                            <a href="javascript:void(0);" (click)="scrollToElement(unfinished)" class="text-decoration-underline text-white-50">See details</a>
+                            <a href="javascript:void(0);" (click)="scrollToElement(finding)" class="text-decoration-underline text-white-50">See details</a>
                         </div>
                         <div class="avatar-sm flex-shrink-0">
                             <span class="avatar-title bg-soft-light rounded fs-3 shadow">
@@ -134,7 +161,7 @@
         </div>
         
     </div>
-    <div class="row">
+    <div *ngIf="userData.area_id == -1" class="row">
         <div class="col">
             <div class="card">
                 <div class="card-header">
@@ -155,7 +182,7 @@
         </div>
         
     </div>
-    <div class="row">
+    <div *ngIf="userData.area_id == -1" class="row">
         <div class="col">
             <div class="card">
                 <div class="card-header">
@@ -193,7 +220,7 @@
             </div>
         </div>
     </div>
-    <div class="row">
+    <div *ngIf="userData.area_id == -1" class="row">
         <div class="col-xl-6">
             <div class="card">
                 <div class="card-header">
@@ -227,7 +254,34 @@
         <div class="col">
             <div class="card p-3">
                 <div class="card-header">
-                    <div class="d-flex justify-content-between">
+                    <div *ngIf="userData.area_id != -1" class="d-flex justify-content-between">
+                        <div class="me-2">
+                            <h4>Dashboard: <span class="text-primary"> {{ areaTitle }}</span></h4>
+                        </div>
+                        <div class="row row-cols-lg-auto g-1 align-items-center">
+                                <div class="me-2">
+                                    <select id="monthPicker" class="form-select form-select-sm" aria-label="Default select example" [(ngModel)]="month">
+                                        <option value="1">January</option>
+                                        <option value="2">February</option>
+                                        <option value="3">March</option>
+                                        <option value="4">April</option>
+                                        <option value="5">May</option>
+                                        <option value="6">June</option>
+                                        <option value="7">July</option>
+                                        <option value="8">August</option>
+                                        <option value="9">September</option>
+                                        <option value="10">October</option>
+                                        <option value="11">November</option>
+                                        <option value="12">December</option>
+                                    </select>
+                                </div>
+                                <div class="me-2">
+                                    <input class="form-control form-control-sm" type="number" min="1900" max="3000" step="1" [(ngModel)]="year" />
+                                </div>
+                                <button type="button" (click)="onChangeDate()" class="btn btn-sm btn-success">Apply</button>
+                        </div>
+                    </div>
+                    <div *ngIf="userData.area_id == -1" class="d-flex justify-content-between">
                         <h4 class="card-title">Area: <span class="text-info me-3">{{areaTitle}}</span></h4>
                         <div>
                             <button *ngFor="let data of taskActivityChartData.rawData" (click)="getTaskAreaActivityById(data.area, data.area_id)" class="btn btn-sm btn-soft-secondary mb-2 me-2">{{ data.area }}</button>
@@ -293,109 +347,126 @@
                                 </div><!-- end card-body -->
                             </div><!-- end card -->
                         </div>
+                        <ng-container *ngIf="userData.area_id != -1">
+                            <div class="col-xl-6">
+                                <ng-template [ngTemplateOutlet]="findingCard"></ng-template>
+                            </div>
+                            <div class="col-xl-6">
+                                <ng-template [ngTemplateOutlet]="unfinishedCard"></ng-template>
+                            </div>
+                        </ng-container>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-xl-7" #finding>
-            <div class="card">
-                <div class="card-header align-items-center d-flex">
-                    <h4 class="card-title mb-0 flex-grow-1">Recent Finding</h4>
-                </div><!-- end card header -->
-
-                <div class="card-body">
-                    <div class="table-responsive table-card" *ngIf="findingNotOkActivity.limitData.length > 0;else noFinding">
-                        <table class="table table-hover table-centered align-middle table-nowrap mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th scope="col"*ngFor="let col of columnsFinding">{{col}}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let data of findingNotOkActivity.limitData">
-                                    <td>
-                                        <h5 class="fs-14 my-1 fw-medium"><a routerLink="../tasks"
-                                            class="text-reset">{{ data.activity }}</a></h5>
-                                        <span class="text-muted"><i>({{data.standard}})</i></span>
-                                    </td>
-                                    <td>{{ data.comment }}</td>
-                                    <td>
-                                        <div>
-                                            <h6 class="my-1 fw-medium"><a class="text-reset">{{data.machine_area}}</a></h6>
-                                            <span class="text-muted">{{data.area}}</span>
-                                        </div>
-                                    </td>
-                                    <td>{{ data.pic }}</td>
-                                    <td>
-                                        <div class="flex-shrink-0 me-2">
-                                            <img src="{{imageUrl}}{{ data.picture ? data.picture : 'no-image-found.jpg' }}" alt="" class="p-2" width="70" />
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                            <tfoot>
-                                <div class="p-3">
-                                    <a routerLink="../planner/finding" class="text-muted text-decoration-underline">See more...</a>
-                                </div>
-                            </tfoot>
-                        </table>
-                    </div>
-                    <ng-template #noFinding>
-                        <div class="text-center mt-3">
-                            <h4 class="card-title">No findings were found!</h4>
-                        </div>
-                        <div class="d-flex justify-content-center">
-                            <img src="assets/images/no-finding.svg" alt="no-finding" height="300">
-                        </div>
-                    </ng-template>
-                </div> <!-- .card-body-->
-            </div> <!-- .card-->
-        </div>
-        <div class="col-xl-5" #unfinished>
-            <div class="card">
-                <div class="card-header align-items-center d-flex">
-                    <h4 class="card-title mb-0 flex-grow-1">Unfinished Activity</h4>
-                </div><!-- end card header -->
-
-                <div class="card-body">
-                    <div class="table-responsive table-card" *ngIf="findingUnfinishedActivity.limitData.length > 0;else noUnfinished">
-                        <table class="table table-hover table-centered align-middle table-nowrap mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th scope="col"*ngFor="let col of columnsUnfinished">{{col}}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let data of findingUnfinishedActivity.limitData">
-                                    <td>
-                                        <span class="badge bg-{{ common.getCategoryBadge(data.category) }}">{{ data.category }}</span>
-                                    </td>
-                                    <td>{{ data.activity }}</td>
-                                    <td>
-                                        <div>
-                                            <h6 class="my-1 fw-medium"><a class="text-reset">{{data.machine_area}}</a></h6>
-                                            <span class="text-muted">{{data.area}}</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <div class="p-3">
-                            <a href="" class="text-muted text-decoration-underline">See more...</a>
-                        </div>
-                    </div>
-                    <ng-template #noUnfinished>
-                        <div class="text-center mt-3">
-                            <h4 class="card-title">All activities are done!</h4>
-                        </div>
-                        <div class="d-flex justify-content-center">
-                            <img src="assets/images/no-undone.svg" alt="no-finding" height="300">
-                        </div>
-                    </ng-template>
-                </div> <!-- .card-body-->
-            </div> <!-- .card-->
-        </div>
+    <div class="row" #finding>
+        <ng-container *ngIf="userData.area_id == -1">
+            <div class="col-xl-7">
+                <div [ngTemplateOutlet]="findingCard"></div>
+            </div>
+            <div class="col-xl-5">
+                <div [ngTemplateOutlet]="unfinishedCard"></div>
+            </div>
+        </ng-container>
     </div>
 </ng-container>
+
+<ng-template #findingCard>
+    <div class="card">
+        <div class="card-header align-items-center d-flex">
+            <h4 class="card-title mb-0 flex-grow-1">Recent Finding</h4>
+        </div><!-- end card header -->
+
+        <div class="card-body">
+            <div class="table-responsive table-card" *ngIf="findingNotOkActivity.limitData.length > 0;else noFinding">
+                <table class="table table-hover table-centered align-middle table-nowrap mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col"*ngFor="let col of columnsFinding">{{col}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let data of findingNotOkActivity.limitData">
+                            <td>
+                                <h5 class="fs-14 my-1 fw-medium"><a routerLink="../tasks"
+                                    class="text-reset">{{ data.activity }}</a></h5>
+                                <span class="text-muted"><i>({{data.standard}})</i></span>
+                            </td>
+                            <td>{{ data.comment }}</td>
+                            <td>
+                                <div>
+                                    <h6 class="my-1 fw-medium"><a class="text-reset">{{data.machine_area}}</a></h6>
+                                    <span class="text-muted">{{data.area}}</span>
+                                </div>
+                            </td>
+                            <td>{{ data.pic }}</td>
+                            <td>
+                                <div class="flex-shrink-0 me-2">
+                                    <img src="{{imageUrl}}{{ data.picture ? data.picture : 'no-image-found.jpg' }}" alt="" class="p-2" width="70" />
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <div class="p-3">
+                            <a routerLink="../planner/finding" class="text-muted text-decoration-underline">See more...</a>
+                        </div>
+                    </tfoot>
+                </table>
+            </div>
+            <ng-template #noFinding>
+                <div class="text-center mt-3">
+                    <h4 class="card-title">No findings were found!</h4>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <img src="assets/images/no-finding.svg" alt="no-finding" height="300">
+                </div>
+            </ng-template>
+        </div> <!-- .card-body-->
+    </div> <!-- .card-->
+</ng-template>
+<ng-template #unfinishedCard>
+    <div class="card">
+        <div class="card-header align-items-center d-flex">
+            <h4 class="card-title mb-0 flex-grow-1">Unfinished Activity</h4>
+        </div><!-- end card header -->
+
+        <div class="card-body">
+            <div class="table-responsive table-card" *ngIf="findingUnfinishedActivity.limitData.length > 0;else noUnfinished">
+                <table class="table table-hover table-centered align-middle table-nowrap mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col"*ngFor="let col of columnsUnfinished">{{col}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let data of findingUnfinishedActivity.limitData">
+                            <td>
+                                <span class="badge bg-{{ common.getCategoryBadge(data.category) }}">{{ data.category }}</span>
+                            </td>
+                            <td>{{ data.activity }}</td>
+                            <td>
+                                <div>
+                                    <h6 class="my-1 fw-medium"><a class="text-reset">{{data.machine_area}}</a></h6>
+                                    <span class="text-muted">{{data.area}}</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="p-3">
+                    <a href="" class="text-muted text-decoration-underline">See more...</a>
+                </div>
+            </div>
+            <ng-template #noUnfinished>
+                <div class="text-center mt-3">
+                    <h4 class="card-title">All activities are done!</h4>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <img src="assets/images/no-undone.svg" alt="no-finding" height="300">
+                </div>
+            </ng-template>
+        </div> <!-- .card-body-->
+    </div> <!-- .card-->
+</ng-template>
