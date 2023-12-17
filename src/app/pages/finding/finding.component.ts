@@ -45,10 +45,8 @@ export class FindingComponent {
         this.isLoading = false
         this.updatePagination(this.findingData)
         this.totalPages = Math.ceil(this.findingData.length / this.pageSize);
-        console.log(this.totalPages)
       },
       error: (err: any) => {
-        console.error(err);
         this.isLoading = false
       }
     })
@@ -58,7 +56,6 @@ export class FindingComponent {
     if (pageNumber >= 1 && pageNumber <= this.totalPages) {
       this.currentPage = pageNumber;
       this.updatePagination(this.findingData);
-      console.log(this.currentPage)
     }
   }
 
@@ -70,7 +67,6 @@ export class FindingComponent {
     );
 
     this.activePages = this.common.calculateActivePages(this.currentPage, this.totalPages);
-    console.log(this.activePages)
   }
 
   applyFilter(): void {

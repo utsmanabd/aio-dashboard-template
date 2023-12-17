@@ -46,7 +46,6 @@ export class TopbarComponent implements OnInit {
     }
 
   ngOnInit(): void {
-    console.log(this.userData);
     this.element = document.documentElement;
 
     const theme = localStorage.getItem('theme')

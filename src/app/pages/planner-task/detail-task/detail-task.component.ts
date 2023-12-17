@@ -90,7 +90,6 @@ export class DetailTaskComponent {
       this.apiService.getAreaData().subscribe({
         next: (res: any) => {
           this.areaData = res.data
-          console.log(this.areaData)
           resolve(true)
         },
         error: (err) => {
@@ -156,7 +155,6 @@ export class DetailTaskComponent {
   onActivityCheck(event: any) {
     const id = event.target.value
     const checked = event.target.checked
-    console.log(`Checked: ${checked}. ID: ${id}`);
   }
 
   onChecklistAll(event: any) {
@@ -214,7 +212,6 @@ export class DetailTaskComponent {
         },
         error: (err: any) => {
           reject(err)
-          console.error(err)
           this.common.showErrorAlert(Const.ERR_INSERT_MSG("Task"), err)
         }
       })

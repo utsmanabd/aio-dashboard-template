@@ -55,7 +55,6 @@ export class ErrorInterceptor implements HttpInterceptor {
               },
             });
             // Retry the request with the new token
-            console.log(`Handle 403 successful. Token has been refreshed`)
             return next.handle(newRequest);
           } else {
             // Refresh token failed: Logout user

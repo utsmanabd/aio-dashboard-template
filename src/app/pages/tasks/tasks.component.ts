@@ -129,7 +129,6 @@ export class TasksComponent {
         },
         error: (err) => {
           this.common.showServerErrorAlert(Const.ERR_GET_MSG("Task"), err);
-          console.error(err)
           reject(err)
         },
         complete: () => {
@@ -142,11 +141,7 @@ export class TasksComponent {
             }
           }
           if (areaData.length > 0) {
-            console.log(this.tasksData)
             this.tasksData.forEach((task) => {
-              // let date = new Date(task.date)
-              // let taskDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
-              // let isTodayTask = this.today == taskDate ? true : false
               let isTaskAvailable = this.common.isTodayTask(this.today, task.date, task.is_three_days ? this.common.getThreeDays(task.date) : undefined)
               this.eventData.push({
                 id: task.task_id,

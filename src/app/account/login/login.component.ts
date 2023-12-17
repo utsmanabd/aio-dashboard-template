@@ -104,13 +104,11 @@ export class LoginComponent implements OnInit {
               this.tokenService.setToken(data.token);
               this.tokenService.setUserData(data.userData);
             } else {
-              // console.log("REMEMBERED")
               this.tokenService.setAuthData(
                 data.token,
                 data.refreshToken,
                 data.userData
               );
-              // console.log(this.tokenService.getRefreshToken())
             }
             if (this.returnUrl) this.router.navigateByUrl(this.returnUrl)
             else this.router.navigate(["/"]);
@@ -121,58 +119,12 @@ export class LoginComponent implements OnInit {
           }
         },
         error: (err) => {
-          console.error(err)
           this.errorMessage = `${err}`;
           this.isLoginFailed = true;
         }
       });
-    // Login Api
-    
-    // if (!data.error) {
-    //   if (!this.isRemembered) {
-    //     this.tokenService.setToken(data.token)
-    //     this.tokenService.setUserData(data.userData)
-    //   }
-    //   this.tokenService.setAuthData(
-    //     data.token,
-    //     data.refreshToken,
-    //     data.userData
-    //   );
-    //   this.router.navigate(["/"]);
-    // } else {
-    //   this.toastService.show(data.message, {
-    //     classname: "bg-danger text-white",
-    //     delay: 15000,
-    //   });
-    //   console.log(data.message);
-    //   this.submitted = false
-    // }
-
-    // stop here if form is invalid
-    // if (this.loginForm.invalid) {
-    //   return;
-    // } else {
-    //   if (environment.defaultauth === 'firebase') {
-    //     this.authenticationService.login(this.f['nik'].value, this.f['password'].value).then((res: any) => {
-    //       this.router.navigate(['/']);
-    //     })
-    //       .catch(error => {
-    //         this.error = error ? error : '';
-    //       });
-    //   } else {
-    //     this.authFackservice.login(this.f['nik'].value, this.f['password'].value).pipe(first()).subscribe(data => {
-    //           this.router.navigate(['/']);
-    //         },
-    //         error => {
-    //           this.error = error ? error : '';
-    //         });
-    //   }
-    // }
   }
 
-  /**
-   * Password Hide/Show
-   */
   toggleFieldTextType() {
     this.fieldTextType = !this.fieldTextType;
   }
@@ -184,7 +136,6 @@ export class LoginComponent implements OnInit {
         if (!res.error && res.accessToken) {
           this.tokenService.setToken(res.accessToken);
           this.tokenService.setUserData(res.payload.data)
-          console.log("Token refreshed successfully")
         } else {
           console.error(res.message)
           this.isOnRefresh = false

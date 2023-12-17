@@ -116,7 +116,6 @@ export class ActivityComponent {
             },
             error: (err) => {
               this.loading = false
-              console.error(err);
               this.common.showErrorAlert(Const.ERR_DELETE_MSG('Activity'), err)
             }
           });
@@ -133,7 +132,6 @@ export class ActivityComponent {
       },
       error: (err: any) => {
         this.isLoading = false
-        console.error(err)
         this.common.showErrorAlert(Const.ERR_UPDATE_MSG("Activity"), err)
       },
       complete: () => this.getActivityData()
@@ -148,7 +146,6 @@ export class ActivityComponent {
         this.isLoading = false
       },
       error: (err: any) => {
-        console.error(err)
         this.isLoading = false
         this.common.showErrorAlert(Const.ERR_INSERT_MSG("Activity"), err)
       },
@@ -168,7 +165,6 @@ export class ActivityComponent {
         },
         error: (err) => {
           this.loading = false
-          console.error(err)
           this.common.showServerErrorAlert(Const.ERR_GET_MSG("Activity"), err)
         }
       });
@@ -195,12 +191,9 @@ export class ActivityComponent {
           })
 
           this.machineCategory = machineCategory
-          
-          console.log(this.machineCategory)
         },
         error: (err: any) => {
           this.loading = false
-          console.error(err)
           this.common.showServerErrorAlert(Const.ERR_GET_MSG("Machine Area"), err)
         },
         complete: () => {
@@ -226,7 +219,6 @@ export class ActivityComponent {
     );
 
     this.activePages = this.common.calculateActivePages(this.currentPage, this.totalPages);
-    console.log(this.activePages)
   }
 
   applyFilter(): void {
@@ -268,7 +260,6 @@ export class ActivityComponent {
     this.isStandardEmpty = this.activityFormData.standard.trim() === '';
     this.isPeriodEmpty = !/^[0-9]*[DWMY]$/.test(this.activityFormData.periode.trim().toUpperCase())
     this.isEmpty.push(this.isMachineAreaEmpty, this.isCategoryEmpty, this.isActivityEmpty, this.isStandardEmpty, this.isPeriodEmpty)
-    console.log(this.isEmpty)
   }
 
   openModal(content: any, activityData?: any) {

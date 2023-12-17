@@ -80,7 +80,6 @@ export class IdentityTaskComponent {
           this.searchLength = null
           return this.apiService.getEmployeeData(query).pipe(
             tap((data) => {
-              console.log(data);
               if (data.length > 0) {
                 this.searchFailed = false
               } else this.searchFailed = true
@@ -144,9 +143,6 @@ export class IdentityTaskComponent {
         const nik = pic.nik
         this.identityTaskData[index].pic = name as string
         this.identityTaskData[index].pic_nik = nik as string
-        console.log(this.identityTaskData[index].pic);
-        console.log(this.identityTaskData[index].pic_nik);
-        
       }
     }, 50)
   }
@@ -216,7 +212,6 @@ export class IdentityTaskComponent {
     let data = this.taskActivityData.filter(item => item.m_area_id == mAreaId)
     this.identityTaskData = data
     const imageData = this.identityTaskData.map(item => item.picture)
-    console.log(imageData);
     this.imageAlbum.splice(0)
     imageData.forEach(image => {
       this.imageAlbum.push({
@@ -225,7 +220,6 @@ export class IdentityTaskComponent {
         thumb: this.getImageSource(`${image}`)
       })
     })
-    console.log(this.imageAlbum)
     this.identityTaskDataBefore = data.map((a: any) => ({...a}))
     this.getCountTaskActivity(taskId, mAreaId)
   }
@@ -235,7 +229,6 @@ export class IdentityTaskComponent {
       next: (res: any) => this.identityTaskCountData = res.data[0],
       error: (err) => this.common.showErrorAlert(Const.ERR_GET_MSG("Task Activity Count"), err),
       complete: () => {
-        console.log(this.identityTaskCountData)
         const startDate = this.identityTaskCountData.date
         const endDateOrUndefined = this.identityTaskCountData.is_three_days ? this.common.getThreeDays(startDate) : undefined
         if (!this.common.isTodayTask(this.today, startDate, endDateOrUndefined)) {
@@ -254,7 +247,6 @@ export class IdentityTaskComponent {
     })
     const albumFilter = album.filter((album) => album.id !== null)
     let index = this.getIndexById(albumFilter, id, "id")
-    console.log("index ke: " + index)
     if (this.imageAlbum.length > 0) {
       this.lightbox.open(albumFilter, index, {
         showDownloadButton: true,
@@ -308,7 +300,6 @@ export class IdentityTaskComponent {
   }
 
   sendIndentityTaskData() {
-    console.log(this.identityTaskData)
     let form = this.identityTaskData.filter((item, index) => {
       let result: boolean = false;
       for (let element in item) {
@@ -332,7 +323,6 @@ export class IdentityTaskComponent {
 
       return result;
     });
-    console.log(form)
 
     if (form.length > 0) {
       const taskActivityData = (

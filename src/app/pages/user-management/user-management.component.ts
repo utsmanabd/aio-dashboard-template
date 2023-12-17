@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { firstValueFrom, lastValueFrom, Observable, OperatorFunction, catchError, debounceTime, distinctUntilChanged, of, switchMap, tap, throwError } from 'rxjs';
+import { Observable, OperatorFunction, debounceTime, distinctUntilChanged, of, switchMap, tap } from 'rxjs';
 import { CommonService } from 'src/app/core/services/common.service';
 import { restApiService } from 'src/app/core/services/rest-api.service';
 import { Const } from 'src/app/core/static/const';
@@ -38,13 +38,8 @@ export class UserManagementComponent {
 
   userDataForm!: UntypedFormGroup;
   submitted: boolean = false;
-  // showPassword!: boolean;
-  // showConfirmPassword!: boolean;
   error: string = ""
-
-  // isPasswordNotMatched: boolean = false;
   selectedImage: File | undefined;
-  // isEditPassword: boolean = false;
 
   nikBefore: any
 
@@ -67,7 +62,6 @@ export class UserManagementComponent {
           this.searchLength = null
           return this.apiService.getEmployeeData(query).pipe(
             tap((data) => {
-              console.log(data);
               this.searchFailed = false
             })
           )
@@ -103,8 +97,6 @@ export class UserManagementComponent {
       nik: ["", [Validators.required]],
       name: ["", [Validators.required]],
       email: ["", [Validators.required, Validators.email]],
-      // password: ["", [Validators.required]],
-      // retype_password: ["", [Validators.required]],
       role_id: [null, [Validators.required]],
       photo: [null]
     }) 
@@ -113,7 +105,6 @@ export class UserManagementComponent {
   onEmployeeFormSearch(event: any) {
     setTimeout(() => {
       if (this.employee) {
-        console.log(this.employee);
         this.f["nik"].setValue(this.employee.nik)
         this.f["email"].setValue(this.employee.email)
         this.f["name"].setValue(this.employee.employee_name)
@@ -131,7 +122,6 @@ export class UserManagementComponent {
         next: (res: any) => {
           this.loading = false
           this.usersData = res.data
-          console.log(res.data)
           this.totalPages = Math.ceil(this.usersData.length / this.pageSize);
           this.updatePagination(this.usersData);
           resolve(true)
@@ -249,17 +239,8 @@ export class UserManagementComponent {
       })
     })
   }
-
-  // editPasswordMode() {
-  //   if (this.isEditPassword === true){
-  //     this.isEditPassword = false
-  //     this.f["password"].setValue("")
-  //     this.f["retype_password"].setValue("")
-  //   } else this.isEditPassword = true
-  // }
   
   openModal(content: any, userData?: any) {
-    console.log(userData)
     if (userData) {
       this.userId = userData.user_id
       this.f['nik'].setValue(userData.nik)
@@ -267,8 +248,6 @@ export class UserManagementComponent {
       this.f['name'].setValue(userData.name)
       this.f['role_id'].setValue(userData.role_id)
       this.f['photo'].setValue(userData.photo)
-      // this.f['password'].clearValidators()
-      // this.f['retype_password'].clearValidators()
 
       this.nikBefore = userData.nik
     }
@@ -285,9 +264,6 @@ export class UserManagementComponent {
     this.selectedImage = undefined
     this.userDataForm.reset()
     this.nikBefore = undefined
-    // this.isEditPassword = false
-    // this.f['password'].addValidators(Validators.required); 
-    // this.f['retype_password'].addValidators(Validators.required);
   }
 
   onImageSelected(event$: any) {
@@ -338,13 +314,6 @@ export class UserManagementComponent {
         }
       })
     }
-
-    // if (this.f['password'].value === this.f['retype_password'].value) {
-    //   this.isPasswordNotMatched = false
-      
-    // } else {
-    //   this.isPasswordNotMatched = true
-    // }
   }
 
 
@@ -378,20 +347,9 @@ export class UserManagementComponent {
         user.level
           .toLowerCase()
           .includes(this.searchKeyword.trim().toLowerCase())
-        // user.area
-        //   .toLowerCase()
-        //   .includes(this.searchKeyword.trim().toLowerCase())
     );
     this.totalPages = Math.ceil(filteredUsersData.length / this.pageSize);
     this.updatePagination(filteredUsersData);
   }
-
-  // togglePassword() {
-  //   this.showPassword = !this.showPassword;
-  
-  // }
-  // toggleConfirmPassword() {
-  //   this.showConfirmPassword = !this.showConfirmPassword;
-  // }
 
 }

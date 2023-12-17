@@ -154,7 +154,6 @@ export class PlannerTaskComponent {
       this.apiService.updateTaskData(taskId, data).subscribe({
         next: (res: any) => {
           resolve(true)
-          console.log("SUCCESS CHANGE DATE")
         },
         error: (err) => {
           this.common.showErrorAlert(Const.ERR_UPDATE_MSG("Task"), err)
@@ -183,14 +182,12 @@ export class PlannerTaskComponent {
   }
 
   handleDateSelect(selectInfo: DateSelectArg) {
-    console.log(selectInfo)
     const date = selectInfo.startStr;
     this.router.navigate([`/planner/tasks/create/${date}`]);
   }
 
   handleEventClick(clickInfo: EventClickArg) {
     let taskId = clickInfo.event.id
-    console.log(clickInfo.event)
     if (taskId) {
       const taskData = clickInfo.event._def.extendedProps
       const date = clickInfo.event.startStr
@@ -224,8 +221,6 @@ export class PlannerTaskComponent {
   }
 
   openModal(content: any, taskData: any, date?: string) {
-    console.log(taskData);
-    
     this.taskData = date ? taskData.allData : taskData
     this.taskData.date = date ? date : taskData.date
     if (this.modalService.hasOpenModals()) {
@@ -239,7 +234,6 @@ export class PlannerTaskComponent {
       this.loading = true
       this.apiService.updateTaskData(taskId, {is_removed: 1}).subscribe({
         next: async (res: any) => {
-          console.log(res.data)
           if (res.data > 0) {
             this.apiService.updateTaskActivityByTaskId(taskId, {is_removed: 1}).subscribe({
               next: (res: any) => {

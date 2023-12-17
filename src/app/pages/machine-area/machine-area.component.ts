@@ -66,7 +66,6 @@ export class MachineAreaComponent {
         },
         error: (err) => {
           this.loading = false
-          console.error(err)
           this.common.showServerErrorAlert(Const.ERR_GET_MSG('Machine Area'), err)
         }
       });
@@ -84,7 +83,6 @@ export class MachineAreaComponent {
         },
         error: (err) => {
           this.loading = false
-          console.error(err)
           this.common.showServerErrorAlert(Const.ERR_GET_MSG('Area'), err)
         },
         complete: () => this.selectedArea = this.areaIdArray[0]
@@ -149,7 +147,6 @@ export class MachineAreaComponent {
             },
             error: (err) => {
               this.loading = false
-              console.error(err);
               this.common.showErrorAlert(Const.ERR_DELETE_MSG('Machine Area'), err)
             }
           });
@@ -162,7 +159,6 @@ export class MachineAreaComponent {
     this.apiService.updateMachineAreaData(id, data).subscribe({
       next: (res: any) => this.modalService.dismissAll(),
       error: (err) => {
-        console.error(err)
         this.isLoading = false
         this.common.showErrorAlert(Const.ERR_UPDATE_MSG('Machine Area'), err)
       },
@@ -178,7 +174,6 @@ export class MachineAreaComponent {
     this.apiService.insertMachineAreaData(data).subscribe({
       next: (res: any) => this.modalService.dismissAll(),
       error: (err: any) => {
-        console.error(err)
         this.isLoading = false
         this.common.showErrorAlert(Const.ERR_INSERT_MSG('Machine Area'), err)
       },

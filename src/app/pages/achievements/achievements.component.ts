@@ -128,7 +128,6 @@ export class AchievementsComponent {
 
   async ngOnInit() {
     this.userData = this.tokenService.getUser()
-    console.log(this.userData.area_id);
     await this.getTaskActivityCountToday()
     await this.getTaskDataByDate(this.month, this.year).finally(() => this.isLoading = false)
     await this.getFindingUnfinishedByDate(this.month, this.year).finally(() => this.isLoading = false)
@@ -156,14 +155,10 @@ export class AchievementsComponent {
           
           if (this.userData.area_id != -1) {
             const taskWith3DaysSet: any[] = res.data.filter((item: any) => item.is_three_days === 1 && item.area_id == this.userData.area_id)
-            console.log(taskWith3DaysSet);
-
             const date = (date: Date | string | number) => this.common.formatDate(new Date(date))
             
             if (todayTask.length == 0 && taskWith3DaysSet.length > 0) {
               const today = new Date()
-              console.log(taskWith3DaysSet)
-              console.log("today: ", date(today))
 
               let dateOn3DaysAgo = date(today.setDate(today.getDate() - 2))
               let dateOn2DaysAgo = date(today.setDate(today.getDate() + 1))
@@ -177,45 +172,35 @@ export class AchievementsComponent {
                 taskFromThreeDaysAgo.forEach(item => {
                   taskData.push(item)
                 })
-                console.log("3 days set in: " + dateOn3DaysAgo)
               }
 
               if (taskFromTwoDaysAgo.length > 0) {
                 taskFromTwoDaysAgo.forEach(item => {
                   taskData.push(item)
                 })
-                console.log("3 days set in: " + dateOn3DaysAgo)
               }
 
               if (taskFromYesterday.length > 0) {
                 taskFromYesterday.forEach(item => {
                   taskData.push(item)
                 })
-                console.log("3 days set in: " + dateOn3DaysAgo)
               }
-              
+
             } else {
               taskData = todayTask.filter(item => item.area_id == this.userData.area_id)
             }
 
           } else taskData = todayTask
-          console.log(taskData);
 
           const totalTask = taskData.length
           const totalActivity: number = taskData.reduce((total, item) => total + item.total_activity, 0)
           const totalChecklist: number = taskData.reduce((total, item) => total + item.checklist, 0)
           const unfinishedChecklist = totalActivity - totalChecklist
 
-          console.log("totalTask: " + totalTask);
-          console.log("totalActivity: " + totalActivity, " totalChecklist: " + totalChecklist);
-          console.log("unfinishedChecklist: " + unfinishedChecklist);
-
           this.todayActivity = {
             totalTask: totalTask,
             unfinishedChecklist: unfinishedChecklist,
           }
-
-          console.log(this.todayActivity);
 
           resolve(true)
         },
@@ -258,7 +243,6 @@ export class AchievementsComponent {
           
         },
         error: (err) => {
-          console.error(err)
           reject(err)
           this.common.showServerErrorAlert(Const.ERR_GET_MSG('Task'), err)
         },
@@ -291,7 +275,6 @@ export class AchievementsComponent {
           resolve(true)
         },
         error: (err: any) => {
-          console.error(err)
           reject(err)
           this.common.showServerErrorAlert(Const.ERR_GET_MSG('Unfinished'), err)
         }
@@ -317,11 +300,9 @@ export class AchievementsComponent {
           this.findingNotOkActivity.total = this.findingNotOkActivity.rawData.length
           let findingData = [...this.findingNotOkActivity.rawData]
           this.findingNotOkActivity.limitData = findingData.slice(-4).sort((a, b) => findingData.indexOf(b) - findingData.indexOf(a))
-          console.log(this.findingNotOkActivity.limitData)
           resolve(true)
         },
         error: (err: any) => {
-          console.error(err)
           reject(err)
           this.common.showServerErrorAlert(Const.ERR_GET_MSG('Finding'), err)
         }
@@ -341,7 +322,6 @@ export class AchievementsComponent {
           resolve(true)
         },
         error: (err: any) => {
-          console.error(err)
           reject(err)
           this.common.showServerErrorAlert(Const.ERR_GET_MSG('Checklist Category'), err)
         }
@@ -372,7 +352,6 @@ export class AchievementsComponent {
           })
         },
         error: (err: any) => {
-          console.error(err)
           reject(err)
           this.common.showServerErrorAlert(Const.ERR_GET_MSG('Task Area'), err)
         },
@@ -397,7 +376,6 @@ export class AchievementsComponent {
           this.periodComparisonChartData.categories = data.map(item => item.periode)
           this.periodComparisonChartData.checklistData = data.map(item => item.checklist)
           this.periodComparisonChartData.totalActivityData = data.map(item => item.total_activity)
-          console.log(this.periodComparisonChartData)
           resolve(true)
         },
         error: (err: any) => {

@@ -79,7 +79,6 @@ export class AreaComponent {
       },
       error: (err) => {
         this.loading = false;
-        console.error(err);
         this.common.showServerErrorAlert(Const.ERR_GET_MSG("Area"), err);
       },
     });
@@ -156,15 +155,13 @@ export class AreaComponent {
       formData.append("file", file);
       this.apiService.uploadAreaImage(formData).subscribe({
         next: (res: any) => {
-          console.log(res)
           const fileName = res.filename
           resolve(fileName)
         },
         error: (err) => {
           reject(err)
           this.common.showErrorAlert(Const.ERR_INSERT_MSG("Area Image"), err)
-        },
-        complete: () => console.log("IMAGE UPLOADED")
+        }
       })
     })
   }
@@ -184,7 +181,6 @@ export class AreaComponent {
           },
           error: (err) => {
             this.loading = false;
-            console.error(err);
             this.common.showErrorAlert(Const.ERR_DELETE_MSG("Area"), err);
           },
         });
@@ -192,38 +188,14 @@ export class AreaComponent {
     });
   }
 
-  async updateImage(file: File) {
-    return new Promise((resolve, reject) => {
-      console.log("update image running...")
-      this.isLoading = true;
-      this.uploadImage(file).then(() => {
-        console.log("IMAGE UPDATED")
-        // const previousFile = this.areaImage
-        // this.apiService.removeImage(previousFile).subscribe({
-        //   next: (res: any) => {
-        //     resolve(true)
-        //     console.log("IMAGE UPDATED")
-        //   },
-        //   error: (err) => {
-        //     reject(err)
-        //     this.common.showErrorAlert(Const.ERR_DELETE_MSG("Previous Area Image"), err)
-        //   }
-        // });       
-      }).finally(() => this.isLoading = false)
-      
-    })
-  }
-
   async updateAreaData(id: any, data: any) {
     return new Promise(async (resolve, reject) => {
-      console.log('update area data running...')
       this.isLoading = true;
       this.apiService.updateAreaData(id, data).subscribe({
         next: (res: any) => {
           resolve(true);
         },
         error: (err) => {
-          console.error(err);
           reject(err);
           this.common.showErrorAlert(Const.ERR_UPDATE_MSG("Area"), err);
         },

@@ -131,11 +131,7 @@ export class DetailActivityComponent {
   getCountTaskActivity(taskId: any, mAreaId: any) {
     this.apiService.getCountTaskActivityById(taskId, mAreaId).subscribe({
       next: (res: any) => this.identityTaskCountData = res.data[0],
-      error: (err) => this.common.showErrorAlert(Const.ERR_GET_MSG("Task Activity Count"), err),
-      complete: () => {
-        console.log(this.identityTaskCountData)
-      }
-      
+      error: (err) => this.common.showErrorAlert(Const.ERR_GET_MSG("Task Activity Count"), err)
     });
   }
 
