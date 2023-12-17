@@ -19,7 +19,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { CommonService } from "src/app/core/services/common.service";
 import { Const } from "src/app/core/static/const";
 import { result } from "lodash";
@@ -31,12 +31,24 @@ import { FullCalendarComponent } from "@fullcalendar/angular";
   styleUrls: ["./planner-task.component.scss"],
 })
 export class PlannerTaskComponent {
+  tableColumn = ["#", "Date", "Area", "Progress", "Action"];
   breadCrumbItems!: Array<{}>;
   taskData: any
 
-  eventData: any[] = []
+  tasks: any[] = [];
 
+  eventData: any[] = []
+  isTableView: boolean = false
   loading: boolean = false
+
+  index: number = 0;
+  activePages: number[] = [];
+  pageSize = 10;
+  currentPage = 1;
+  totalPages!: number;
+  paginatedTasksData: any[] = [];
+
+  searchKeyword: string = "";
 
   calendarOptions: CalendarOptions = {
     plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],
@@ -71,12 +83,19 @@ export class PlannerTaskComponent {
   constructor(
     private modalService: NgbModal,
     private apiService: restApiService,
-    private changeDetector: ChangeDetectorRef,
+    private route: ActivatedRoute,
     private router: Router,
     public common: CommonService
   ) {}
 
   async ngOnInit() {
+    this.route.queryParams.subscribe((params: any) => {
+      if (params.tableView === "true") {
+        this.isTableView = true
+      } else {
+        this.isTableView = false
+      }
+    });
     this.breadCrumbItems = [
       { label: "Planner" },
       { label: "Tasks", active: true },
@@ -95,6 +114,9 @@ export class PlannerTaskComponent {
         next: (res: any) => {
           let data: any[] = res.data
           let areaData: any[] = []
+          this.tasks = res.data
+          this.totalPages = Math.ceil(this.tasks.length / this.pageSize);
+          this.updatePagination(this.tasks);
           for (let area of data) {
             if (!areaData.includes(area.area_id)) {
               areaData.push(area.area_id)
@@ -137,9 +159,27 @@ export class PlannerTaskComponent {
         error: (err) => {
           this.common.showErrorAlert(Const.ERR_UPDATE_MSG("Task"), err)
           reject(err)
+        },
+        complete: async() => {
+          // await this.getTaskData().finally(() => this.loading = false)
+          // this.calendarComponent.getApi().refetchEvents()
         }
       })
     })
+  }
+
+  onSelectedViewCheck(event: any) {
+    if (event.target.id == 'btnCalendar') {
+      this.isTableView = false
+      this.router.navigate(["/planner/tasks"], {
+        queryParams: { tableView: false },
+      });
+    } else if (event.target.id == 'btnTableView') {
+      this.isTableView = true
+      this.router.navigate(["/planner/tasks"], {
+        queryParams: { tableView: true },
+      });
+    }
   }
 
   handleDateSelect(selectInfo: DateSelectArg) {
@@ -174,9 +214,20 @@ export class PlannerTaskComponent {
     })
   }
 
-  openModal(content: any, taskData: any, date: string) {
-    this.taskData = taskData.allData
-    this.taskData.date = date
+  openModalAdd(content: any) {
+    this.modalService.open(content, { centered: true });
+  }
+
+  onSelectedDate(event: any) {
+    const date = event.target.value
+    this.router.navigate([`/planner/tasks/create/${date}`]);
+  }
+
+  openModal(content: any, taskData: any, date?: string) {
+    console.log(taskData);
+    
+    this.taskData = date ? taskData.allData : taskData
+    this.taskData.date = date ? date : taskData.date
     if (this.modalService.hasOpenModals()) {
       this.modalService.dismissAll()
     }
@@ -211,5 +262,34 @@ export class PlannerTaskComponent {
       })
     })
     
+  }
+
+  goToPage(pageNumber: number): void {
+    if (pageNumber >= 1 && pageNumber <= this.totalPages) {
+      this.currentPage = pageNumber;
+      this.updatePagination(this.tasks);
+    }
+  }
+
+  updatePagination(dataSource: any): void {
+    this.index = (this.currentPage - 1) * this.pageSize;
+    this.paginatedTasksData = dataSource.slice(
+      (this.currentPage - 1) * this.pageSize,
+      this.currentPage * this.pageSize
+    );
+
+    this.activePages = this.common.calculateActivePages(this.currentPage, this.totalPages);
+  }
+
+  applyFilter(): void {
+    this.currentPage = 1;
+    const filteredTasksData = this.tasks.filter(
+      (activity: any) =>      
+        activity.area
+          .toLowerCase()
+          .includes(this.searchKeyword.trim().toLowerCase())
+    );
+    this.totalPages = Math.ceil(filteredTasksData.length / this.pageSize);
+    this.updatePagination(filteredTasksData);
   }
 }

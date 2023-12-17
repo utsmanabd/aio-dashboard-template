@@ -150,39 +150,60 @@ export class AchievementsComponent {
     return new Promise((resolve, reject) => {
       this.apiService.getCountTaskActivity().subscribe({
         next: (res: any) => {
-          let data: any[] = []
+          let taskData: any[] = []
           const todayFormatted = this.common.formatDate(new Date())
-          const dataFilter: any[] = res.data.filter((item: any) => this.common.formatDate(new Date(item.date)) == todayFormatted)
+          const todayTask: any[] = res.data.filter((item: any) => this.common.formatDate(new Date(item.date)) == todayFormatted)
           
           if (this.userData.area_id != -1) {
-            const data3days: any[] = res.data.filter((item: any) => item.is_three_days === 1 && item.area_id == this.userData.area_id)
-            if (data3days.length > 0) {
-              const today = new Date()
-              console.log(data3days)
-              console.log("today: ", this.common.formatDate(today))
+            const taskWith3DaysSet: any[] = res.data.filter((item: any) => item.is_three_days === 1 && item.area_id == this.userData.area_id)
+            console.log(taskWith3DaysSet);
 
-              let startDay2 = this.common.formatDate(new Date(today.setDate(today.getDate() - 2)))
-              let startDay1 = this.common.formatDate(new Date(today.setDate(today.getDate() + 1)))
-              let startDay0 = this.common.formatDate(new Date(today.setDate(today.getDate() + 1)))
+            const date = (date: Date | string | number) => this.common.formatDate(new Date(date))
+            
+            if (todayTask.length == 0 && taskWith3DaysSet.length > 0) {
+              const today = new Date()
+              console.log(taskWith3DaysSet)
+              console.log("today: ", date(today))
+
+              let dateOn3DaysAgo = date(today.setDate(today.getDate() - 2))
+              let dateOn2DaysAgo = date(today.setDate(today.getDate() + 1))
+              let dateOnYesterday = date(today.setDate(today.getDate() + 1))
+
+              const taskFromThreeDaysAgo = taskWith3DaysSet.filter((item) => date(item.date) == dateOn3DaysAgo)
+              const taskFromTwoDaysAgo = taskWith3DaysSet.filter((item) => date(item.date) == dateOn2DaysAgo)
+              const taskFromYesterday = taskWith3DaysSet.filter((item) => date(item.date) == dateOnYesterday)
         
-              if (data3days.filter((item) => this.common.formatDate(new Date(item.date)) == startDay2).length == 1) {
-                console.log("3 days set in: " + startDay2)
-              } else if (data3days.filter((item) => this.common.formatDate(new Date(item.date)) == startDay1).length == 1) {
-                console.log("3 days set in: " + startDay1)
-              } else if (data3days.filter((item) => this.common.formatDate(new Date(item.date)) == startDay0).length == 1) {
-                console.log("3 days set in today: " + startDay0)
-              } else {
-                console.log("no 3 days set")
+              if (taskFromThreeDaysAgo.length > 0) {
+                taskFromThreeDaysAgo.forEach(item => {
+                  taskData.push(item)
+                })
+                console.log("3 days set in: " + dateOn3DaysAgo)
               }
+
+              if (taskFromTwoDaysAgo.length > 0) {
+                taskFromTwoDaysAgo.forEach(item => {
+                  taskData.push(item)
+                })
+                console.log("3 days set in: " + dateOn3DaysAgo)
+              }
+
+              if (taskFromYesterday.length > 0) {
+                taskFromYesterday.forEach(item => {
+                  taskData.push(item)
+                })
+                console.log("3 days set in: " + dateOn3DaysAgo)
+              }
+              
+            } else {
+              taskData = todayTask.filter(item => item.area_id == this.userData.area_id)
             }
 
-            data = dataFilter.filter(item => item.area_id == this.userData.area_id)
-          } else data = dataFilter
-          console.log(data);
+          } else taskData = todayTask
+          console.log(taskData);
 
-          const totalTask = data.length
-          const totalActivity: number = data.reduce((total, item) => total + item.total_activity, 0)
-          const totalChecklist: number = data.reduce((total, item) => total + item.checklist, 0)
+          const totalTask = taskData.length
+          const totalActivity: number = taskData.reduce((total, item) => total + item.total_activity, 0)
+          const totalChecklist: number = taskData.reduce((total, item) => total + item.checklist, 0)
           const unfinishedChecklist = totalActivity - totalChecklist
 
           console.log("totalTask: " + totalTask);

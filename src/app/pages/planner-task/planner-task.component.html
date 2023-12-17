@@ -5,22 +5,122 @@
 <div class="auth-one-bg-position auth-one-bg" id="auth-particles">
     <div class="bg-overlay"></div>
 </div>
-<div class="row" *ngIf="eventData">
-    <div class="col-12">
-        <div class="row">
-            <div class="col-xl-12">
-                <div class="card card-h-100">
-                    <div class="card-body">
-                        <div id="calendar"></div>
-                        <full-calendar #calendar [options]="calendarOptions"></full-calendar>
-                    </div>
-                </div>
-            </div><!-- end col -->
-        </div><!--end row-->
+<div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+    <input (change)="onSelectedViewCheck($event)" type="radio" class="btn-check" name="btnradio" id="btnCalendar"
+        autocomplete="off" [checked]="!isTableView">
+    <label class="btn btn-outline-light shadow-none" for="btnCalendar">Calendar</label>
 
-        <div style='clear:both'></div>
-    </div>
+    <input (change)="onSelectedViewCheck($event)" type="radio" class="btn-check" name="btnradio" id="btnTableView"
+        autocomplete="off" [checked]="isTableView">
+    <label class="btn btn-outline-light shadow-none" for="btnTableView">Table View</label>
 </div>
+<ng-container *ngIf="!isTableView">
+    <div class="row" *ngIf="eventData">
+        <div class="col-12">
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="card card-h-100">
+                        <div class="card-body">
+                            <div id="calendar"></div>
+                            <full-calendar #calendar [options]="calendarOptions"></full-calendar>
+                        </div>
+                    </div>
+                </div><!-- end col -->
+            </div><!--end row-->
+    
+            <div style='clear:both'></div>
+        </div>
+    </div>
+</ng-container>
+
+<ng-container *ngIf="isTableView">
+    <div class="mt-2">
+        <div class="card">
+            <div class="card-header p-2 bg-soft-light">
+                <div class="d-flex justify-content-between">
+                    <div class="search-box d-inline-block">
+                        <input type="text" class="form-control form-control-sm search" placeholder="Search"
+                            [(ngModel)]="searchKeyword" (input)="applyFilter()">
+                        <i class="ri-search-line search-icon"></i>
+                    </div>
+                    <button (click)="openModalAdd(addTask)" class="btn btn-sm btn-primary">Add Task</button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th *ngFor="let col of tableColumn" scope="col">{{ col }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let data of paginatedTasksData; let i = index">
+                                <td>{{ common.getComputedRowNumber(index, i) }}</td>
+                                <td>
+                                    {{ data.is_three_days ? common.getLocaleDate(data.date) + ' - ' + 
+                                    common.getLocaleDate(common.getThreeDays(data.date).setDate(common.getThreeDays(data.date).getDate() - 1)) : 
+                                    common.getLocaleDate(data.date) }}
+                                </td>
+                                <td>{{ data.area }}</td>
+                                <td>
+                                    {{common.getTaskPercentage(data.total_activity, data.checklist)}}%
+                                    <div class="progress animated-progress progress-sm">
+                                        <div class="progress-bar bg-{{common.getPercentageBadge(common.getTaskPercentage(data.total_activity, data.checklist))}}"
+                                            role="progressbar"
+                                            attr.style="width: {{common.getTaskPercentage(data.total_activity, data.checklist)}}%"
+                                            [attr.aria-valuenow]="common.getTaskPercentage(data.total_activity, data.checklist)"
+                                            aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button (click)="openModal(detailModal, data)" type="button" class="btn btn-soft-primary btn-sm">Detail</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer p-0">
+                <div class="container mt-2">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item" [ngClass]="{ 'disabled': currentPage === 1 }">
+                            <a class="btn btn-primary page-link" (click)="goToPage(1)"><i class="bx bx-arrow-to-left"></i></a>
+                        </li>
+                        <li class="page-item" [ngClass]="{ 'disabled': currentPage === 1 }">
+                            <a class="btn btn-primary page-link" (click)="goToPage(currentPage - 1)"><i
+                                    class="bx bx-left-arrow-alt"></i></a>
+                        </li>
+                        <li class="page-item" *ngFor="let page of activePages" [ngClass]="{ 'active': currentPage === page }">
+                            <a class="btn btn-primary page-link" (click)="goToPage(page)">{{ page }}</a>
+                        </li>
+                        <li class="page-item" [ngClass]="{ 'disabled': currentPage === totalPages }">
+                            <a class="btn btn-primary page-link" (click)="goToPage(currentPage + 1)"><i
+                                    class="bx bx-right-arrow-alt"></i></a>
+                        </li>
+                        <li class="page-item" [ngClass]="{ 'disabled': currentPage === totalPages }">
+                            <a class="btn btn-primary page-link" (click)="goToPage(totalPages)"><i
+                                    class="bx bx-arrow-to-right"></i></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-container>
+
+<ng-template #addTask let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title">Add Task</h4>
+        <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+    </div>
+    <div class="modal-body">
+        <div>
+            <label for="exampleInputdate" class="form-label">Select Date</label>
+            <input (change)="onSelectedDate($event)" type="date" class="form-control" id="exampleInputdate">
+        </div>
+    </div>
+</ng-template>
 
 <ng-template #detailTask let-modal>
     <div class="modal-header">

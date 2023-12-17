@@ -21,11 +21,11 @@ import { TokenStorageService } from 'src/app/core/services/token-storage.service
 export class TasksComponent {
   tableColumn = ["#", "Date", "Area", "Progress", "Action"];
   tasksData: any[] = [];
-  index: number = 0;
-  activePages: number[] = [];
 
   eventData: any[] = []
 
+  index: number = 0;
+  activePages: number[] = [];
   pageSize = 10;
   currentPage = 1;
   totalPages!: number;

@@ -127,6 +127,28 @@ export class HorizontalTopbarComponent implements OnInit {
     }
   }
 
+  // Click wise Parent active class add
+  toggleParentItem(event: any) {
+    let isCurrentMenuId = event.target.closest('a.nav-link');
+    let dropDowns = Array.from(document.querySelectorAll('#navbar-nav .show'));
+    dropDowns.forEach((node: any) => {
+      node.classList.remove('show');
+    });
+    const ul = document.getElementById("navbar-nav");
+    if (ul) {
+      const iconItems = Array.from(ul.getElementsByTagName("a"));
+      let activeIconItems = iconItems.filter((x: any) => x.classList.contains("active"));
+      activeIconItems.forEach((item: any) => {
+        item.setAttribute('aria-expanded', "false")
+        item.classList.remove("active");
+      });
+    }
+    isCurrentMenuId.setAttribute("aria-expanded", "true");
+    if (isCurrentMenuId) {
+      this.activateParentDropdown(isCurrentMenuId);
+    }
+  }
+
   toggleSubItem(event: any) {
     if(event.target && event.target.nextElementSibling)
       event.target.nextElementSibling.classList.toggle("show");
