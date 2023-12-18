@@ -156,38 +156,31 @@ export class AchievementsComponent {
           if (this.userData.area_id != -1) {
             const taskWith3DaysSet: any[] = res.data.filter((item: any) => item.is_three_days === 1 && item.area_id == this.userData.area_id)
             const date = (date: Date | string | number) => this.common.formatDate(new Date(date))
+
+            const today = new Date()
+
+            let dateOnTwoDaysAgo = date(today.setDate(today.getDate() - 2))
+            let dateOnYesterday = date(today.setDate(today.getDate() + 1))
+            let dateOnToday = date(today.setDate(today.getDate() + 1))
+
+            const taskFromTwoDaysAgo = taskWith3DaysSet.filter((item) => date(item.date) == dateOnTwoDaysAgo)
+            const taskFromYesterday = taskWith3DaysSet.filter((item) => date(item.date) == dateOnYesterday)
+            const taskFromToday = taskWith3DaysSet.filter((item) => date(item.date) == dateOnToday)
             
-            if (todayTask.length == 0 && taskWith3DaysSet.length > 0) {
-              const today = new Date()
-
-              let dateOn3DaysAgo = date(today.setDate(today.getDate() - 2))
-              let dateOn2DaysAgo = date(today.setDate(today.getDate() + 1))
-              let dateOnYesterday = date(today.setDate(today.getDate() + 1))
-
-              const taskFromThreeDaysAgo = taskWith3DaysSet.filter((item) => date(item.date) == dateOn3DaysAgo)
-              const taskFromTwoDaysAgo = taskWith3DaysSet.filter((item) => date(item.date) == dateOn2DaysAgo)
-              const taskFromYesterday = taskWith3DaysSet.filter((item) => date(item.date) == dateOnYesterday)
-        
-              if (taskFromThreeDaysAgo.length > 0) {
-                taskFromThreeDaysAgo.forEach(item => {
-                  taskData.push(item)
-                })
-              }
-
-              if (taskFromTwoDaysAgo.length > 0) {
-                taskFromTwoDaysAgo.forEach(item => {
-                  taskData.push(item)
-                })
-              }
-
-              if (taskFromYesterday.length > 0) {
-                taskFromYesterday.forEach(item => {
-                  taskData.push(item)
-                })
-              }
-
-            } else {
+            if (todayTask.length > 0 || taskFromToday.length > 0) {
               taskData = todayTask.filter(item => item.area_id == this.userData.area_id)
+            }
+
+            if (taskFromTwoDaysAgo.length > 0) {
+              taskFromTwoDaysAgo.forEach(item => {
+                taskData.push(item)
+              })
+            }
+
+            if (taskFromYesterday.length > 0) {
+              taskFromYesterday.forEach(item => {
+                taskData.push(item)
+              })
             }
 
           } else taskData = todayTask
