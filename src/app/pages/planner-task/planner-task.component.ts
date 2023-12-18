@@ -201,7 +201,9 @@ export class PlannerTaskComponent {
       if (result.value) {
         await this.removeTaskData(taskId).then((success) => {
           if (success) {
-            this.calendarComponent.getApi().getEventById(`${taskId}`)?.remove()
+            if (this.calendarComponent) {
+              this.calendarComponent.getApi().getEventById(`${taskId}`)?.remove()
+            }
             this.loading = false;
             this.common.showSuccessAlert(Const.SUCCESS_DEL_MSG('Task'))
             this.modalService.dismissAll()
