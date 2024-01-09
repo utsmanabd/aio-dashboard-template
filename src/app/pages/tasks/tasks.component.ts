@@ -87,8 +87,16 @@ export class TasksComponent {
   }
 
   handleEventClick(clickInfo: EventClickArg) {
-    const selectedDay = clickInfo.event.startStr
+    console.log("CLICKED");
+    
+    const selectedDay = clickInfo.event.start as Date
     const taskEndDate = clickInfo.event.end
+    console.log(selectedDay);
+    console.log(taskEndDate);
+    
+    
+    console.log(this.common.isTodayTask(this.today, selectedDay, taskEndDate));
+    
     if (this.common.isTodayTask(this.today, selectedDay, taskEndDate)) {
       const taskId = clickInfo.event.id
         this.router.navigate([`/tasks/identity-task/${taskId}`])
