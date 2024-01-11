@@ -87,23 +87,17 @@ export class TasksComponent {
   }
 
   handleEventClick(clickInfo: EventClickArg) {
-    console.log("CLICKED");
-    
     const selectedDay = clickInfo.event.start as Date
     const taskEndDate = clickInfo.event.end
-    console.log(selectedDay);
-    console.log(taskEndDate);
+    const taskEnd = this.common.getDateMinusOneSecond(taskEndDate)
     
-    
-    console.log(this.common.isTodayTask(this.today, selectedDay, taskEndDate));
-    
-    if (this.common.isTodayTask(this.today, selectedDay, taskEndDate)) {
+    if (this.common.isTodayTask(this.today, selectedDay, taskEnd)) {
       const taskId = clickInfo.event.id
         this.router.navigate([`/tasks/identity-task/${taskId}`])
     }
     
   }
-
+  
   onIdentityTaskClick(tasks: any): void {
     let taskId = tasks.task_id
     this.router.navigate([`/tasks/identity-task/${taskId}`]);
@@ -150,7 +144,7 @@ export class TasksComponent {
           }
           if (areaData.length > 0) {
             this.tasksData.forEach((task) => {
-              let isTaskAvailable = this.common.isTodayTask(this.today, task.date, task.is_three_days ? this.common.getThreeDays(task.date) : undefined)
+              let isTaskAvailable = this.common.isTodayTask(this.today, task.date, task.is_three_days ? this.common.getDateMinusOneSecond(this.common.getThreeDays(task.date)) : undefined)
               this.eventData.push({
                 id: task.task_id,
                 start: task.date,

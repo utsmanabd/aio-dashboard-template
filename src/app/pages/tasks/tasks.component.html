@@ -67,8 +67,8 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <button (click)="onIdentityTaskClick(data)" type="button" [disabled]="!common.isTodayTask(today, data.date, data.is_three_days ? common.getThreeDays(data.date) : undefined)"
-                                        class="btn btn-{{ !common.isTodayTask(today, data.date, data.is_three_days ? common.getThreeDays(data.date) : undefined) ? 'light' : 'primary' }} btn-sm">Identity Task</button>
+                                    <button (click)="onIdentityTaskClick(data)" type="button" [disabled]="!common.isTodayTask(today, data.date, data.is_three_days ? common.getDateMinusOneSecond(common.getThreeDays(data.date)) : undefined)"
+                                        class="btn btn-{{ !common.isTodayTask(today, data.date, data.is_three_days ? common.getDateMinusOneSecond(common.getThreeDays(data.date)) : undefined) ? 'light' : 'primary' }} btn-sm">Identity Task</button>
                                 </td>
                             </tr>
                         </tbody>

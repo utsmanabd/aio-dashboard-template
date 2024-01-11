@@ -121,6 +121,12 @@ export class CommonService {
     return new Date(currentDate.setDate(currentDate.getDate() + 3))
   }
 
+  getDateMinusOneSecond(date: Date | null): Date | null {
+    const dateBefore = date ? new Date(date) : null
+    dateBefore?.setSeconds(dateBefore.getSeconds() - 1)
+    return dateBefore
+  }
+
   // -- HTML class manipulations
   getPercentageBadge(percentage: number): string {
     switch (true) {

@@ -1,18 +1,13 @@
-import { DatePipe } from "@angular/common";
 import {
-  ChangeDetectorRef,
   Component,
   TemplateRef,
   ViewChild,
 } from "@angular/core";
-import { UntypedFormBuilder, UntypedFormGroup } from "@angular/forms";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { restApiService } from "src/app/core/services/rest-api.service";
-import { createEventId } from "./data";
 import {
   CalendarOptions,
   DateSelectArg,
-  EventApi,
   EventClickArg,
 } from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -22,7 +17,6 @@ import listPlugin from "@fullcalendar/list";
 import { ActivatedRoute, Router } from "@angular/router";
 import { CommonService } from "src/app/core/services/common.service";
 import { Const } from "src/app/core/static/const";
-import { result } from "lodash";
 import { FullCalendarComponent } from "@fullcalendar/angular";
 
 @Component({
@@ -158,10 +152,6 @@ export class PlannerTaskComponent {
         error: (err) => {
           this.common.showErrorAlert(Const.ERR_UPDATE_MSG("Task"), err)
           reject(err)
-        },
-        complete: async() => {
-          // await this.getTaskData().finally(() => this.loading = false)
-          // this.calendarComponent.getApi().refetchEvents()
         }
       })
     })
@@ -224,7 +214,7 @@ export class PlannerTaskComponent {
 
   openModal(content: any, taskData: any, date?: string) {
     this.taskData = date ? taskData.allData : taskData
-    this.taskData.date = date ? date : taskData.date
+    
     if (this.modalService.hasOpenModals()) {
       this.modalService.dismissAll()
     }
