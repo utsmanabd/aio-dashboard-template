@@ -110,9 +110,6 @@ export class UserManagementComponent {
         this.f["name"].setValue(this.employee.employee_name)
       }
     }, 50)
-    
-    
-    
   }
 
   async getUsersData() {
