@@ -528,7 +528,7 @@ export class AchievementsComponent {
             if (index !== -1 && area) {
               const areaId = taskActivityChartData.rawData[config.dataPointIndex].area_id
               getTaskAreaActivityById(area, areaId)
-              window.scrollTo(0, 1150);
+              window.scrollTo(0, 1620);
             }
           }
         }

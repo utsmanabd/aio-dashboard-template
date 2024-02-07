@@ -15,6 +15,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { CartModel } from './topbar.model';
 import { cartData } from './data';
 import { GlobalComponent } from 'src/app/global-component';
+import { restApiService } from 'src/app/core/services/rest-api.service';
 
 @Component({
   selector: 'app-topbar',
@@ -41,7 +42,7 @@ export class TopbarComponent implements OnInit {
 
   constructor(@Inject(DOCUMENT) private document: any, private eventService: EventService, public languageService: LanguageService,
     public _cookiesService: CookieService, public translate: TranslateService, private authService: AuthenticationService,
-    private router: Router, private TokenStorageService: TokenStorageService) {
+    private router: Router, private TokenStorageService: TokenStorageService, private apiService: restApiService) {
       this.userData = this.TokenStorageService.getUser();
     }
 
@@ -174,6 +175,7 @@ export class TopbarComponent implements OnInit {
     // } else {
     //   this.authFackservice.logout();
     // }
+    this.apiService.resetCachedData()
     this.authService.logout();
     this.router.navigate(['/auth/login']);
   }

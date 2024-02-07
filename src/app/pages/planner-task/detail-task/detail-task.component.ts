@@ -170,16 +170,17 @@ export class DetailTaskComponent {
   onCreateTask(areaId: number) {
     const isAllDataNotSelected = this.filteredActivityData.every(activity => activity.is_selected === false)
     if (!isAllDataNotSelected) {
-      let taskData = { area_id: areaId, date: this.dateSelected, is_three_days: this.isThreeDaysChecked}
+      let filteredData = this.filteredActivityData.filter(item => item.is_selected)
+      let period = this.checkPeriodEquality(filteredData)
+      let taskData = { area_id: areaId, date: this.dateSelected, is_three_days: this.isThreeDaysChecked, period: period }
+      
       this.insertTaskData(taskData).then((taskId) => {
         let activityData: any[] = []
-        this.filteredActivityData.forEach((activity) => {
-          if (activity.is_selected) {
-            activityData.push({
-              task_id: taskId,
-              activity_id: activity.activity_id
-            })
-          }
+        filteredData.forEach((activity) => {
+          activityData.push({
+            task_id: taskId,
+            activity_id: activity.activity_id
+          })
         })
         if (activityData.length > 0) {
           this.insertTaskActivity(activityData)
@@ -256,7 +257,18 @@ export class DetailTaskComponent {
       if (filterId == 'btnPeriod') {
         this.isRecommendedSelected = false
         this.isCategorySelected = false
-        this.filteredActivityData.forEach(data => data.is_selected = data.periode == `${property}` ? true : false)
+        this.filteredActivityData.forEach(data => {
+          data.is_selected = data.periode == `${property}` ? true : false
+        })
+        this.filteredActivityData.sort((a, b) => {
+          if (a.is_selected === b.is_selected) {
+            return 0;
+          } else if (a.is_selected) {
+            return -1;
+          } else {
+            return 1;
+          }
+        })
         this.isPeriodSelected = true
       } else if (filterId == 'btnCategory') {
         this.isPeriodSelected = false
@@ -322,4 +334,15 @@ export class DetailTaskComponent {
       this.filteredActivityData = sort
     }
   }
+
+  checkPeriodEquality(arr: any[]): string {
+    const periods = arr.map(item => item.periode);
+    const uniquePeriods = Array.from(new Set(periods));
+
+    if (uniquePeriods.length === 1) {
+        return uniquePeriods[0];
+    } else {
+        return uniquePeriods.join(', ');
+    }
+}
 }

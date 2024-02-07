@@ -168,12 +168,19 @@ export class UserManagementComponent {
   }
 
   deleteUserData(userData: any) {
-    const deleteData = {is_removed: 1}
     this.common.showDeleteWarningAlert(Const.ALERT_DEL_MSG(userData.name)).then((result) => {
       if (result.value) {
-        this.updateUser(userData.user_id, deleteData).then(() => {
-          this.getUsersData()
-          this.common.showSuccessAlert(Const.SUCCESS_DEL_MSG())
+        this.loading = true
+        this.apiService.deleteUser(userData.user_id).subscribe({
+          next: (res: any) => {
+            this.loading = false
+            this.getUsersData()
+            this.common.showSuccessAlert(Const.SUCCESS_DEL_MSG())
+          },
+          error: (err) => {
+            this.loading = false
+            this.common.showErrorAlert(Const.ERR_DELETE_MSG("User"), err)
+          }
         })
       }
     })

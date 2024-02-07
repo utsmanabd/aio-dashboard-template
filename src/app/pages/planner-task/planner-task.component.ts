@@ -122,7 +122,7 @@ export class PlannerTaskComponent {
                 id: task.task_id,
                 start: task.date,
                 end: task.is_three_days ? this.common.getThreeDays(task.date) : undefined,
-                title: `${task.area}: ${this.common.getTaskPercentage(task.total_activity, task.checklist)}%`,
+                title: `${task.area}: ${this.common.getTaskPercentage(task.total_activity, task.checklist)}% (${task.period ? task.period : '-'})`,
                 allDay: true,
                 backgroundColor: this.common.getTaskAreaColor(task.area_id, areaData, true),
                 allData: task,

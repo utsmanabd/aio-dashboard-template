@@ -393,6 +393,12 @@ export class restApiService {
     )
   }
 
+  deleteUser(userId: number) {
+    return this.http.delete(GlobalComponent.API_URL + GlobalComponent.users + `${userId}`, this.httpOptions()).pipe(
+      tap(() => this.resetCachedData())
+    )
+  }
+
   uploadUserImage(file: FormData) {
     return this.http.post(GlobalComponent.API_URL + GlobalComponent.upload + `user`, file)
   }
