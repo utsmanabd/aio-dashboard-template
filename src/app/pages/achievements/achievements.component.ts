@@ -29,6 +29,9 @@ interface FindingData {
   styleUrls: ["./achievements.component.scss"],
 })
 export class AchievementsComponent {
+  filterDateFrom: string = ''
+  filterDateTo: string = ''
+
   countFrom = 0
 
   totalActivity!: number
@@ -95,6 +98,7 @@ export class AchievementsComponent {
   isSmallScreen: boolean = false
   
   userData: any
+  datePlaceholder: string
 
   constructor(
     private apiService: restApiService, 
@@ -105,6 +109,12 @@ export class AchievementsComponent {
     const today = new Date()
     this.month = today.getMonth() + 1
     this.year = today.getFullYear()
+    const lastDayOfMonth = common.getLastDayOfMonth(this.year, this.month)
+
+    this.filterDateFrom = `${this.year}-${this.month}-01`
+    this.filterDateTo = `${this.year}-${this.month}-${lastDayOfMonth}`
+
+    this.datePlaceholder = `${this.common.getLocaleDate(this.filterDateFrom)} to ${this.common.getLocaleDate(this.filterDateTo)}`
 
     this.breakpointObserver.observe([Breakpoints.XSmall]).subscribe(result => {
       this.isSmallScreen = result.breakpoints[Breakpoints.XSmall]
@@ -115,6 +125,15 @@ export class AchievementsComponent {
     if (this.monthBefore !== this.month || this.yearBefore !== this.year) {
       this.apiService.resetCachedData()
       this.ngOnInit()
+    }
+  }
+
+  onChangeDateRange(event: any) {
+    const value = event.target.value as string
+    const datesArray = value.split(' to ');
+    if (datesArray.length === 2) {
+      this.filterDateFrom = datesArray[0]
+      this.filterDateTo = datesArray[1]
     }
   }
 

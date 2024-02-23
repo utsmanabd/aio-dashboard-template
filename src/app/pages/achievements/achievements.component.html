@@ -35,6 +35,10 @@
                 </div>
                 <div class="row row-cols-lg-auto g-1 align-items-center">
                         <div class="me-2">
+                            <input class="form-control flatpickr-input" type="text" placeholder="{{ datePlaceholder }}" mwlFlatpickr (change)="onChangeDateRange($event)"
+                                [altInput]="true" [convertModelValue]="true" mode="range">
+                        </div>
+                        <div class="me-2">
                             <select id="monthPicker" class="form-select form-select-sm" aria-label="Default select example" [(ngModel)]="month">
                                 <option value="1">January</option>
                                 <option value="2">February</option>

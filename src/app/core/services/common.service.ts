@@ -54,6 +54,11 @@ export class CommonService {
   }
 
   // -- Date
+  getLastDayOfMonth(year: number, month: number) {
+    month -= 1
+    return new Date(year, month + 1, 0).getDate();
+  }
+
   getTodayDate() {
     const today = new Date();
     const year = today.getFullYear().toString().padStart(4, '0');
