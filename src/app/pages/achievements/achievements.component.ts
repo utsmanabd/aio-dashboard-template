@@ -29,8 +29,8 @@ interface FindingData {
   styleUrls: ["./achievements.component.scss"],
 })
 export class AchievementsComponent {
-  filterDateFrom: string = ''
-  filterDateTo: string = ''
+  fromDate: string = ''
+  toDate: string = ''
 
   countFrom = 0
 
@@ -112,10 +112,10 @@ export class AchievementsComponent {
     const lastDayOfMonth = common.getLastDayOfMonth(this.year, this.month)
     const monthFilter = this.month < 10 ? `0${this.month}` : `${this.month}`
 
-    this.filterDateFrom = `${this.year}-${monthFilter}-01`
-    this.filterDateTo = `${this.year}-${monthFilter}-${lastDayOfMonth}`
+    this.fromDate = `${this.year}-${monthFilter}-01`
+    this.toDate = `${this.year}-${monthFilter}-${lastDayOfMonth}`
 
-    this.datePlaceholder = `${this.common.getLocaleDate(this.filterDateFrom)} to ${this.common.getLocaleDate(this.filterDateTo)}`
+    this.datePlaceholder = `${this.common.getLocaleDate(this.fromDate)} to ${this.common.getLocaleDate(this.toDate)}`
 
     this.breakpointObserver.observe([Breakpoints.XSmall]).subscribe(result => {
       this.isSmallScreen = result.breakpoints[Breakpoints.XSmall]
@@ -133,8 +133,10 @@ export class AchievementsComponent {
     const value = event.target.value as string
     const datesArray = value.split(' to ');
     if (datesArray.length === 2) {
-      this.filterDateFrom = datesArray[0]
-      this.filterDateTo = datesArray[1]
+      this.fromDateBefore = this.fromDate.slice(0)
+      this.toDateBefore = this.toDate.slice(0)
+      this.fromDate = datesArray[0]
+      this.toDate = datesArray[1]
       this.apiService.resetCachedData()
       this.ngOnInit()
     }
@@ -148,24 +150,24 @@ export class AchievementsComponent {
     }
   }
 
+  fromDateBefore!: string
+  toDateBefore!: string
+
   async ngOnInit() {
     this.userData = this.tokenService.getUser()
-    // await this.getTaskDataByDateRange(this.filterDateFrom, this.filterDateTo)
     await this.getTaskActivityCountToday()
-    await this.getTaskDataByDate(this.filterDateFrom, this.filterDateTo).finally(() => this.isLoading = false)
-    await this.getFindingUnfinishedByDate(this.filterDateFrom, this.filterDateTo).finally(() => this.isLoading = false)
-    await this.getFindingNotOkByDate(this.filterDateFrom, this.filterDateTo).finally(() => this.isLoading = false)
-    await this.getChecklistCategoryByDate(this.filterDateFrom, this.filterDateTo).finally(() => this.isLoading = false)
+    await this.getTaskDataByDate(this.fromDate, this.toDate).finally(() => this.isLoading = false)
+    await this.getFindingUnfinishedByDate(this.fromDate, this.toDate).finally(() => this.isLoading = false)
+    await this.getFindingNotOkByDate(this.fromDate, this.toDate).finally(() => this.isLoading = false)
+    await this.getChecklistCategoryByDate(this.fromDate, this.toDate).finally(() => this.isLoading = false)
     if (this.userData.area_id == -1) {
       await this.getTaskAreaActivityById(this.taskActivityChartData.rawData[0].area, this.taskActivityChartData.rawData[0].area_id)
     } else await this.getTaskAreaActivityById(this.userData.area, this.userData.area_id)
-    await this.getPeriodCountByDate(this.filterDateFrom, this.filterDateTo).finally(() => this.isLoading = false)
+    await this.getPeriodCountByDate(this.fromDate, this.toDate).finally(() => this.isLoading = false)
     this._taskActivityChart(
       '["--vz-success", "--vz-info", "--vz-warning", "--vz-danger", "--vz-secondary", "--vz-primary", "--vz-dark"]'
     );
     this._periodComparisonChart('["--vz-danger", "--vz-secondary"]');
-    this.monthBefore = this.month
-    this.yearBefore = this.year
   }
 
   async getTaskDataByDateRange(fromDate: string, toDate: string) {
@@ -253,10 +255,12 @@ export class AchievementsComponent {
       this.isLoading = true
       this.apiService.getDashboardTaskByDateRange(fromDate, toDate).subscribe({
         next: (res: any) => {
-          if (!res.status) {
-            if (this.monthBefore && this.yearBefore) {
-              this.month = this.monthBefore
-              this.year = this.yearBefore
+          if (res.data.length <= 0) {
+            if (this.fromDateBefore && this.toDateBefore) {
+              this.fromDate = this.fromDateBefore
+              this.toDate = this.toDateBefore
+              console.log(this.fromDate, this.toDate);
+              
             }
             this.apiService.resetCachedData()
             this.common.showErrorAlert(`No data found on selected date`)
@@ -372,7 +376,7 @@ export class AchievementsComponent {
         this._taskAreaActivityChart('["--vz-info", "--vz-success"]')
         this._taskAreaComparisonChart('["--vz-primary", "--vz-info"]');
       }
-      this.apiService.getDashboardChecklistAreaByDateRange(areaId, this.filterDateFrom, this.filterDateTo).subscribe({
+      this.apiService.getDashboardChecklistAreaByDateRange(areaId, this.fromDate, this.toDate).subscribe({
         next: (res: any) => {
           let data: any[] = res.data
           this.taskAreaActivityChartData.rawData = data
