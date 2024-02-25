@@ -428,4 +428,35 @@ export class restApiService {
     )
   }
 
+  // New Dashboard API
+  getDashboardTaskCountByDate(month: number, year: number) {
+    return this.http.get(GlobalComponent.API_URL + `master/task/count/${month}/${year}`, this.httpOptions())
+  }
+
+  getDashboardTaskByDateRange(fromDate: string, toDate: string) {
+    return this.http.get(GlobalComponent.API_URL + `master/task/date`, {params: { from: fromDate, to: toDate }})
+  }
+
+  getDashboardUnfinishedByDateRange(fromDate: string, toDate: string) {
+    return this.http.get(GlobalComponent.API_URL + `master/finding/undone/date`, {params: { from: fromDate, to: toDate }})
+  }
+
+  getDashboardFindingByDateRange(fromDate: string, toDate: string) {
+    return this.http.get(GlobalComponent.API_URL + `master/finding/not-ok/date`, {params: { from: fromDate, to: toDate }})
+  }
+
+  getDashboardChecklistCategoryByDateRange(fromDate: string, toDate: string) {
+    return this.http.get(GlobalComponent.API_URL + `master/checklist/category/date`, {params: { from: fromDate, to: toDate }})
+  }
+
+  getDashboardChecklistAreaByDateRange(areaId: number, fromDate: string, toDate: string) {
+    return this.http.get(GlobalComponent.API_URL + `master/checklist/area/${areaId}`, {params: { from: fromDate, to: toDate }})
+  }
+
+  getDashboardPeriodCountByDateRange(fromDate: string, toDate: string) {
+    return this.http.get(GlobalComponent.API_URL + `master/task-activity/period`, {params: { from: fromDate, to: toDate }})
+  }
+
+
+
 }

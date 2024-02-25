@@ -38,7 +38,7 @@
                             <input class="form-control flatpickr-input" type="text" placeholder="{{ datePlaceholder }}" mwlFlatpickr (change)="onChangeDateRange($event)"
                                 [altInput]="true" [convertModelValue]="true" mode="range">
                         </div>
-                        <div class="me-2">
+                        <!-- <div class="me-2">
                             <select id="monthPicker" class="form-select form-select-sm" aria-label="Default select example" [(ngModel)]="month">
                                 <option value="1">January</option>
                                 <option value="2">February</option>
@@ -57,7 +57,7 @@
                         <div class="me-2">
                             <input class="form-control form-control-sm" type="number" min="1900" max="3000" step="1" [(ngModel)]="year" />
                         </div>
-                        <button type="button" (click)="onChangeDate()" class="btn btn-sm btn-success">Apply</button>
+                        <button type="button" (click)="onChangeDate()" class="btn btn-sm btn-success">Apply</button> -->
                 </div>
             </div>
             
@@ -263,7 +263,11 @@
                             <h4>Dashboard: <span class="text-primary"> {{ areaTitle }}</span></h4>
                         </div>
                         <div class="row row-cols-lg-auto g-1 align-items-center">
-                                <div class="me-2">
+                            <div class="me-2">
+                                <input class="form-control flatpickr-input" type="text" placeholder="{{ datePlaceholder }}" mwlFlatpickr (change)="onChangeDateRange($event)"
+                                    [altInput]="true" [convertModelValue]="true" mode="range">
+                            </div>
+                                <!-- <div class="me-2">
                                     <select id="monthPicker" class="form-select form-select-sm" aria-label="Default select example" [(ngModel)]="month">
                                         <option value="1">January</option>
                                         <option value="2">February</option>
@@ -282,7 +286,7 @@
                                 <div class="me-2">
                                     <input class="form-control form-control-sm" type="number" min="1900" max="3000" step="1" [(ngModel)]="year" />
                                 </div>
-                                <button type="button" (click)="onChangeDate()" class="btn btn-sm btn-success">Apply</button>
+                                <button type="button" (click)="onChangeDate()" class="btn btn-sm btn-success">Apply</button> -->
                         </div>
                     </div>
                     <div *ngIf="userData.area_id == -1" class="d-flex justify-content-between">

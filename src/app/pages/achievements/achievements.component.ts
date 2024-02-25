@@ -110,9 +110,10 @@ export class AchievementsComponent {
     this.month = today.getMonth() + 1
     this.year = today.getFullYear()
     const lastDayOfMonth = common.getLastDayOfMonth(this.year, this.month)
+    const monthFilter = this.month < 10 ? `0${this.month}` : `${this.month}`
 
-    this.filterDateFrom = `${this.year}-${this.month}-01`
-    this.filterDateTo = `${this.year}-${this.month}-${lastDayOfMonth}`
+    this.filterDateFrom = `${this.year}-${monthFilter}-01`
+    this.filterDateTo = `${this.year}-${monthFilter}-${lastDayOfMonth}`
 
     this.datePlaceholder = `${this.common.getLocaleDate(this.filterDateFrom)} to ${this.common.getLocaleDate(this.filterDateTo)}`
 
@@ -122,10 +123,10 @@ export class AchievementsComponent {
   }
 
   onChangeDate() {
-    if (this.monthBefore !== this.month || this.yearBefore !== this.year) {
-      this.apiService.resetCachedData()
-      this.ngOnInit()
-    }
+    // if (this.monthBefore !== this.month || this.yearBefore !== this.year) {
+    //   this.apiService.resetCachedData()
+    //   this.ngOnInit()
+    // }
   }
 
   onChangeDateRange(event: any) {
@@ -134,6 +135,8 @@ export class AchievementsComponent {
     if (datesArray.length === 2) {
       this.filterDateFrom = datesArray[0]
       this.filterDateTo = datesArray[1]
+      this.apiService.resetCachedData()
+      this.ngOnInit()
     }
   }
 
@@ -147,15 +150,16 @@ export class AchievementsComponent {
 
   async ngOnInit() {
     this.userData = this.tokenService.getUser()
+    // await this.getTaskDataByDateRange(this.filterDateFrom, this.filterDateTo)
     await this.getTaskActivityCountToday()
-    await this.getTaskDataByDate(this.month, this.year).finally(() => this.isLoading = false)
-    await this.getFindingUnfinishedByDate(this.month, this.year).finally(() => this.isLoading = false)
-    await this.getFindingNotOkByDate(this.month, this.year).finally(() => this.isLoading = false)
-    await this.getChecklistCategoryByDate(this.month, this.year).finally(() => this.isLoading = false)
+    await this.getTaskDataByDate(this.filterDateFrom, this.filterDateTo).finally(() => this.isLoading = false)
+    await this.getFindingUnfinishedByDate(this.filterDateFrom, this.filterDateTo).finally(() => this.isLoading = false)
+    await this.getFindingNotOkByDate(this.filterDateFrom, this.filterDateTo).finally(() => this.isLoading = false)
+    await this.getChecklistCategoryByDate(this.filterDateFrom, this.filterDateTo).finally(() => this.isLoading = false)
     if (this.userData.area_id == -1) {
       await this.getTaskAreaActivityById(this.taskActivityChartData.rawData[0].area, this.taskActivityChartData.rawData[0].area_id)
     } else await this.getTaskAreaActivityById(this.userData.area, this.userData.area_id)
-    await this.getPeriodCountByDate(this.month, this.year).finally(() => this.isLoading = false)
+    await this.getPeriodCountByDate(this.filterDateFrom, this.filterDateTo).finally(() => this.isLoading = false)
     this._taskActivityChart(
       '["--vz-success", "--vz-info", "--vz-warning", "--vz-danger", "--vz-secondary", "--vz-primary", "--vz-dark"]'
     );
@@ -164,9 +168,29 @@ export class AchievementsComponent {
     this.yearBefore = this.year
   }
 
-  async getTaskActivityCountToday() {
+  async getTaskDataByDateRange(fromDate: string, toDate: string) {
     return new Promise((resolve, reject) => {
-      this.apiService.getCountTaskActivity().subscribe({
+      this.isLoading = true;
+      this.apiService.getDashboardTaskByDateRange(fromDate, toDate).subscribe({
+        next: (res: any) => {
+          this.isLoading = false;
+          console.log(res);
+          resolve(true)
+        },
+        error: (err) => {
+          this.isLoading = false;
+          this.common.showServerErrorAlert(Const.ERR_GET_MSG("Task Data"), err)
+          reject(err);
+        }
+      })
+    })
+  }
+
+  //--new---------
+
+  async getTaskActivityCountToday(month= new Date().getMonth() + 1, year= new Date().getFullYear()) {
+    return new Promise((resolve, reject) => {
+      this.apiService.getDashboardTaskCountByDate(month, year).subscribe({
         next: (res: any) => {
           let taskData: any[] = []
           const todayFormatted = this.common.formatDate(new Date())
@@ -224,10 +248,10 @@ export class AchievementsComponent {
     })
   }
 
-  async getTaskDataByDate(month: number, year: number) {
+  async getTaskDataByDate(fromDate: string, toDate: string) {
     return new Promise((resolve, reject) => {
       this.isLoading = true
-      this.apiService.getTaskDataByDate(month, year).subscribe({
+      this.apiService.getDashboardTaskByDateRange(fromDate, toDate).subscribe({
         next: (res: any) => {
           if (!res.status) {
             if (this.monthBefore && this.yearBefore) {
@@ -235,7 +259,7 @@ export class AchievementsComponent {
               this.year = this.yearBefore
             }
             this.apiService.resetCachedData()
-            this.common.showErrorAlert(`No data found on ${this.common.getMonthName(month)} ${year}`)
+            this.common.showErrorAlert(`No data found on selected date`)
             this.isLoading = false
           } else {
             if (this.taskActivityChartData.rawData.length > 0) {
@@ -262,10 +286,10 @@ export class AchievementsComponent {
     })
   }
 
-  async getFindingUnfinishedByDate(month: number, year: number) {
+  async getFindingUnfinishedByDate(fromDate: string, toDate: string) {
     return new Promise((resolve, reject) => {
       this.isLoading = true
-      this.apiService.getFindingUnfinishedByDate(month, year).subscribe({
+      this.apiService.getDashboardUnfinishedByDateRange(fromDate, toDate).subscribe({
         next: (res: any) => {
 
           if (this.findingUnfinishedActivity.rawData.length > 0) {
@@ -294,10 +318,10 @@ export class AchievementsComponent {
     })
   
   }
-  async getFindingNotOkByDate(month: number, year: number) {
+  async getFindingNotOkByDate(fromDate: string, toDate: string) {
     return new Promise((resolve, reject) => {
       this.isLoading = true
-      this.apiService.getFindingNotOkByDate(month, year).subscribe({
+      this.apiService.getDashboardFindingByDateRange(fromDate, toDate).subscribe({
         next: (res: any) => {
           if (this.findingNotOkActivity.rawData.length > 0) {
             this.apiService.resetCachedData("findingDateData")
@@ -322,10 +346,10 @@ export class AchievementsComponent {
     })
   }
 
-  async getChecklistCategoryByDate(month: number, year: number) {
+  async getChecklistCategoryByDate(fromDate: string, toDate: string) {
     return new Promise((resolve, reject) => {
       this.isLoading = true
-      this.apiService.getChecklistCategoryByDate(month, year).subscribe({
+      this.apiService.getDashboardChecklistCategoryByDateRange(fromDate, toDate).subscribe({
         next: (res: any) => {
           if (this.checklistCategoryData) {
             this.apiService.resetCachedData("categoryDateData")
@@ -348,7 +372,7 @@ export class AchievementsComponent {
         this._taskAreaActivityChart('["--vz-info", "--vz-success"]')
         this._taskAreaComparisonChart('["--vz-primary", "--vz-info"]');
       }
-      this.apiService.getActivityChecklistById(areaId, this.month, this.year).subscribe({
+      this.apiService.getDashboardChecklistAreaByDateRange(areaId, this.filterDateFrom, this.filterDateTo).subscribe({
         next: (res: any) => {
           let data: any[] = res.data
           this.taskAreaActivityChartData.rawData = data
@@ -378,10 +402,10 @@ export class AchievementsComponent {
     
   }
 
-  async getPeriodCountByDate(month: number, year: number) {
+  async getPeriodCountByDate(fromDate: string, toDate: string) {
     return new Promise((resolve, reject) => {
       this.isLoading = true
-      this.apiService.getPeriodChecklistByDate(month, year).subscribe({
+      this.apiService.getDashboardPeriodCountByDateRange(fromDate, toDate).subscribe({
         next: (res: any) => {
           let data: any[] = res.data
           this.periodComparisonChartData.rawData = data
