@@ -115,7 +115,7 @@ export class AchievementsComponent {
     this.fromDate = `${this.year}-${monthFilter}-01`
     this.toDate = `${this.year}-${monthFilter}-${lastDayOfMonth}`
 
-    this.datePlaceholder = `${this.common.getLocaleDate(this.fromDate)} to ${this.common.getLocaleDate(this.toDate)}`
+    this.datePlaceholder = `${common.getMonthName(this.month)} ${this.year}`
 
     this.breakpointObserver.observe([Breakpoints.XSmall]).subscribe(result => {
       this.isSmallScreen = result.breakpoints[Breakpoints.XSmall]
@@ -332,9 +332,9 @@ export class AchievementsComponent {
           }
           let data: any[] = res.data
           if (this.userData.area_id != -1) {
-            this.findingNotOkActivity.rawData = data.filter(data => data.area_id == this.userData.area_id)
+            this.findingNotOkActivity.rawData = this.common.getUniqueData(data, 'activity_id').filter(data => data.area_id == this.userData.area_id)
           } else {
-            this.findingNotOkActivity.rawData = data
+            this.findingNotOkActivity.rawData = this.common.getUniqueData(data, 'activity_id')
           }
           
           this.findingNotOkActivity.total = this.findingNotOkActivity.rawData.length

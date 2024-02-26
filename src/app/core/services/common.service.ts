@@ -243,6 +243,22 @@ export class CommonService {
     return result;
   }
 
+  isFirstOrLastIndex(array: any[], element: any) {
+    if (array.length === 0) {
+        return false;
+    }
+
+    if (JSON.stringify(array[0]) === JSON.stringify(element)) {
+        return true;
+    }
+    
+    if (JSON.stringify(array[array.length - 1]) === JSON.stringify(element)) {
+        return true;
+    }
+    
+    return false;
+}
+
   // -- Show alerts
   showSuccessAlert(message?: string, cancelMessage?: string) {
     return Swal.fire({
@@ -280,6 +296,19 @@ export class CommonService {
       showCancelButton: true,
       cancelButtonColor: "rgb(243, 78, 78)",
       confirmButtonText: "Delete",
+    })
+  }
+
+  showTextInputAlert(title?: string, placeholder?: string, confirmButton?: string) {
+    return Swal.fire({
+      input: 'text',
+      titleText: title ? title : 'Add a note to continue',
+      showCancelButton: true,
+      inputPlaceholder: placeholder ? placeholder : 'Input text',
+      confirmButtonText: confirmButton ? confirmButton : 'Submit',
+      confirmButtonColor: '#556ee6',
+      cancelButtonColor: '#f46a6a',
+      allowOutsideClick: false
     })
   }
 
