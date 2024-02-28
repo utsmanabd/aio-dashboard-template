@@ -134,8 +134,6 @@ export class DetailTaskComponent {
         checked: false
       }
     })
-    console.log(this.periodData);
-    
     this.isAreaSelected = true
     this.router.navigate([`/planner/tasks/create/${this.dateSelected}`], {
       queryParams: {

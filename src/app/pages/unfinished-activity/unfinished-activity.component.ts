@@ -72,8 +72,6 @@ export class UnfinishedActivityComponent {
           from: new Date(this.fromDate),
           to: new Date(this.toDate)
         }
-        console.log(this.dateRangePicker);
-        
       }
     })
 

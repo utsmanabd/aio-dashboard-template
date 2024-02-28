@@ -136,15 +136,9 @@ export class AchievementsComponent {
   ngOnDestroy() {
     const fromDate = this.getDefaultFromDate()
     const toDate = this.getDefaultToDate()
-    console.log(fromDate, toDate);
-    console.log(this.fromDate, this.toDate);
     
     if (this.fromDate != fromDate || this.toDate != toDate) {
-      console.log("Success");
       this.apiService.resetCachedData()
-    } else {
-      console.log("Failed");
-      
     }
   }
 
@@ -256,8 +250,6 @@ export class AchievementsComponent {
             if (this.fromDateBefore && this.toDateBefore) {
               this.fromDate = this.fromDateBefore
               this.toDate = this.toDateBefore
-              console.log(this.fromDate, this.toDate);
-              
             }
             this.apiService.resetCachedData()
             this.common.showErrorAlert(`No data found on selected date`)

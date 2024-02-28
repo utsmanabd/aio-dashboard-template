@@ -90,8 +90,7 @@ export class FindingComponent {
         const rawData: any[] = res.data
         this.findingData = rawData.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
         this.findingData.forEach(item => item.pic !== null ? item.pic : item.pic = '')
-        console.log(this.findingData);
-        
+
         this.totalPages = Math.ceil(this.findingData.length / this.pageSize);
         this.updatePagination(this.findingData);
       },
@@ -120,8 +119,6 @@ export class FindingComponent {
   }
 
   applyFilter(): void {
-    console.log(this.searchKeyword);
-    
     this.currentPage = 1;
     this.filteredFindingData = this.findingData.filter(finding => {
       return finding.activity.toLowerCase().includes(this.searchKeyword.trim().toLowerCase()) ||
@@ -298,7 +295,6 @@ export class FindingComponent {
             }
           })
         })
-        console.log(formData);
         this.updateTaskActivity(formData).then(() => {
           setTimeout(() => {
             this.getFindingData()
