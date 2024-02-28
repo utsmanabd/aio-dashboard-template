@@ -26,6 +26,7 @@ export class AreaComponent {
   totalPages!: number;
   paginatedAreaData: any[] = [];
   pages: number[] = [];
+  filteredAreaData: any[] = [];
 
   searchKeyword: string = "";
   successMessage: string = "";
@@ -87,7 +88,7 @@ export class AreaComponent {
   goToPage(pageNumber: number): void {
     if (pageNumber >= 1 && pageNumber <= this.totalPages) {
       this.currentPage = pageNumber;
-      this.updatePagination(this.areaData);
+      this.updatePagination(this.filteredAreaData.length > 0 ? this.filteredAreaData : this.areaData);
     }
   }
 
@@ -106,13 +107,13 @@ export class AreaComponent {
 
   applyFilter(): void {
     this.currentPage = 1;
-    const filteredAreaData = this.areaData.filter((activity: any) =>
+    this.filteredAreaData = this.areaData.filter((activity: any) =>
       activity.name
         .toLowerCase()
         .includes(this.searchKeyword.trim().toLowerCase())
     );
-    this.totalPages = Math.ceil(filteredAreaData.length / this.pageSize);
-    this.updatePagination(filteredAreaData);
+    this.totalPages = Math.ceil(this.filteredAreaData.length / this.pageSize);
+    this.updatePagination(this.filteredAreaData);
   }
 
   async onSubmitData() {

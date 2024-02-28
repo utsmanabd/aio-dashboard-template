@@ -34,6 +34,7 @@ export class UserManagementComponent {
   pageSize = 10;
   currentPage = 1;
   paginatedUsersData: any[] = [];
+  filteredUsersData: any[] = [];
   searchKeyword: string = "";
 
   userDataForm!: UntypedFormGroup;
@@ -324,7 +325,7 @@ export class UserManagementComponent {
   goToPage(pageNumber: number): void {
     if (pageNumber >= 1 && pageNumber <= this.totalPages) {
       this.currentPage = pageNumber;
-      this.updatePagination(this.usersData);
+      this.updatePagination(this.filteredUsersData.length > 0 ? this.filteredUsersData : this.usersData);
     }
   }
 
@@ -340,7 +341,7 @@ export class UserManagementComponent {
 
   applyFilter(): void {
     this.currentPage = 1;
-    const filteredUsersData = this.usersData.filter(
+    this.filteredUsersData = this.usersData.filter(
       (user) =>
         user.name
           .toLowerCase()
@@ -352,8 +353,8 @@ export class UserManagementComponent {
           .toLowerCase()
           .includes(this.searchKeyword.trim().toLowerCase())
     );
-    this.totalPages = Math.ceil(filteredUsersData.length / this.pageSize);
-    this.updatePagination(filteredUsersData);
+    this.totalPages = Math.ceil(this.filteredUsersData.length / this.pageSize);
+    this.updatePagination(this.filteredUsersData);
   }
 
 }

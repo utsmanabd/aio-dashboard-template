@@ -1,4 +1,5 @@
 import { Component } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
 import { IAlbum, Lightbox } from "ngx-lightbox";
 import { CommonService } from "src/app/core/services/common.service";
 import { restApiService } from "src/app/core/services/rest-api.service";
@@ -13,6 +14,7 @@ import { GlobalComponent } from "src/app/global-component";
 export class FindingComponent {
   columnsFinding = [
     "#",
+    "Updated at",
     "Activity",
     "Comment",
     "Mahcine/Area",
@@ -21,17 +23,31 @@ export class FindingComponent {
   ];
 
   findings: any[] = [];
+  findingData: any[] = [];
 
   imageUrl = GlobalComponent.API_URL + GlobalComponent.image;
   isLoading: boolean = false;
   breadCrumbItems!: Array<{}>;
 
   imageAlbum: IAlbum[] = []
+  isTableView: boolean = false
+
+  index = 0
+  activePages: number[] = [];
+  pageSize = 10;
+  currentPage = 1;
+  totalPages!: number;
+  paginatedFindingData: any[] = [];
+  filteredFindingData: any[] = [];
+
+  searchKeyword: string = "";
 
   constructor(
     private apiService: restApiService,
     public common: CommonService,
-    private lightbox: Lightbox
+    private lightbox: Lightbox,
+    private router: Router,
+    private route: ActivatedRoute,
   ) {
     this.breadCrumbItems = [
       { label: "Planner" },
@@ -40,6 +56,14 @@ export class FindingComponent {
   }
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe((params: any) => {
+      if (params.tableView === "true") {
+        this.isTableView = true
+      } else {
+        this.isTableView = false
+      }
+    });
+
     this.getFindingData();
   }
 
@@ -47,10 +71,8 @@ export class FindingComponent {
     this.isLoading = true;
     this.apiService.getFindingNotOk().subscribe({
       next: (res: any) => {
-        console.log(res.data);
-        console.log(this.transformData(res.data));
-        this.findings = this.transformData(res.data);
         this.isLoading = false;
+        this.findings = this.transformData(res.data);
         this.imageAlbum.splice(0)
         this.findings.forEach(area => {
           area.detail.forEach((machine: any) => {
@@ -65,12 +87,50 @@ export class FindingComponent {
             })
           })
         })
+        const rawData: any[] = res.data
+        this.findingData = rawData.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+        this.findingData.forEach(item => item.pic !== null ? item.pic : item.pic = '')
+        console.log(this.findingData);
+        
+        this.totalPages = Math.ceil(this.findingData.length / this.pageSize);
+        this.updatePagination(this.findingData);
       },
       error: (err: any) => {
         this.common.showServerErrorAlert(Const.ERR_GET_MSG("Finding"), err)
         this.isLoading = false;
       },
     });
+  }
+
+  updatePagination(dataSource: any): void {
+    this.index = (this.currentPage - 1) * this.pageSize;
+    this.paginatedFindingData = dataSource.slice(
+      (this.currentPage - 1) * this.pageSize,
+      this.currentPage * this.pageSize
+    );
+
+    this.activePages = this.common.calculateActivePages(this.currentPage, this.totalPages);
+  }
+
+  goToPage(pageNumber: number): void {
+    if (pageNumber >= 1 && pageNumber <= this.totalPages) {
+      this.currentPage = pageNumber;
+      this.updatePagination(this.filteredFindingData.length > 0 ? this.filteredFindingData : this.findingData);
+    }
+  }
+
+  applyFilter(): void {
+    console.log(this.searchKeyword);
+    
+    this.currentPage = 1;
+    this.filteredFindingData = this.findingData.filter(finding => {
+      return finding.activity.toLowerCase().includes(this.searchKeyword.trim().toLowerCase()) ||
+        finding.standard.toLowerCase().includes(this.searchKeyword.trim().toLowerCase()) ||
+        finding.machine_area.toLowerCase().includes(this.searchKeyword.trim().toLowerCase()) ||
+        finding.pic.toLowerCase().includes(this.searchKeyword.trim().toLowerCase())
+    })
+    this.totalPages = Math.ceil(this.filteredFindingData.length / this.pageSize)
+    this.updatePagination(this.filteredFindingData)
   }
 
   previewImage(id: number) {
@@ -126,6 +186,7 @@ export class FindingComponent {
           if (existingFinding) {
             existingFinding.detail.push({
               date: item.date,
+              updated_at: item.updated_at,
               task_activity_id: item.task_activity_id,
               comment: item.comment,
               picture: item.picture,
@@ -139,6 +200,7 @@ export class FindingComponent {
               detail: [
                 {
                   date: item.date,
+                  updated_at: item.updated_at,
                   task_activity_id: item.task_activity_id,
                   comment: item.comment,
                   picture: item.picture,
@@ -159,6 +221,7 @@ export class FindingComponent {
                 detail: [
                   {
                     date: item.date,
+                    updated_at: item.updated_at,
                     task_activity_id: item.task_activity_id,
                     comment: item.comment,
                     picture: item.picture,
@@ -185,6 +248,7 @@ export class FindingComponent {
                   detail: [
                     {
                       date: item.date,
+                      updated_at: item.updated_at,
                       task_activity_id: item.task_activity_id,
                       comment: item.comment,
                       picture: item.picture,
@@ -202,11 +266,26 @@ export class FindingComponent {
     return transformedData;
   }
 
+  onSelectedViewCheck(event: any) {
+    if (event.target.id == 'btnCalendar') {
+      this.isTableView = false
+      this.router.navigate(["/planner/finding"], {
+        queryParams: { tableView: false },
+      });
+    } else if (event.target.id == 'btnTableView') {
+      this.isTableView = true
+      this.router.navigate(["/planner/finding"], {
+        queryParams: { tableView: true },
+      });
+    }
+  }
+
   onFindingStatusChanged(activities: any[]) {
     this.common.showTextInputAlert(
-      "This action will resolve the finding status",
+      "Resolve Finding",
+      "Are you sure you want to solve the finding status?",
       "Add a resolve notes",
-      "Resolve"
+      "Solve"
     ).then((result) => {
       if (result.isConfirmed) {
         let formData: any[] = [];

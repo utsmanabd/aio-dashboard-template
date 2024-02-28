@@ -19,7 +19,7 @@ import { TokenStorageService } from 'src/app/core/services/token-storage.service
   styleUrls: ['./tasks.component.scss']
 })
 export class TasksComponent {
-  tableColumn = ["#", "Date", "Area", "Progress", "Action"];
+  tableColumn = ["#", "Date", "Area", "Progress", "Total Activity", "Remaining Activities", "Action"];
   tasksData: any[] = [];
 
   eventData: any[] = []
@@ -30,6 +30,7 @@ export class TasksComponent {
   currentPage = 1;
   totalPages!: number;
   paginatedTasksData: any[] = [];
+  filteredTaskData: any[] = [];
 
   searchKeyword: string = "";
 
@@ -168,7 +169,7 @@ export class TasksComponent {
   goToPage(pageNumber: number): void {
     if (pageNumber >= 1 && pageNumber <= this.totalPages) {
       this.currentPage = pageNumber;
-      this.updatePagination(this.tasksData);
+      this.updatePagination(this.filteredTaskData.length > 0 ? this.filteredTaskData : this.tasksData);
     }
   }
 
@@ -184,13 +185,13 @@ export class TasksComponent {
 
   applyFilter(): void {
     this.currentPage = 1;
-    const filteredTasksData = this.tasksData.filter(
+    this.filteredTaskData = this.tasksData.filter(
       (activity: any) =>      
         activity.area
           .toLowerCase()
           .includes(this.searchKeyword.trim().toLowerCase())
     );
-    this.totalPages = Math.ceil(filteredTasksData.length / this.pageSize);
-    this.updatePagination(filteredTasksData);
+    this.totalPages = Math.ceil(this.filteredTaskData.length / this.pageSize);
+    this.updatePagination(this.filteredTaskData);
   }
 }

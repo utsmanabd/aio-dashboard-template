@@ -128,7 +128,14 @@ export class DetailTaskComponent {
       data.is_selected = this.isRecommended(this.common.getDayCount(data.last_updated, this.dateSelected), this.common.getPeriodDayCount(data.periode))
     })
     this.filteredActivityDataBefore = this.filteredActivityData.map(a => ({ ...a }));
-    this.periodData = this.common.getUniqueData(this.filteredActivityData, 'periode').map(data => data.periode)
+    this.periodData = this.common.getUniqueData(this.filteredActivityData, 'periode').map(data => {
+      return {
+        period: data.periode,
+        checked: false
+      }
+    })
+    console.log(this.periodData);
+    
     this.isAreaSelected = true
     this.router.navigate([`/planner/tasks/create/${this.dateSelected}`], {
       queryParams: {
@@ -161,6 +168,11 @@ export class DetailTaskComponent {
     this.filteredActivityData.forEach((activity) => {
       event.target.checked ? activity.is_selected = true : activity.is_selected = false
     })
+    this.resetPeriodCheckbox()
+
+    this.isCategorySelected = false
+    this.isRecommendedSelected = false
+    this.isPeriodSelected = false
   }
 
   onThreeDaysSet(event: any) {
@@ -240,8 +252,15 @@ export class DetailTaskComponent {
     );
   }
 
+  resetPeriodCheckbox() {
+    this.periodData.forEach(data => {
+      data.checked = false;
+    })
+  }
+
   onAutoSelectClick(event: any, property?: any) {
-    const filterId = event.target.id
+    const filterId: string = event.target.id
+    
     if (!property) {
       if (filterId == 'btnRecommended') {
         this.isCategorySelected = false
@@ -252,30 +271,44 @@ export class DetailTaskComponent {
           data.is_selected = this.isRecommended(dayCount, periodCount)
         })
         this.isRecommendedSelected = true
+        this.resetPeriodCheckbox()
       }
     } else {
-      if (filterId == 'btnPeriod') {
-        this.isRecommendedSelected = false
-        this.isCategorySelected = false
-        this.filteredActivityData.forEach(data => {
-          data.is_selected = data.periode == `${property}` ? true : false
-        })
-        this.filteredActivityData.sort((a, b) => {
-          if (a.is_selected === b.is_selected) {
-            return 0;
-          } else if (a.is_selected) {
-            return -1;
-          } else {
-            return 1;
-          }
-        })
-        this.isPeriodSelected = true
-      } else if (filterId == 'btnCategory') {
+      if (filterId == 'btnCategory') {
         this.isPeriodSelected = false
         this.isRecommendedSelected = false
         this.filteredActivityData.forEach(data => data.is_selected = data.category == `${property}` ? true : false)
         this.isCategorySelected = true
-      }
+        this.resetPeriodCheckbox()
+      } else {
+        this.isRecommendedSelected = false
+        this.isCategorySelected = false
+        property.checked = event.target.checked
+        
+        this.filteredActivityData.forEach(data => {
+          if (!this.isPeriodSelected) {
+            data.is_selected = false
+          }
+          if (data.periode == `${property.period}`) {
+            data.is_selected = event.target.checked
+          }
+        })
+
+        this.isPeriodSelected = true
+        // this.filteredActivityData.forEach(data => {
+        //   data.is_selected = data.periode == `${property}` ? true : false
+        // })
+        // this.filteredActivityData.sort((a, b) => {
+        //   if (a.is_selected === b.is_selected) {
+        //     return 0;
+        //   } else if (a.is_selected) {
+        //     return -1;
+        //   } else {
+        //     return 1;
+        //   }
+        // })
+        
+      } 
     }
   }
 

@@ -1,10 +1,13 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { IAlbum, Lightbox } from 'ngx-lightbox';
+import { Observable, OperatorFunction, debounceTime, distinctUntilChanged, of, switchMap, tap } from "rxjs";
 import { CommonService } from 'src/app/core/services/common.service';
 import { restApiService } from 'src/app/core/services/rest-api.service';
 import { TokenStorageService } from 'src/app/core/services/token-storage.service';
 import { Const } from 'src/app/core/static/const';
 import { GlobalComponent } from 'src/app/global-component';
+import { Employee } from 'src/app/shared/employee.model';
 
 interface MachineData {
   m_area_id: number,
@@ -22,6 +25,7 @@ export class DetailActivityComponent {
 
   taskActivityData: any[] = []
   identityTaskData: any[] = [];
+  identityTaskDataBefore: any[] = [];
   identityTaskCountData: any;
 
   tableColumns = [
@@ -44,11 +48,48 @@ export class DetailActivityComponent {
 
   searchKeyword: string = "";
 
+  isUsernameChecked: boolean = false;
+
   isLoading: boolean = false;
   breadCrumbItems!: Array<{}>;
   userData: any
+  imageAlbum: IAlbum[] = []
+  imageSelected: File[] = [];
+  imageUrlArray: any[] = [];
 
   today: string
+  isEditMode: boolean = false
+
+  formatter = (employee: Employee) => employee.employee_name
+  searching = false;
+  searchFailed = false;
+  searchLength: number | null = null
+
+  search: OperatorFunction<string, any[]> = (text$: Observable<any>) =>
+    text$.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      tap(() => (this.searching = true)),
+      switchMap((query: string) => {
+        if (query.length >= 3) {
+          this.searchLength = null
+          return this.apiService.getEmployeeData(query).pipe(
+            tap((data) => {
+              if (data.length > 0) {
+                this.searchFailed = false
+              } else this.searchFailed = true
+              
+            })
+          )
+        } else {
+          this.searchLength = query.length
+          return of([])
+        }
+      }),
+      tap(() => {
+        this.searching = false
+      })
+    )
 
   constructor(
     private route: ActivatedRoute,
@@ -56,6 +97,7 @@ export class DetailActivityComponent {
     private apiService: restApiService,
     public common: CommonService,
     private tokenService: TokenStorageService,
+    private lightbox: Lightbox
   ) {
     this.breadCrumbItems = [
       { label: 'Tasks' },
@@ -76,11 +118,85 @@ export class DetailActivityComponent {
     })
   }
 
+  previewImage(id: number) {
+    let album: any[] = this.imageAlbum.map(album => ({...album}))
+    album.forEach((album) => {
+      album.id = this.extractId(album.src)
+    })
+    const albumFilter = album.filter((album) => album.id !== null)
+    let index = this.getIndexById(albumFilter, id, "id")
+    if (this.imageAlbum.length > 0) {
+      this.lightbox.open(albumFilter, index, {
+        showDownloadButton: true,
+        showZoom: true,
+      })
+    }
+  }
+
+  extractId(fileName: string): number | null {
+    const match = fileName.match(/id-(\d+)/);
+    if (match) {
+      return parseInt(match[1], 10);
+    }
+    return null;
+  }
+
   onTabChange(mAreaId: number) {
     if (this.taskId && mAreaId) {
       this.selectedMachineId = mAreaId
       this.getTaskActivity(this.taskId, mAreaId);
     }
+  }
+
+  onEditModeChange(event: any) {
+    this.isEditMode = event.target.checked
+  }
+
+  isConditionOk(condition: any): boolean {
+    return condition === 1 ? true : false
+  }
+
+  isConditionNotOk(condition: any): boolean {
+    return condition === 0 ? true : false
+  }
+
+  changeCondition(event: any, id: number) {
+    const conditionValue = event.target.value;
+    const index = this.getIndexById(this.identityTaskData, id);
+    this.identityTaskData[index].condition = +conditionValue;
+  }
+
+  getIndexById(arr: any[], id: number, idProperty: string = "task_activity_id"): number {
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i][idProperty] === id) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  onPicSearch(id: number, pic: any) {
+    const index = this.getIndexById(this.identityTaskData, id)
+    setTimeout(() => {
+      if (pic != undefined && pic != this.identityTaskDataBefore[index].pic) {
+        const name = pic.employee_name
+        const nik = pic.nik
+        this.identityTaskData[index].pic = name as string
+        this.identityTaskData[index].pic_nik = nik as string
+      }
+    }, 50)
+  }
+
+  isSearchFailed(id: number, model: any): boolean {
+    const index = this.getIndexById(this.identityTaskData, id)
+    let result: boolean = false
+    
+    if (model !== this.identityTaskDataBefore[index].pic) {
+      const pic = this.identityTaskData[index].pic
+      if (!pic) result = true
+    }
+
+    return result
   }
 
   async getTaskActivityByTaskId(taskId: number) {
@@ -122,9 +238,130 @@ export class DetailActivityComponent {
     })
   }
 
+  onSaveChanges() {
+    if (this.imageSelected.length > 0) {
+      const formData = new FormData();
+
+      this.imageSelected.forEach((file) => {
+        formData.append("files", file, file.name);
+      });
+
+      this.sendWithImages(formData);
+    } else {
+      this.sendIndentityTaskData()
+    }
+  }
+
+  sendWithImages(files: FormData) {
+    this.isLoading = true
+    this.apiService.uploadMultipleImage(files).subscribe({
+      next: (res: any) => {
+        this.imageUrlArray = res.uploadedFiles;
+      },
+      error: (err) => {
+        this.isLoading = false
+        this.common.showErrorAlert(Const.ERR_INSERT_MSG("Image"), err)
+      },
+      complete: () => {
+        this.imageSelected = [];
+        if (this.imageUrlArray.length > 0) {
+          let imageUrlId: any[] = [];
+          this.imageUrlArray.forEach((url) => {
+            imageUrlId.push(this.extractId(url));
+          });
+          const index = (id: number) => {
+            return this.getIndexById(this.identityTaskData, id);
+          };
+          for (let i = 0; i < imageUrlId.length; i++) {
+            this.identityTaskData[index(imageUrlId[i])].picture =
+              this.imageUrlArray[i];
+          }
+          this.sendIndentityTaskData()
+        }
+      },
+    });
+  }
+
+  sendIndentityTaskData() {
+    let form = this.identityTaskData.filter((item, index) => {
+      let result: boolean = false;
+      for (let element in item) {
+        if (
+          this.identityTaskDataBefore[index][element] !==
+          this.identityTaskData[index][element]
+        ) {
+          result = true;
+        }
+      }
+
+      if (this.isSearchFailed(this.identityTaskData[index].task_activity_id, this.identityTaskData[index].pic)) result = false
+
+      if (this.identityTaskDataBefore[index].pic_nik && this.identityTaskData[index].pic == null) {
+        this.identityTaskData[index].pic_nik = this.identityTaskDataBefore[index].pic_nik
+        result = false
+      }
+
+      return result;
+    });
+
+    if (form.length > 0) {
+      const taskActivityData = (
+        taskActivityId?: any,
+        condition?: any,
+        comment?: any,
+        picture?: any,
+        pic?: any,
+        picNik?: any
+      ) => {
+        let data = {
+          id: taskActivityId,
+          data: {
+            condition: condition,
+            comment: comment,
+            picture: picture,
+            pic: pic,
+            pic_nik: picNik
+          },
+        }
+        return data
+      };
+      let formData: any[] = []
+      form.forEach((element: any) => {
+        formData.push(taskActivityData(element.task_activity_id, element.condition, element.comment, element.picture, element.pic, element.pic_nik))
+      });
+      
+      this.isLoading = true
+      this.apiService.updateTaskActivity(formData).subscribe({
+        next: (res: any) => {
+          this.getTaskActivityByTaskId(this.taskId!!).then(() => {
+            this.onTabChange(this.selectedMachineId)
+          })
+          this.isLoading = false
+          this.isEditMode = false
+          this.common.goToTop()
+          this.common.showSuccessAlert('Task activity has been updated!')
+        },
+        error: (err: any) => {
+          this.isLoading = false
+          this.common.showErrorAlert(Const.ERR_UPDATE_MSG("Task Activity"), err)
+        }
+      })
+    }
+  }
+
   getTaskActivity(taskId: any, mAreaId: any) {
     let data = this.taskActivityData.filter(item => item.m_area_id == mAreaId)
     this.identityTaskData = data
+    const imageData = this.identityTaskData.map(item => item.picture)
+    this.imageAlbum.splice(0)
+    imageData.forEach(image => {
+      this.imageAlbum.push({
+        caption: this.identityTaskData.find(item => item.picture == image).comment,
+        src: this.getImageSource(image),
+        thumb: this.getImageSource(`${image}`)
+      })
+    })
+    this.identityTaskDataBefore = data.map((a: any) => ({...a}))
     this.getCountTaskActivity(taskId, mAreaId)
   }
 
@@ -137,6 +374,12 @@ export class DetailActivityComponent {
 
   getImageSource(imageUrl: string): string {
     return `${GlobalComponent.API_URL}${GlobalComponent.image}${imageUrl}`
+  }
+
+  onImageSelected(event: any, activityId: any) {
+    const file = event.target.files[0];
+    const renamedFile = this.common.renameFile(file, activityId)
+    this.imageSelected.push(renamedFile);
   }
 
   filterIdentityTaskData() {

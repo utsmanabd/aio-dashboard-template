@@ -31,6 +31,7 @@ import { LayoutModule } from '@angular/cdk/layout';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { UserManagementComponent } from './user-management/user-management.component';
 import { DetailActivityComponent } from './planner-task/detail-activity/detail-activity.component';
+import { UnfinishedActivityComponent } from './unfinished-activity/unfinished-activity.component';
 
 @NgModule({
   declarations: [
@@ -47,7 +48,8 @@ import { DetailActivityComponent } from './planner-task/detail-activity/detail-a
     DateAgoPipe,
     NotFoundComponent,
     UserManagementComponent,
-    DetailActivityComponent
+    DetailActivityComponent,
+    UnfinishedActivityComponent
   ],
   imports: [
     LayoutModule,

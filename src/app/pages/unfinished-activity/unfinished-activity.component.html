@@ -1,0 +1,101 @@
+<ngx-loading [show]="isLoading"></ngx-loading>
+<app-breadcrumbs title="Unfinished Activiy" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+<div class="card">
+  <div class="card-header">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h6 class="text-muted">Period: <span class="text-dark">{{ common.getLocaleDate(fromDate) + " to " + common.getLocaleDate(toDate) }}</span></h6>
+      </div>
+      <div class="row row-cols-lg-auto g-1 align-items-center">
+        <div class="me-2" *ngIf="unfinishedData.length > 0">
+            <small class="fw-medium mb-1">Search</small>
+            <input placeholder="Search" type="text" [(ngModel)]="searchKeyword" (input)="applyFilter()" class="form-control form-control-sm">
+        </div>
+        <div class="me-2" *ngIf="areaData.length > 0">
+          <small class="fw-medium mb-1">Area</small>
+          <select class="form-select form-select-sm" (change)="onFilterArea()" [(ngModel)]="selectedAreaId">
+            <option value="0">All</option>
+            <option *ngFor="let item of areaData" [value]="item.area_id">{{ item.area }}</option>
+          </select>
+        </div>
+        <div class="me-2">
+          <small class="fw-medium mb-1">Date Range</small>
+          <input
+            [(ngModel)]="dateRange"
+            class="form-control form-control-sm flatpickr-input"
+            type="text"
+            placeholder="{{ datePlaceholder }}"
+            mwlFlatpickr
+            (change)="onChangeDateRange($event)"
+            [altInput]="true"
+            [convertModelValue]="true"
+            mode="range"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card-body table-responsive">
+    <!-- Table Head -->
+    <table class="table align-middle table-nowrap mb-0" *ngIf="unfinishedData.length > 0;else noUnfinished">
+      <thead class="table-light">
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Date</th>
+          <th scope="col">Activity</th>
+          <th scope="col">Machine Area</th>
+          <th scope="col">Area</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of paginatedActivityData;let i = index">
+          <td>{{ common.getComputedRowNumber(index, i) }}</td>
+          <td>
+            {{ data.is_three_days ? common.getLocaleDate(data.date) + ' - ' + 
+            common.getLocaleDate(common.getThreeDays(data.date).setDate(common.getThreeDays(data.date).getDate() - 1)) : 
+            common.getLocaleDate(data.date) }}
+          </td>
+          <td>{{ data.activity }}</td>
+          <td>{{ data.machine_area }}</td>
+          <td>{{ data.area }}</td>
+          <td>
+            <button type="button" [disabled]="userData.area_id != -1 && !common.isTodayTask(today, data.date, data.is_three_days ? common.getDateMinusOneSecond(common.getThreeDays(data.date)) : undefined)"
+            class="btn btn-sm btn-{{ userData.area_id != -1 && !common.isTodayTask(today, data.date, data.is_three_days ? common.getDateMinusOneSecond(common.getThreeDays(data.date)) : undefined) ? 'light' : 'primary' }}"
+            [routerLink]="userData.area_id == -1 ? '../../planner/tasks/detail/' + data.task_id : '../identity-task/' + data.task_id">
+              {{ userData.area_id == -1 ? 'Detail Task' : 'Open Task' }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card-footer bg-soft-light">
+    <ul class="pagination justify-content-center mt-2">
+        <li class="page-item" [ngClass]="{ 'disabled': currentPage === 1 }">
+          <a class="btn btn-primary page-link" (click)="goToPage(1)"><i class="bx bx-arrow-to-left"></i></a>
+        </li>
+        <li class="page-item" [ngClass]="{ 'disabled': currentPage === 1 }">
+          <a class="btn btn-primary page-link" (click)="goToPage(currentPage - 1)"><i class="bx bx-left-arrow-alt"></i></a>
+        </li>
+        <li class="page-item" *ngFor="let page of activePages" [ngClass]="{ 'active': currentPage === page }">
+          <a class="btn btn-primary page-link" (click)="goToPage(page)">{{ page }}</a>
+        </li>
+        <li class="page-item" [ngClass]="{ 'disabled': currentPage === totalPages }">
+          <a class="btn btn-primary page-link" (click)="goToPage(currentPage + 1)"><i class="bx bx-right-arrow-alt"></i></a>
+        </li>
+        <li class="page-item" [ngClass]="{ 'disabled': currentPage === totalPages }">
+          <a class="btn btn-primary page-link" (click)="goToPage(totalPages)"><i class="bx bx-arrow-to-right"></i></a>
+        </li>
+      </ul>
+  </div>
+</div>
+
+<ng-template #noUnfinished>
+    <div class="text-center mt-3">
+        <h4 class="card-title">All activities are done!</h4>
+    </div>
+    <div class="d-flex justify-content-center">
+        <img src="assets/images/no-undone.svg" alt="no-finding" height="300">
+    </div>
+</ng-template>

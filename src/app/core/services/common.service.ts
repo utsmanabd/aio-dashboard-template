@@ -98,8 +98,8 @@ export class CommonService {
     return monthNames[month - 1];
   }
 
-  formatDate(date: Date): string | null {
-    return this.datePipe.transform(date, 'dd-MM-yyyy');
+  formatDate(date: Date, format?: string): string | null {
+    return this.datePipe.transform(date, format ? format : 'dd-MM-yyyy');
   }
 
   isTodayTask(today: string, startDate: Date | string | number, endDate?: Date | string | number | null): boolean {
@@ -168,7 +168,7 @@ export class CommonService {
     let color = [
       `rgba(75, 56, 179, ${transparency})`, `rgba(53, 119, 241, ${transparency})`, 
       `rgba(69, 203, 133, ${transparency})`, `rgba(41, 156, 219, ${transparency})`, `rgba(255, 190, 11, ${transparency})`, 
-      `rgba(240, 101, 72, ${transparency})`, `rgba(52, 58, 64, ${transparency})`, `rgba(243, 246, 249, ${transparency})`
+      `rgba(240, 101, 72, ${transparency})`, `rgba(52, 58, 64, ${transparency})`, `rgba(135, 138, 153, ${transparency})`
     ];
     let index = areaData.indexOf(areaId);
     
@@ -299,10 +299,11 @@ export class CommonService {
     })
   }
 
-  showTextInputAlert(title?: string, placeholder?: string, confirmButton?: string) {
+  showTextInputAlert(title?: string, message?: string, placeholder?: string, confirmButton?: string) {
     return Swal.fire({
       input: 'text',
-      titleText: title ? title : 'Add a note to continue',
+      title: title ? title : 'Alert',
+      text: message ? message : 'Are you sure?',
       showCancelButton: true,
       inputPlaceholder: placeholder ? placeholder : 'Input text',
       confirmButtonText: confirmButton ? confirmButton : 'Submit',

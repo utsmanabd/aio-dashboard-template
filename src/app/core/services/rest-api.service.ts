@@ -25,6 +25,7 @@ export class restApiService {
     if (cachedData) {
       const index = this.cache.findIndex((item) => item[cachedData])
       if (index >= 0) {
+        this.cache.splice(index, 1)
       } else throwError(`${cachedData} not found!`)
     } else {
       this.cache.splice(0)
@@ -434,19 +435,43 @@ export class restApiService {
   }
 
   getDashboardTaskByDateRange(fromDate: string, toDate: string) {
-    return this.http.get(GlobalComponent.API_URL + `master/task/date`, {params: { from: fromDate, to: toDate }})
+    const cacheKey = 'taskDateData'
+    if (this.isCachedDataExists(cacheKey)) {
+      return of(this.getCachedData(cacheKey))
+    }
+    return this.http.get(GlobalComponent.API_URL + `master/task/date`, {params: { from: fromDate, to: toDate }}).pipe(
+      tap((data) => this.setCachedData(cacheKey, data))
+    )
   }
 
   getDashboardUnfinishedByDateRange(fromDate: string, toDate: string) {
-    return this.http.get(GlobalComponent.API_URL + `master/finding/undone/date`, {params: { from: fromDate, to: toDate }})
+    const cacheKey = 'unfinishedDateData'
+    if (this.isCachedDataExists(cacheKey)) {
+      return of(this.getCachedData(cacheKey))
+    }
+    return this.http.get(GlobalComponent.API_URL + `master/finding/undone/date`, {params: { from: fromDate, to: toDate }}).pipe(
+      tap((data) => this.setCachedData(cacheKey, data))
+    )
   }
 
   getDashboardFindingByDateRange(fromDate: string, toDate: string) {
-    return this.http.get(GlobalComponent.API_URL + `master/finding/not-ok/date`, {params: { from: fromDate, to: toDate }})
+    const cacheKey = 'findingDateData'
+    if (this.isCachedDataExists(cacheKey)) {
+      return of(this.getCachedData(cacheKey))
+    }
+    return this.http.get(GlobalComponent.API_URL + `master/finding/not-ok/date`, {params: { from: fromDate, to: toDate }}).pipe(
+      tap((data) => this.setCachedData(cacheKey, data))
+    )
   }
 
   getDashboardChecklistCategoryByDateRange(fromDate: string, toDate: string) {
-    return this.http.get(GlobalComponent.API_URL + `master/checklist/category/date`, {params: { from: fromDate, to: toDate }})
+    const cacheKey = 'categoryDateData'
+    if (this.isCachedDataExists(cacheKey)) {
+      return of(this.getCachedData(cacheKey))
+    }
+    return this.http.get(GlobalComponent.API_URL + `master/checklist/category/date`, {params: { from: fromDate, to: toDate }}).pipe(
+      tap((data) => this.setCachedData(cacheKey, data))
+    )
   }
 
   getDashboardChecklistAreaByDateRange(areaId: number, fromDate: string, toDate: string) {
@@ -454,7 +479,15 @@ export class restApiService {
   }
 
   getDashboardPeriodCountByDateRange(fromDate: string, toDate: string) {
-    return this.http.get(GlobalComponent.API_URL + `master/task-activity/period`, {params: { from: fromDate, to: toDate }})
+    const cacheKey = "periodData"
+    if (this.isCachedDataExists(cacheKey)) {
+      return of(this.getCachedData(cacheKey))
+    } else {
+      return this.http.get(GlobalComponent.API_URL + `master/task-activity/period`, {params: { from: fromDate, to: toDate }}).pipe(
+        tap((data) => this.setCachedData(cacheKey, data))
+      )
+    }
+    
   }
 
 

@@ -69,7 +69,7 @@
                         <!-- Radio Buttons -->
                         <div class="btn-group{{ isSmallScreen ? '-vertical' : ''}}" role="group" aria-label="Button group with nested dropdown">
                             <button id="btnRecommended" (click)="onAutoSelectClick($event)" type="button" class="btn btn-{{isRecommendedSelected ? 'primary' : 'soft-primary'}}">Recommended</button>
-                            <div class="btn-group" role="group" ngbDropdown>
+                            <!-- <div class="btn-group" role="group" ngbDropdown>
                                 <button id="btnGroupDrop1" type="button"
                                     class="btn btn-{{isPeriodSelected ? 'primary' : 'soft-primary'}} dropdown-toggle arrow-none" data-bs-toggle="dropdown"
                                     aria-expanded="false" ngbDropdownToggle>
@@ -78,6 +78,19 @@
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1" ngbDropdownMenu>
                                     <li *ngFor="let period of periodData"><a id="btnPeriod" (click)="onAutoSelectClick($event, period)" class="dropdown-item" href="javascript:void(0);">{{ period }}</a></li>
                                 </ul>
+                            </div> -->
+                            <div class="btn-group" ngbDropdown>
+                                <button id="btnPeriod" type="button" class="btn btn-{{ isPeriodSelected ? 'primary' : 'soft-primary' }} dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ngbDropdownToggle>
+                                    Period
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-md p-4" ngbDropdownMenu>
+                                    <form>
+                                        <div class="form-check custom-checkbox mb-2" *ngFor="let data of periodData">
+                                            <input [checked]="data.checked" (change)="onAutoSelectClick($event, data)" type="checkbox" class="form-check-input" id="checkPeriod-{{ data.period }}">
+                                            <label class="form-check-label" for="rememberdropdownCheck">{{ data.period }}</label>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                             <div class="btn-group" role="group" ngbDropdown>
                                 <button id="btnGroupDrop2" type="button"

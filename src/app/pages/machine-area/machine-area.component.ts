@@ -32,6 +32,7 @@ export class MachineAreaComponent {
   currentPage = 1;
   totalPages!: number;
   paginatedMachineAreaData: any[] = [];
+  filteredMachineAreaData: any[] = [];
   searchKeyword: string = "";
 
   constructor(
@@ -92,7 +93,7 @@ export class MachineAreaComponent {
   goToPage(pageNumber: number): void {
     if (pageNumber >= 1 && pageNumber <= this.totalPages) {
       this.currentPage = pageNumber;
-      this.updatePagination(this.machineAreaData);
+      this.updatePagination(this.filteredMachineAreaData.length > 0 ? this.filteredMachineAreaData : this.machineAreaData);
     }
   }
 
@@ -196,7 +197,7 @@ export class MachineAreaComponent {
 
   applyFilter(): void {
     this.currentPage = 1;
-    const filteredMachineAreaData = this.machineAreaData.filter(
+    this.filteredMachineAreaData = this.machineAreaData.filter(
       (activity: any) =>
         activity.area
           .toLowerCase()
@@ -205,8 +206,8 @@ export class MachineAreaComponent {
           .toLowerCase()
           .includes(this.searchKeyword.trim().toLowerCase())
     );
-    this.totalPages = Math.ceil(filteredMachineAreaData.length / this.pageSize);
-    this.updatePagination(filteredMachineAreaData);
+    this.totalPages = Math.ceil(this.filteredMachineAreaData.length / this.pageSize);
+    this.updatePagination(this.filteredMachineAreaData);
   }
 
   validateForm() {

@@ -207,7 +207,7 @@ export class ActivityComponent {
   goToPage(pageNumber: number): void {
     if (pageNumber >= 1 && pageNumber <= this.totalPages) {
       this.currentPage = pageNumber;
-      this.updatePagination(this.activityData);
+      this.updatePagination(this.filteredActivityData.length > 0 ? this.filteredActivityData : this.activityData);
     }
   }
 
@@ -223,7 +223,7 @@ export class ActivityComponent {
 
   applyFilter(): void {
     this.currentPage = 1;
-    const filteredActivityData = this.activityData.filter(
+    this.filteredActivityData = this.activityData.filter(
       (activity: any) =>
         activity.area
           .toLowerCase()
@@ -244,8 +244,8 @@ export class ActivityComponent {
           .toLowerCase()
           .includes(this.searchKeyword.trim().toLowerCase())
     );
-    this.totalPages = Math.ceil(filteredActivityData.length / this.pageSize);
-    this.updatePagination(filteredActivityData);
+    this.totalPages = Math.ceil(this.filteredActivityData.length / this.pageSize);
+    this.updatePagination(this.filteredActivityData);
   }
 
   selectEvent(item: any) {  }

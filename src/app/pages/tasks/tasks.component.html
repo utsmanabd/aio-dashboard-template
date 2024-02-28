@@ -66,9 +66,11 @@
                                             aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                 </td>
+                                <td>{{ data.total_activity }}</td>
+                                <td>{{ data.total_activity - data.checklist }}</td>
                                 <td>
                                     <button (click)="onIdentityTaskClick(data)" type="button" [disabled]="!common.isTodayTask(today, data.date, data.is_three_days ? common.getDateMinusOneSecond(common.getThreeDays(data.date)) : undefined)"
-                                        class="btn btn-{{ !common.isTodayTask(today, data.date, data.is_three_days ? common.getDateMinusOneSecond(common.getThreeDays(data.date)) : undefined) ? 'light' : 'primary' }} btn-sm">Identity Task</button>
+                                        class="btn btn-{{ !common.isTodayTask(today, data.date, data.is_three_days ? common.getDateMinusOneSecond(common.getThreeDays(data.date)) : undefined) ? 'light' : 'primary' }} btn-sm">Open Task</button>
                                 </td>
                             </tr>
                         </tbody>

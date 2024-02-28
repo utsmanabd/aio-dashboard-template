@@ -36,7 +36,7 @@
                 </div>
                 <div class="row row-cols-lg-auto g-1 align-items-center">
                         <div class="me-2">
-                            <input class="form-control flatpickr-input" type="text" placeholder="{{ datePlaceholder }}" mwlFlatpickr (change)="onChangeDateRange($event)"
+                            <input [(ngModel)]="dateRange" class="form-control flatpickr-input" type="text" placeholder="{{ datePlaceholder }}" mwlFlatpickr (change)="onChangeDateRange($event)"
                                 [altInput]="true" [convertModelValue]="true" mode="range">
                         </div>
                         <!-- <div class="me-2">
@@ -81,7 +81,7 @@
                             <h4 class="fs-22 fw-semibold ff-secondary mb-4 text-white">
                                 <span class="counter-value">{{totalActivity}}</span>
                             </h4>
-                            <a [routerLink]="['tasks']" [queryParams]="{tableView: true}" class="text-decoration-underline text-white-50">See details</a>
+                            <a [routerLink]="['planner/tasks']" [queryParams]="{tableView: true}" class="text-decoration-underline text-white-50">See details</a>
                         </div>
                         <div class="avatar-sm flex-shrink-0">
                             <span class="avatar-title bg-soft-light rounded fs-3 shadow">
@@ -105,7 +105,7 @@
                             <h4 class="fs-22 fw-semibold ff-secondary mb-4 text-white">
                                 <span class="counter-value">{{ totalActivity - findingUnfinishedActivity.total }}</span>
                             </h4>
-                            <a [routerLink]="['tasks']" [queryParams]="{tableView: true}" class="text-decoration-underline text-white-50">See details</a>
+                            <a [routerLink]="['planner/tasks']" [queryParams]="{tableView: true}" class="text-decoration-underline text-white-50">See details</a>
                         </div>
                         <div class="avatar-sm flex-shrink-0">
                             <span class="avatar-title bg-soft-light rounded fs-3 shadow">
@@ -129,7 +129,7 @@
                             <h4 class="fs-22 fw-semibold ff-secondary mb-4 text-white">
                                 <span class="counter-value">{{ findingUnfinishedActivity.total }}</span>
                             </h4>
-                            <a href="javascript:void(0);" (click)="scrollToElement(finding)" class="text-decoration-underline text-white-50">See details</a>
+                            <a [routerLink]="['tasks/unfinished']" [queryParams]="{from: fromDate, to: toDate}" class="text-decoration-underline text-white-50">See details</a>
                         </div>
                         <div class="avatar-sm flex-shrink-0">
                             <span class="avatar-title bg-soft-light rounded fs-3 shadow">
@@ -153,7 +153,7 @@
                             <h4 class="fs-22 fw-semibold ff-secondary mb-4 text-white">
                                 <span class="counter-value">{{findingNotOkActivity.total}}</span>
                             </h4>
-                            <a href="javascript:void(0);" (click)="scrollToElement(finding)" class="text-decoration-underline text-white-50">See details</a>
+                            <a routerLink="planner/finding" class="text-decoration-underline text-white-50">See details</a>
                         </div>
                         <div class="avatar-sm flex-shrink-0">
                             <span class="avatar-title bg-soft-light rounded fs-3 shadow">
@@ -411,9 +411,10 @@
                             </td>
                             <td>{{ data.pic }}</td>
                             <td>
-                                <div class="flex-shrink-0 me-2">
-                                    <img src="{{imageUrl}}{{ data.picture ? data.picture : 'no-image-found.jpg' }}" alt="" class="p-2" width="70" />
+                                <div class="flex-shrink-0 me-2" *ngIf="data.picture">
+                                    <img src="{{imageUrl}}{{ data.picture }}" alt="" class="p-2" width="70" />
                                 </div>
+                                <div *ngIf="!data.picture" class="text-muted">No image</div>
                             </td>
                         </tr>
                     </tbody>
@@ -465,7 +466,7 @@
                     </tbody>
                 </table>
                 <div class="p-3">
-                    <a routerLink="./tasks" class="text-muted text-decoration-underline">See more...</a>
+                    <a [routerLink]="['tasks/unfinished']" [queryParams]="{from: fromDate, to: toDate}" class="text-muted text-decoration-underline">See more...</a>
                 </div>
             </div>
             <ng-template #noUnfinished>

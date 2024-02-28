@@ -99,6 +99,7 @@ export class AchievementsComponent {
   
   userData: any
   datePlaceholder: string
+  dateRange = {from: new Date(), to: new Date()}
 
   constructor(
     private apiService: restApiService, 
@@ -106,27 +107,17 @@ export class AchievementsComponent {
     private breakpointObserver: BreakpointObserver,
     private tokenService: TokenStorageService
   ) {
-    const today = new Date()
-    this.month = today.getMonth() + 1
-    this.year = today.getFullYear()
-    const lastDayOfMonth = common.getLastDayOfMonth(this.year, this.month)
-    const monthFilter = this.month < 10 ? `0${this.month}` : `${this.month}`
+    this.month = new Date().getMonth() + 1
+    this.year = new Date().getFullYear()
 
-    this.fromDate = `${this.year}-${monthFilter}-01`
-    this.toDate = `${this.year}-${monthFilter}-${lastDayOfMonth}`
+    this.fromDate = this.getDefaultFromDate()
+    this.toDate = this.getDefaultToDate()
 
     this.datePlaceholder = `${common.getMonthName(this.month)} ${this.year}`
 
     this.breakpointObserver.observe([Breakpoints.XSmall]).subscribe(result => {
-      this.isSmallScreen = result.breakpoints[Breakpoints.XSmall]
+    this.isSmallScreen = result.breakpoints[Breakpoints.XSmall]
     })
-  }
-
-  onChangeDate() {
-    // if (this.monthBefore !== this.month || this.yearBefore !== this.year) {
-    //   this.apiService.resetCachedData()
-    //   this.ngOnInit()
-    // }
   }
 
   onChangeDateRange(event: any) {
@@ -143,11 +134,33 @@ export class AchievementsComponent {
   }
 
   ngOnDestroy() {
-    const today = new Date()
-    const month = today.getMonth() + 1
-    if (this.month != month) {
+    const fromDate = this.getDefaultFromDate()
+    const toDate = this.getDefaultToDate()
+    console.log(fromDate, toDate);
+    console.log(this.fromDate, this.toDate);
+    
+    if (this.fromDate != fromDate || this.toDate != toDate) {
+      console.log("Success");
       this.apiService.resetCachedData()
+    } else {
+      console.log("Failed");
+      
     }
+  }
+
+  getDefaultFromDate(): string {
+    const [month, year] = [new Date().getMonth() + 1, new Date().getFullYear()]
+    const monthFilter = month < 10 ? `0${month}` : `${month}`
+    const fromDate = `${year}-${monthFilter}-01`
+    return fromDate
+  }
+
+  getDefaultToDate(): string {
+    const [month, year] = [new Date().getMonth() + 1, new Date().getFullYear()]
+    const lastDayOfMonth = this.common.getLastDayOfMonth(year, month)
+    const monthFilter = month < 10 ? `0${month}` : `${month}`
+    const toDate = `${year}-${monthFilter}-${lastDayOfMonth}`
+    return toDate
   }
 
   fromDateBefore!: string
@@ -155,6 +168,10 @@ export class AchievementsComponent {
 
   async ngOnInit() {
     this.userData = this.tokenService.getUser()
+    this.dateRange = {
+      from: new Date(this.fromDate),
+      to: new Date(this.toDate)
+    }
     await this.getTaskActivityCountToday()
     await this.getTaskDataByDate(this.fromDate, this.toDate).finally(() => this.isLoading = false)
     await this.getFindingUnfinishedByDate(this.fromDate, this.toDate).finally(() => this.isLoading = false)
@@ -169,26 +186,6 @@ export class AchievementsComponent {
     );
     this._periodComparisonChart('["--vz-danger", "--vz-secondary"]');
   }
-
-  async getTaskDataByDateRange(fromDate: string, toDate: string) {
-    return new Promise((resolve, reject) => {
-      this.isLoading = true;
-      this.apiService.getDashboardTaskByDateRange(fromDate, toDate).subscribe({
-        next: (res: any) => {
-          this.isLoading = false;
-          console.log(res);
-          resolve(true)
-        },
-        error: (err) => {
-          this.isLoading = false;
-          this.common.showServerErrorAlert(Const.ERR_GET_MSG("Task Data"), err)
-          reject(err);
-        }
-      })
-    })
-  }
-
-  //--new---------
 
   async getTaskActivityCountToday(month= new Date().getMonth() + 1, year= new Date().getFullYear()) {
     return new Promise((resolve, reject) => {
@@ -311,7 +308,7 @@ export class AchievementsComponent {
           
           this.findingUnfinishedActivity.rawData = data
           this.findingUnfinishedActivity.total = data.length
-          this.findingUnfinishedActivity.limitData = this.common.getRandomIndices(dataUnfinished.length, 5).map(index => dataUnfinished[index]);
+          this.findingUnfinishedActivity.limitData = data.slice(0, 5);
           resolve(true)
         },
         error: (err: any) => {
@@ -575,7 +572,7 @@ export class AchievementsComponent {
             if (index !== -1 && area) {
               const areaId = taskActivityChartData.rawData[config.dataPointIndex].area_id
               getTaskAreaActivityById(area, areaId)
-              window.scrollTo(0, 1620);
+              window.scrollTo(0, 1650);
             }
           }
         }

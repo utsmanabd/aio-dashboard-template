@@ -14,6 +14,7 @@ import { DetailTaskComponent } from './planner-task/detail-task/detail-task.comp
 import { LevelGuard } from '../core/guards/level.guard';
 import { UserManagementComponent } from './user-management/user-management.component';
 import { DetailActivityComponent } from './planner-task/detail-activity/detail-activity.component';
+import { UnfinishedActivityComponent } from './unfinished-activity/unfinished-activity.component';
 
 const routes: Routes = [
     {
@@ -32,7 +33,10 @@ const routes: Routes = [
       path: 'tasks/identity-task/:task-id',
       component: IdentityTaskComponent
     },
-
+    {
+      path: 'tasks/unfinished',
+      component: UnfinishedActivityComponent
+    },
     // Admin Route:
     {
       path: 'planner/tasks',

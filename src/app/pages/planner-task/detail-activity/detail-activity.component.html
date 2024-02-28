@@ -11,8 +11,6 @@
                 <a ngbNavLink (click)="onTabChange(data.m_area_id)">
                     {{ data.machine_area }}
                 </a>
-                <ng-template>
-                </ng-template>
             </li>
         </ul>
         <!-- Tab panes -->
@@ -50,10 +48,10 @@
                     </div>
                 </div>
                 <div>
-                    <!-- <div class="form-check form-switch form-switch-md" dir="ltr">
-                        <input type="checkbox" class="form-check-input" id="picSwitch" (change)="onUsernameCheck($event)">
-                        <label class="form-check-label" for="picSwitch">Use username as PIC</label>
-                    </div> -->
+                    <div class="form-check form-switch form-switch-md" dir="ltr">
+                        <input [checked]="isEditMode" type="checkbox" class="form-check-input" id="picSwitch" (change)="onEditModeChange($event)">
+                        <label class="form-check-label" for="picSwitch">Edit Mode</label>
+                    </div>
                 </div>
             </div>
             
@@ -62,6 +60,7 @@
                     <thead class="table-light">
                         <tr>
                             <th *ngFor="let col of tableColumns" scope="col">{{ col }}</th>
+                            <th scope="col" *ngIf="!isEditMode">Updated at</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -76,17 +75,83 @@
                             <td>{{ data.periode }}</td>
                             <td>{{data.category}}</td>
                             <td>
-                                <span class="{{ data.condition == 1 ? 'badge bg-secondary' : data.condition == 0 ? 'badge bg-danger' : '' }}">
+                                <span *ngIf="!isEditMode;else editCondition" class="{{ data.condition == 1 ? 'badge bg-secondary' : data.condition == 0 ? 'badge bg-danger' : '' }}">
                                     {{ data.condition == 1 ? 'OK' : data.condition == 0 ? 'NOT OK' : '-'}}
                                 </span>
+                                <ng-template #editCondition>
+                                    <div class="form-check form-radio-info mb-2">
+                                        <input class="form-check-input" type="radio"
+                                            name="flexRadioCondition{{data.task_activity_id}}"
+                                            [checked]="isConditionOk(data.condition)" value="1"
+                                            (change)="changeCondition($event, data.task_activity_id)"
+                                            id="flexRadioOK{{data.task_activity_id}}">
+                                        <label class="form-check-label ms-1"
+                                            for="flexRadioOK{{data.task_activity_id}}">Ok</label>
+                                    </div>
+    
+                                    <div class="form-check form-radio-info">
+                                        <input class="form-check-input" type="radio"
+                                            [checked]="isConditionNotOk(data.condition)" value="0"
+                                            (change)="changeCondition($event, data.task_activity_id)"
+                                            name="flexRadioCondition{{data.task_activity_id}}"
+                                            id="flexRadioNotOK{{data.task_activity_id}}">
+                                        <label class="form-check-label ms-1" for="flexRadioNotOK{{data.task_activity_id}}">
+                                            Not Ok</label>
+                                    </div>
+                                </ng-template>
                             </td>
-                            <td>{{data.comment ? data.comment : '-'}}</td>
                             <td>
-                                <div *ngIf="!data.picture" class="text-muted text-small">No image</div>
-                                <img *ngIf="data.picture" [src]="getImageSource(data.picture)" alt="activity_picture"
-                                        width="75" class="mb-2">
+                                <div *ngIf="!isEditMode">{{data.comment ? data.comment : '-'}}</div>
+                                <input *ngIf="isEditMode" [(ngModel)]="data.comment" id="comment{{data.task_activity_id}}"
+                                        class="form-control" placeholder="Enter comment"
+                                        name="comment{{ data.task_activity_id}}" />
                             </td>
-                            <td>{{data.pic ? data.pic : '-'}}</td>
+                            <td>
+                                <div *ngIf="!isEditMode">
+                                    <div *ngIf="!data.picture" class="text-muted text-small">No image</div>
+                                    <a  *ngIf="data.picture" href="javascript:void(0);" (click)="previewImage(data.task_activity_id)">
+                                        <img [src]="getImageSource(data.picture)" alt="activity_picture"
+                                            width="75" class="mb-2">
+                                    </a>
+                                </div>
+                                <div *ngIf="isEditMode" class="d-flex flex-column align-items-center mt-2">
+                                    <a href="javascript:void(0);" (click)="previewImage(data.task_activity_id)">
+                                        <img *ngIf="data.picture" [src]="getImageSource(data.picture)" alt="activity_picture"
+                                        width="75" class="mb-2">
+                                    </a>
+                                    
+                                    <div class="align-item-start">
+                                        <small *ngIf="data.picture" class="text-muted mb-1">Change picture: </small>
+                                        <input class="form-control form-control-sm" id="picture{{data.task_activity_id}}"
+                                            type="file" (change)="onImageSelected($event, data.task_activity_id)">
+                                    </div>
+                                    
+                                </div>
+                                
+                            </td>
+                            <td>
+                                <div *ngIf="!isEditMode">{{data.pic ? data.pic : '-'}}</div>
+                                <input  *ngIf="isEditMode"
+                                        type="text"
+                                        [(ngModel)]="data.pic" 
+                                        (ngModelChange)="onPicSearch(data.task_activity_id, data.pic)" 
+                                        id="pic{{data.task_activity_id}}" 
+                                        class="form-control" 
+                                        [class.is-invalid]="isSearchFailed(data.task_activity_id, data.pic)"
+                                        [disabled]="isUsernameChecked"
+                                        [ngbTypeahead]="search"
+                                        [editable]="false"
+                                        [resultFormatter]="formatter"
+                                        placeholder="Enter name" 
+                                        name="pic{{ data.task_activity_id}}" />
+                            </td>
+                            <td *ngIf="!isEditMode">
+                                <div *ngIf="data.updated_at">
+                                    <div class="fs-6">{{ common.getLocaleDate(data.updated_at) }}</div>
+                                    <span class="fs-7 text-muted"><small>{{ common.getTime(data.updated_at) }}</small></span>
+                                </div>
+                                <div *ngIf="!data.updated_at">-</div>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -96,4 +161,22 @@
         </div>
     </div>
     <!-- Nav tabs -->
+    <div class="card-footer" *ngIf="isEditMode">
+        <div class="d-flex justify-content-center mb-3">
+            <button *ngIf="!isLoading; else loadingButton" class="btn btn-success me-2"
+                (click)="onSaveChanges()" type="button">Save Changes</button>
+        </div>
+    </div>
 </div>
+<ng-template #loadingButton>
+    <button type="button" class="btn btn-success btn-load me-2" disabled>
+        <span class="d-flex align-items-center">
+            <span class="spinner-border flex-shrink-0" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </span>
+            <span class="flex-grow-1 ms-2">
+                Loading...
+            </span>
+        </span>
+    </button>
+</ng-template>
